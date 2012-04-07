@@ -1,0 +1,70 @@
+﻿using System;
+using System.ComponentModel;
+using System.Configuration;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Windows.Forms;
+using Bollywell.Hydra.Messaging;
+using Bollywell.Hydra.Messaging.Config;
+using Bollywell.Hydra.Messaging.Serializers;
+using Bollywell.Hydra.PubSubByType;
+
+namespace PubSubByTypeExample
+{
+    public partial class Form1 : Form
+    {
+        private Publisher<PstMessage> _publisher;
+        private Subscriber<PstMessage> _subscriber;
+
+        public Form1()
+        {
+            InitializeComponent();
+            this.Closing += Form1_Closing;
+
+            string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
+            int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
+            Services.DbConfigProvider = new AppDbConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"], pollIntervalMs);
+
+            SerialiseComboBox.SelectedIndexChanged += SerialiseComboBox_SelectedIndexChanged;
+            SerialiseComboBox.SelectedIndex = 0;
+        }
+
+        void SerialiseComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_subscriber != null) _subscriber.Dispose();
+
+            ISerializer<PstMessage> serializer;
+            if (SerialiseComboBox.Text == "DataContract") {
+                serializer = new HydraDataContractSerializer<PstMessage>();
+            } else {
+                serializer = new HydraJsonSerializer<PstMessage>();
+            }
+            _publisher = new Publisher<PstMessage>(serializer);
+            _subscriber = new Subscriber<PstMessage>(serializer);
+            _subscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnMessage, (_) => { });
+        }
+
+        private void OnMessage(PstMessage message)
+        {
+            MessageBox.Show("Received message: " + message);
+        }
+
+        private void SendBtn_Click(object sender, EventArgs e)
+        {
+            try {
+                string stringField = StringBox.Text;
+                long longField = long.Parse(LongBox.Text);
+                DateTime dateField = DateTime.Parse(DateBox.Text);
+                _publisher.Send(new PstMessage { StringField = stringField, LongField = longField, DateField = dateField });
+            } catch (Exception ex) {
+                MessageBox.Show("Error sending message: " + ex.Message);
+            }
+        }
+
+        void Form1_Closing(object sender, CancelEventArgs e)
+        {
+            _subscriber.Dispose();
+        }
+
+    }
+}

@@ -1,0 +1,15 @@
+﻿{
+   "_id": "_design/hydra",
+   "language": "javascript",
+   "views": {
+       "directedMessages": {
+           "map": "function(doc) { if (doc.type == 'message' && doc.destination)  emit([doc.topic, doc.destination, doc._id], doc._local_seq) }"
+       },
+       "broadcastMessages": {
+           "map": "function(doc) { if (doc.type == 'message' && !doc.handle && !doc.destination) emit([doc.topic, doc._id], doc._local_seq) }"
+       }
+   },
+   "options": {
+       "local_seq": true
+   }
+}

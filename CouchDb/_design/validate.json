@@ -1,0 +1,4 @@
+﻿{
+   "_id": "_design/validate",
+   "validate_doc_update": "function(newDoc, oldDoc, userCtx, secObj) {\n    if (newDoc.type == 'message' && oldDoc)\n        throw({forbidden: 'Id already exists'});\n}"
+}
