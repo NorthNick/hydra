@@ -31,3 +31,6 @@ If this is not the first instance of CouchDb, then set up replication.
       It's probably best to make the <machine_name> in source a FQDN to prevent ambiguity.
    c. Save the document. Check that it gets modified to say replication_state=triggered.
 3. For each of the replication targets above, create an equivalent pull replication in its _replicator database. Fields will be identical except that the machine name in source will be the machine on which you're installing CouchDb.
+
+Compaction
+Set up regular compaction. TBD.
