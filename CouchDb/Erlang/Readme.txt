@@ -20,12 +20,12 @@ Installation
 To modify CouchDb, do as follows. Here $CouchDb refers to the CouchDb installation directory, usually C:\Program Files (x86)\Apache Software Foundation\CouchDB
 
 1. Open a command prompt in this directory.
-2. Run the Erlang werl.exe program in that command window. This is found in the CouchDb installation tree, at something like $CouchDB\erts-5.8.4\bin\werl.exe.
+2. Run the Erlang werl.exe program in that command window. This is found in the CouchDb installation tree, at something like $CouchDB\erts-5.9\bin\werl.exe.
 3. In the resulting window, type
    c(couch_uuids).
    including the final dot, and then hit return. That should yield {ok,couch_uuids}. Type halt().<return> to exit Erlang.
 4. You should now have a couch_uuids.beam file in this directory. Stop the Apache CouchDb service if it's running; copy couch_uuids.beam to the CouchDb binary directory at somewhere like
-   $CouchDB\lib\couch-1.1.1\ebin, replacing the existing copy.
+   $CouchDB\lib\couch-1.2.0\ebin, replacing the existing copy.
 5. Edit $CouchDB\etc\couchdb\local.ini to add a line in the [couchdb] section along the lines of
    machine_id = 3
    (the value of machine_id must be different for each instance of CouchDb, and must be <= 255).

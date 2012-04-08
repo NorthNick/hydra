@@ -1,17 +1,24 @@
 ﻿CouchDb setup
 -------------
 
-First modify Erlang as described in Erlang\Readme.txt
+Install CouchDb Version 1.2: get the installer from couchdb.apache.org. Install.
+
+Then modify Erlang as described in Erlang\Readme.txt
 
 If this is the first instance of CouchDb, create the Hydra database as below. Otherwise go to the config step.
 
 1. In Futon create an admin logon with the standard username and password (currently admin/match)
-2. Create a new database called Hydra.
-3. Add the design documents in the _design directory to the Hydra database.
+2. Log in as your admin user.
+3. Click Create database and enter a name for your Hydra database. Example programs in the Hydra distribution assume the database is called hydra, but this can be changed in app.config.
+4. Go into your new database and create design documents as follows:
+   Click New document, then click the Source box on the resulting page.
+   Replace the text with the contents of the validate.json file from the CouchDb project in the Hydra distribution.
+   Click Save document.
+   Repeat with the contents of the hydra.json document.
 
 Config
 1. In Futon, go to Configuration.
-2. Set bind_address=0.0.0.0, delayed_commits=false, max_retry_count=infinity
+2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false.
 3. Ensure that algorithm=utc_machine_id (this should have been done during the Erlang changes above).
 4. Ensure that machine_id is a unique value across all CouchDb instances (see the Erlang changes for a bit more on this).
 
@@ -23,5 +30,4 @@ If this is not the first instance of CouchDb, then set up replication.
    b. Give it fields create_target=true, continuous=true, source=http://admin:match@<machine_name>:5984/hydra, target=http://admin:match@127.0.0.1:5984/hydra
       It's probably best to make the <machine_name> in source a FQDN to prevent ambiguity.
    c. Save the document. Check that it gets modified to say replication_state=triggered.
-3. For each of the replication targets above, create an equivalent pull replication in its _replicator database. Fileds will be identical except that the machine name
-   in source will be the machine on which you're installing CouchDb.
+3. For each of the replication targets above, create an equivalent pull replication in its _replicator database. Fields will be identical except that the machine name in source will be the machine on which you're installing CouchDb.
