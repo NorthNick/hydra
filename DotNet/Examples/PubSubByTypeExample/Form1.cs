@@ -41,7 +41,7 @@ namespace PubSubByTypeExample
             }
             _publisher = new Publisher<PstMessage>(serializer);
             _subscriber = new Subscriber<PstMessage>(serializer);
-            _subscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnMessage, (_) => { });
+            _subscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnMessage, _ => { });
         }
 
         private void OnMessage(PstMessage message)

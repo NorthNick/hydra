@@ -1,10 +1,11 @@
 using System;
 using Bollywell.Hydra.Messaging.Config;
+using LoveSeat;
 
 namespace Bollywell.Hydra.Messaging
 {
     /// <summary>
-    /// Manages knowledge on the location of the Message Centre to poll. When OPS.Cloud is running it should update its
+    /// Manages knowledge on the location of the Hydra server to poll. In a cloud environment it should update its
     /// info periodically and change the config if necessary.
     /// </summary>
     public class Services
@@ -21,5 +22,12 @@ namespace Bollywell.Hydra.Messaging
             if (DbConfigProvider == null) throw new Exception("Services.DbConfigProvider has not been initialised");
             return DbConfigProvider.GetConfig();
         }
+
+        public static CouchDatabase GetDb()
+        {
+            var config = GetConfig();
+            return new CouchClient(config.HydraServer, 5984, null, null, false, AuthenticationType.Basic).GetDatabase(config.Database);
+        }
+
     }
 }

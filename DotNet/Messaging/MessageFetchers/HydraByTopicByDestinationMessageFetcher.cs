@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using LoveSeat;
-using Newtonsoft.Json.Linq;
+﻿using LoveSeat;
+using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.MessageFetchers
 {
@@ -12,23 +11,19 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
         /// <summary>
         /// Initialise HydraByTopicByDestinationMessageFetcher
         /// </summary>
-        /// <param name="startId"> </param>
         /// <param name="topic">The topic for which to fetch messages</param>
         /// <param name="destination">The destination for which to fetch messages</param>
-        public HydraByTopicByDestinationMessageFetcher(IMessageId startId, string topic, string destination) : base(startId)
+        public HydraByTopicByDestinationMessageFetcher(string topic, string destination)
         {
             _topic = topic;
             _destination = destination;
         }
 
-        protected override IEnumerable<JToken> AllMessagesFrom(IMessageId fromId, IMessageId toId = null)
-        {
-            // The mceDirectedMessages view is indexed on [topic, destination, id]
-            var options = new ViewOptions { IncludeDocs = true, InclusiveEnd = true };
-            options.StartKey.Add(_topic, _destination, fromId.ToDocId());
-            options.EndKey.Add(_topic, _destination, toId == null ? CouchValue.MaxValue : toId.ToDocId());
-            return GetDb().View("directedMessages", options, "hydra").Rows;
-        }
+        protected override string DesignDoc { get { return "hydra"; } }
+        protected override string ViewName { get { return "directedMessages"; } }
+
+        protected override IKeyOptions EndKey() { return new KeyOptions(_topic, _destination, CouchValue.MaxValue); }
+        protected override IKeyOptions MessageKey(IMessageId id) { return new KeyOptions(_topic, _destination, id.ToDocId()); }
 
     }
 }

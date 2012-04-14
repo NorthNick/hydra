@@ -4,6 +4,7 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
 {
     public interface IMessageFetcher<TMessage> where TMessage : TransportMessage
     {
-        List<TMessage> AllNewMessages();
+        IEnumerable<TMessage> MessagesFromIdBeforeSeq(IMessageId startId, long lastSeq);
+        IEnumerable<TMessage> MessagesInSet(IEnumerable<IMessageId> messageIds);
     }
 }

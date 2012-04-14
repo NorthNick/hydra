@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using LoveSeat;
-using Newtonsoft.Json.Linq;
+﻿using LoveSeat;
+using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.MessageFetchers
 {
@@ -8,18 +7,16 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
     {
         private readonly string _topic;
 
-        public HydraByTopicMessageFetcher(IMessageId startId, string topic) : base(startId)
+        public HydraByTopicMessageFetcher(string topic)
         {
             _topic = topic;
         }
 
-        protected override IEnumerable<JToken> AllMessagesFrom(IMessageId fromId, IMessageId toId = null)
-        {
-            // The mceBroadcastMessages view is indexed on [topic, id]
-            var options = new ViewOptions { IncludeDocs = true, InclusiveEnd = true };
-            options.StartKey.Add(_topic, fromId.ToDocId());
-            options.EndKey.Add(_topic, toId == null ? CouchValue.MaxValue : toId.ToDocId());
-            return GetDb().View("broadcastMessages", options, "hydra").Rows;
-        }
+        protected override string DesignDoc { get { return "hydra"; } }
+        protected override string ViewName { get { return "broadcastMessages"; } }
+
+        protected override IKeyOptions EndKey() { return new KeyOptions(_topic, CouchValue.MaxValue); }
+        protected override IKeyOptions MessageKey(IMessageId id) { return new KeyOptions(_topic, id.ToDocId()); }
+
     }
 }

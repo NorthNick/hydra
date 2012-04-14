@@ -18,8 +18,7 @@ namespace Bollywell.Hydra.PubSubByType
         public Subscriber(ISerializer<TSub> serializer = null)
         {
             _serializer = serializer ?? new HydraDataContractSerializer<TSub>();
-            IMessageId startId = TransportMessage.MessageIdForDate(DateTime.UtcNow);
-            _poller = new GuaranteedDeliveryPoller<HydraMessage>(new HydraByTopicMessageFetcher(startId, typeof (TSub).FullName));
+            _poller = new Poller<HydraMessage>(new HydraByTopicMessageFetcher(typeof (TSub).FullName));
             _messageSource = _poller.Select(hydraMessage => _serializer.Deserialize(hydraMessage.Data));
             _messageSource.Subscribe(MessageSourceOnNext);
         }

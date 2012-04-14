@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-using Bollywell.Hydra.Messaging;
+﻿using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Serializers;
 
 namespace Bollywell.Hydra.PubSubByType

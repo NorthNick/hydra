@@ -66,6 +66,7 @@
     <Compile Include="MessageFetchers\HydraByTopicByDestinationMessageFetcher.cs" />
     <Compile Include="MessageFetchers\HydraByTopicMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MessageFetcherBase.cs" />
+    <Compile Include="Pollers\Poller.cs" />
     <Compile Include="Serializers\HydraDataContractSerializer.cs" />
     <Compile Include="Serializers\HydraJsonSerializer.cs" />
     <Compile Include="Serializers\ISerializer.cs" />
@@ -74,9 +75,7 @@
     <Compile Include="MessageFetchers\IMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MultiFetcher.cs" />
     <Compile Include="Services.cs" />
-    <Compile Include="Pollers\GuaranteedDeliveryPoller.cs" />
     <Compile Include="Pollers\IPoller.cs" />
-    <Compile Include="Pollers\PollerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
