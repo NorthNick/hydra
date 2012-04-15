@@ -6,17 +6,20 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
     public class HydraByTopicMessageFetcher : MessageFetcherBase<HydraMessage>
     {
         private readonly string _topic;
+        private readonly IKeyOptions _endKey;
 
         public HydraByTopicMessageFetcher(string topic)
         {
             _topic = topic;
+            _endKey = new KeyOptions(_topic, CouchValue.MaxValue);
         }
 
         protected override string DesignDoc { get { return "hydra"; } }
         protected override string ViewName { get { return "broadcastMessages"; } }
 
-        protected override IKeyOptions EndKey() { return new KeyOptions(_topic, CouchValue.MaxValue); }
+        // The broadcastMessages view is indexed on [topic, id]
         protected override IKeyOptions MessageKey(IMessageId id) { return new KeyOptions(_topic, id.ToDocId()); }
+        protected override IKeyOptions EndKey() { return _endKey; }
 
     }
 }

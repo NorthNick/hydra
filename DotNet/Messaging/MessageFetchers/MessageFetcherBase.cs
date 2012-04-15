@@ -11,8 +11,8 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
         protected abstract string DesignDoc { get; }
         protected abstract string ViewName { get; }
 
-        protected abstract IKeyOptions EndKey();
         protected abstract IKeyOptions MessageKey(IMessageId id);
+        protected abstract IKeyOptions EndKey();
 
         #region Implementation of IMessageFetcher<TMessage>
 
@@ -32,7 +32,6 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
 
         private IEnumerable<JToken> AllMessagesFrom(IMessageId fromId)
         {
-            // The mceDirectedMessages view is indexed on [topic, destination, id]
             var options = new ViewOptions { IncludeDocs = true, StartKey = MessageKey(fromId), EndKey = EndKey() };
             return Services.GetDb().View(ViewName, options, DesignDoc).Rows;
         }

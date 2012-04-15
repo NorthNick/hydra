@@ -7,6 +7,7 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
     {
         private readonly string _topic;
         private readonly string _destination;
+        private readonly IKeyOptions _endKey;
 
         /// <summary>
         /// Initialise HydraByTopicByDestinationMessageFetcher
@@ -17,13 +18,15 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
         {
             _topic = topic;
             _destination = destination;
+            _endKey = new KeyOptions(_topic, _destination, CouchValue.MaxValue);
         }
 
         protected override string DesignDoc { get { return "hydra"; } }
         protected override string ViewName { get { return "directedMessages"; } }
 
-        protected override IKeyOptions EndKey() { return new KeyOptions(_topic, _destination, CouchValue.MaxValue); }
+        // The directedMessages view is indexed on [topic, destination, id]
         protected override IKeyOptions MessageKey(IMessageId id) { return new KeyOptions(_topic, _destination, id.ToDocId()); }
+        protected override IKeyOptions EndKey() { return _endKey; }
 
     }
 }
