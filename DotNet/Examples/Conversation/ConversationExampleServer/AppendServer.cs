@@ -29,7 +29,7 @@ namespace Bollywell.Hydra.ConversationExampleServer
                     break;
                 case MessageTypes.End:
                     _subscription.Dispose();
-                    _conversation.Done();
+                    _conversation.Dispose();
                     break;
             }
         }

@@ -41,7 +41,7 @@ namespace Bollywell.Hydra.ConversationExampleClient
         {
             _conversation.Send(new ConversationDto { MessageType = MessageTypes.End });
             _subscription.Dispose();
-            _conversation.Done();
+            _conversation.Dispose();
         }
     }
 }

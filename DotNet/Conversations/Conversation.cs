@@ -5,7 +5,7 @@ using Bollywell.Hydra.Messaging.Serializers;
 
 namespace Bollywell.Hydra.Conversations
 {
-    public class Conversation<TMessage> : IObservable<TMessage>
+    public class Conversation<TMessage> : IObservable<TMessage>, IDisposable
     {
         private ISerializer<TMessage> _serializer;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
@@ -42,16 +42,6 @@ namespace Bollywell.Hydra.Conversations
             hydraMessage.Send();
         }
 
-        /// <summary>
-        /// Call this when the conversation is over. Notifies the switchboard that it should ignore future messages with this handle.
-        /// </summary>
-        public void Done()
-        {
-            _done = true;
-            if (DoneEvent == null) return;
-            DoneEvent(this);
-        }
-
         #region Implementation of IObservable<out TMessage>
 
         public IDisposable Subscribe(IObserver<TMessage> observer)
@@ -60,5 +50,29 @@ namespace Bollywell.Hydra.Conversations
         }
 
         #endregion
+
+        #region Implementation of IDisposable
+
+        // See http://msdn.microsoft.com/en-us/library/ms244737.aspx
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                // free managed resources
+                _done = true;
+                _subject.Dispose();
+                if (DoneEvent != null) DoneEvent(this);
+            }
+            // free native resources if there are any.
+        }
+
+        #endregion
+
     }
 }
