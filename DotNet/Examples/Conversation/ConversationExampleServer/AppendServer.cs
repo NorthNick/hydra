@@ -1,25 +1,35 @@
-﻿using Bollywell.Hydra.Conversation;
+﻿using System;
+using Bollywell.Hydra.Conversations;
 using Bollywell.Hydra.ConversationExampleDto;
 
 namespace Bollywell.Hydra.ConversationExampleServer
 {
-    class AppendServer : ConversationBase<ConversationDto>
+    class AppendServer
     {
+        private readonly Conversation<ConversationDto> _conversation;
+        private readonly IDisposable _subscription;
         private string _suffix;
 
-        public override void OnMessage(ConversationDto message)
+        public AppendServer(Conversation<ConversationDto> conversation)
+        {
+            _conversation = conversation;
+            _subscription = conversation.Subscribe(OnNext);
+        }
+
+        private void OnNext(ConversationDto message)
         {
             // Ignore invalid messages
             switch (message.MessageType) {
                     case MessageTypes.Init:
                     _suffix = message.Data;
-                    Send(new ConversationDto { MessageType = MessageTypes.Ack });
+                    _conversation.Send(new ConversationDto { MessageType = MessageTypes.Ack });
                     break;
                 case MessageTypes.Request:
-                    Send(new ConversationDto { MessageType = MessageTypes.Response, Data = message.Data + _suffix });
+                    _conversation.Send(new ConversationDto { MessageType = MessageTypes.Response, Data = message.Data + _suffix });
                     break;
                 case MessageTypes.End:
-                    Done();
+                    _subscription.Dispose();
+                    _conversation.Done();
                     break;
             }
         }

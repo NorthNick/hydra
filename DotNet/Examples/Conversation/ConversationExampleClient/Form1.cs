@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Windows.Forms;
-using Bollywell.Hydra.Conversation;
+using Bollywell.Hydra.Conversations;
 using Bollywell.Hydra.ConversationExampleDto;
 using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Config;
@@ -11,7 +11,7 @@ namespace Bollywell.Hydra.ConversationExampleClient
     public partial class Form1 : Form
     {
         private const string MyName = "AppendClient";
-        private readonly Switchboard<AppendClient, ConversationDto> _switchboard;
+        private readonly Switchboard<ConversationDto> _switchboard;
 
         public Form1()
         {
@@ -21,15 +21,14 @@ namespace Bollywell.Hydra.ConversationExampleClient
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
             Services.DbConfigProvider = new AppDbConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"], pollIntervalMs);
 
-            _switchboard = new Switchboard<AppendClient, ConversationDto>(MyName);
+            _switchboard = new Switchboard<ConversationDto>(MyName);
         }
 
         private void NewBtn_Click(object sender, EventArgs e)
         {
             var client = _switchboard.NewConversation("AppendServer");
             var clientUi = new AppendClientUi();
-            clientUi.Init(client);
-            client.Init(SuffixBox.Text);
+            clientUi.Init(client, SuffixBox.Text);
             ClientPanel.Controls.Add(clientUi);
         }
 

@@ -8,15 +8,15 @@ using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.Pollers;
 using Bollywell.Hydra.Messaging.Serializers;
 
-namespace Bollywell.Hydra.Conversation
+namespace Bollywell.Hydra.Conversations
 {
-    public class Switchboard<TConversation, TMessage> : IObservable<TConversation>, IDisposable where TConversation : ConversationBase<TMessage>, new()
+    public class Switchboard<TMessage> : IObservable<Conversation<TMessage>>, IDisposable
     {
         // Maps handles to their conversations
-        private readonly Dictionary<string, TConversation> _conversations = new Dictionary<string, TConversation>();
+        private readonly Dictionary<string, Conversation<TMessage>> _conversations = new Dictionary<string, Conversation<TMessage>>();
         private readonly HashSet<string> _deadConversations = new HashSet<string>();
         private readonly Poller<HydraMessage> _poller;
-        private readonly Subject<TConversation> _subject = new Subject<TConversation>();
+        private readonly Subject<Conversation<TMessage>> _subject = new Subject<Conversation<TMessage>>();
         private readonly ISerializer<TMessage> _serializer;
         private readonly string _thisParty;
         private readonly string _topic;
@@ -46,7 +46,7 @@ namespace Bollywell.Hydra.Conversation
         /// </summary>
         /// <param name="remoteParty">The other party in the conversation.</param>
         /// <returns>The conversation</returns>
-        public TConversation NewConversation(string remoteParty)
+        public Conversation<TMessage> NewConversation(string remoteParty)
         {
             string handle = Guid.NewGuid().ToString("N");
             return CreateNewConversation(remoteParty, handle);
@@ -60,12 +60,12 @@ namespace Bollywell.Hydra.Conversation
             if (!_conversations.ContainsKey(handle)) {
                 CreateNewConversation(message.Source, handle);
             }
-            _conversations[handle].OnMessage(_serializer.Deserialize(message.Data));
+            _conversations[handle].OnNext(_serializer.Deserialize(message.Data));
         }
 
-        private TConversation CreateNewConversation(string remoteParty, string handle)
+        private Conversation<TMessage> CreateNewConversation(string remoteParty, string handle)
         {
-            var conversation = new TConversation();
+            var conversation = new Conversation<TMessage>();
             conversation.DoneEvent += ConversationDoneEvent;
             conversation.BaseInit(_thisParty, remoteParty, _topic, handle, _serializer);
             _conversations[handle] = conversation;
@@ -75,15 +75,15 @@ namespace Bollywell.Hydra.Conversation
 
         private void ConversationDoneEvent(object obj)
         {
-            var conversation = (TConversation) obj;
+            var conversation = (Conversation<TMessage>) obj;
             conversation.DoneEvent -= ConversationDoneEvent;
-            _conversations.Remove(conversation.Handle);
+            if (_conversations.ContainsKey(conversation.Handle)) _conversations.Remove(conversation.Handle);
             _deadConversations.Add(conversation.Handle);
         }
 
         #region Implementation of IObservable<out TConversation>
 
-        public IDisposable Subscribe(IObserver<TConversation> observer)
+        public IDisposable Subscribe(IObserver<Conversation<TMessage>> observer)
         {
             return _subject.Subscribe(observer);
         }
