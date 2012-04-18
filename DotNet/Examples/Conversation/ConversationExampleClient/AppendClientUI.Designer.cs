@@ -1,6 +1,6 @@
 ﻿namespace Bollywell.Hydra.ConversationExampleClient
 {
-    partial class AppendClient
+    partial class AppendClientUi
     {
         /// <summary> 
         /// Required designer variable.
@@ -99,7 +99,7 @@
             this.EndBtn.UseVisualStyleBackColor = true;
             this.EndBtn.Click += new System.EventHandler(this.EndBtn_Click);
             // 
-            // AppendClient
+            // AppendClientUi
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -111,7 +111,7 @@
             this.Controls.Add(this.ResponseLbl);
             this.Controls.Add(this.SuffixLbl);
             this.Controls.Add(this.HandleLbl);
-            this.Name = "AppendClient";
+            this.Name = "AppendClientUi";
             this.Size = new System.Drawing.Size(222, 128);
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -49,11 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppendClient.cs">
+    <Compile Include="AppendClient.cs" />
+    <Compile Include="AppendClientUi.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="AppendClient.Designer.cs">
-      <DependentUpon>AppendClient.cs</DependentUpon>
+    <Compile Include="AppendClientUi.Designer.cs">
+      <DependentUpon>AppendClientUi.cs</DependentUpon>
     </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -63,8 +64,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AppendClient.resx">
-      <DependentUpon>AppendClient.cs</DependentUpon>
+    <EmbeddedResource Include="AppendClientUi.resx">
+      <DependentUpon>AppendClientUi.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -93,6 +94,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Conversation\Conversation.csproj">
+      <Project>{f517fe6e-d620-430f-917c-baf1a0f17a75}</Project>
+      <Name>Conversation</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Messaging\Messaging.csproj">
       <Project>{43bfa34d-4d3e-4a6b-b49d-8c327dff918c}</Project>
       <Name>Messaging</Name>

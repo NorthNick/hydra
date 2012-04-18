@@ -62,10 +62,12 @@ namespace Bollywell.Hydra.Messaging.Pollers
             }
 
             var delayedId = TransportMessage.MessageIdForDate(DateTime.UtcNow.AddMilliseconds(-_bufferDelayMs));
-            foreach (var message in _messageBuffer.TakeWhile(m => m.MessageId.CompareTo(delayedId) <= 0)) {
+            var newMessages = _messageBuffer.TakeWhile(m => m.MessageId.CompareTo(delayedId) <= 0);
+            // Update _messageBuffer before raising message events so that errors in processing them do not prevent the update.
+            _messageBuffer = _messageBuffer.SkipWhile(m => m.MessageId.CompareTo(delayedId) <= 0).ToList();
+            foreach (var message in newMessages) {
                 OnMessageInQueue(message);
             }
-            _messageBuffer = _messageBuffer.SkipWhile(m => m.MessageId.CompareTo(delayedId) <= 0).ToList();
         }
 
         private static IEnumerable<IMessageId> GetChanges(long sinceSeq, out long lastSeq)

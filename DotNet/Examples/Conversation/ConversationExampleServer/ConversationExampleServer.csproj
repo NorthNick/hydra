@@ -86,6 +86,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Conversation\Conversation.csproj">
+      <Project>{f517fe6e-d620-430f-917c-baf1a0f17a75}</Project>
+      <Name>Conversation</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Messaging\Messaging.csproj">
       <Project>{43bfa34d-4d3e-4a6b-b49d-8c327dff918c}</Project>
       <Name>Messaging</Name>

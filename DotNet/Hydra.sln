@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConversationExampleClient",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConversationExampleServer", "Examples\Conversation\ConversationExampleServer\ConversationExampleServer.csproj", "{B42EB5F3-EA9C-4EF0-BCB4-0F0E81CAE1C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conversation", "Conversation\Conversation.csproj", "{F517FE6E-D620-430F-917C-BAF1A0F17A75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{B42EB5F3-EA9C-4EF0-BCB4-0F0E81CAE1C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B42EB5F3-EA9C-4EF0-BCB4-0F0E81CAE1C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B42EB5F3-EA9C-4EF0-BCB4-0F0E81CAE1C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F517FE6E-D620-430F-917C-BAF1A0F17A75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F517FE6E-D620-430F-917C-BAF1A0F17A75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F517FE6E-D620-430F-917C-BAF1A0F17A75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F517FE6E-D620-430F-917C-BAF1A0F17A75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
