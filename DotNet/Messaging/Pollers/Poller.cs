@@ -16,16 +16,24 @@ namespace Bollywell.Hydra.Messaging.Pollers
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
 
         private List<TMessage> _messageBuffer = new List<TMessage>();
-        private readonly IMessageId _startId;
+        private IMessageId _startId, _lastId;
         private bool _firstPoll = true;
         private long _lastSeq;
         private readonly double _bufferDelayMs;
 
+        /// <summary>
+        /// Construct a Poller and start it polling.
+        /// </summary>
+        /// <param name="messageFetcher">IMessageFetcher with which to poll.</param>
+        /// <param name="bufferDelayMs">Buffer messages for this many ms to allow late arriving messages to be sorted into order. Defaults to 0.</param>
+        /// <param name="startId">Only fetch messages with higher id than startId. Defaults to the id corresponding to now.</param>
+        /// <remarks>The polling interval is taken from Service.GetConfig().PollIntervalMs and is dynamic: changes take effect after the next poll.</remarks>
         public Poller(IMessageFetcher<TMessage> messageFetcher, long bufferDelayMs = 0, IMessageId startId = null)
         {
             MessageFetcher = messageFetcher;
             _bufferDelayMs = bufferDelayMs;
             _startId = startId ?? TransportMessage.MessageIdForDate(DateTime.UtcNow);
+            _lastId = _startId;
             // Set timer to fire just once
             Timer = new Timer(TimerOnElapsed, null, Services.GetConfig().PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
         }
@@ -40,8 +48,8 @@ namespace Bollywell.Hydra.Messaging.Pollers
             // Do it all inside a try..finally so that the timer gets restarted no matter what happens.
             try {
                 Poll();
-            } catch (Exception) {
-                // TODO: log error
+            } catch (Exception ex) {
+                // TODO: detect failure of the server to repond and call SwitchServer if the situation remains bad.
             } finally {
                 Timer.Change(Services.GetConfig().PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
             }
@@ -53,7 +61,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 // Populate _messageBuffer from _startId
                 _lastSeq = GetLastSeq();
                 // Fetch messages from _startId, ignoring ones after _lastSeq.
-                _messageBuffer = MessageFetcher.MessagesFromIdBeforeSeq(_startId, _lastSeq).ToList();
+                _messageBuffer = MessageFetcher.MessagesAfterIdBeforeSeq(_startId, _lastSeq).ToList();
                 _firstPoll = false;
             } else {
                 // Get changes from _lastSeq. Fetch messages in the change set and put in _messageBuffer.
@@ -62,17 +70,19 @@ namespace Bollywell.Hydra.Messaging.Pollers
             }
 
             var delayedId = TransportMessage.MessageIdForDate(DateTime.UtcNow.AddMilliseconds(-_bufferDelayMs));
-            var newMessages = _messageBuffer.TakeWhile(m => m.MessageId.CompareTo(delayedId) <= 0);
+            var newMessages = _messageBuffer.TakeWhile(m => m.MessageId.CompareTo(delayedId) <= 0).ToList();
             // Update _messageBuffer before raising message events so that errors in processing them do not prevent the update.
-            _messageBuffer = _messageBuffer.SkipWhile(m => m.MessageId.CompareTo(delayedId) <= 0).ToList();
+            _messageBuffer = _messageBuffer.Skip(newMessages.Count).ToList();
             foreach (var message in newMessages) {
+                // Track the last message processed in case we swap servers.
+                _lastId = message.MessageId;
                 OnMessageInQueue(message);
             }
         }
 
-        private static IEnumerable<IMessageId> GetChanges(long sinceSeq, out long lastSeq)
+        private IEnumerable<IMessageId> GetChanges(long sinceSeq, out long lastSeq)
         {
-            // Get changes after sinceSeq, and throw out non-messages e.g. design doc updates.
+            // Get changes after sinceSeq, throw out non-messages e.g. design doc updates, and drop message at or before _startId
 
             // Loveseat doesn't have a _changes call, so it has to be done like this.
             var changes = Services.GetDb().GetDocument(string.Format("_changes?since={0}", sinceSeq));
@@ -83,7 +93,8 @@ namespace Bollywell.Hydra.Messaging.Pollers
             //            ],
             //  "last_seq":28313}
             lastSeq = (long) changes["last_seq"];
-            return changes["results"].Select(jObj => (string) jObj["id"]).Where(LongMessageId.IsMessageId).Select(id => new LongMessageId(id)).OrderBy(mId => mId);
+            return changes["results"].Select(jObj => (string) jObj["id"]).Where(LongMessageId.IsMessageId).Select(id => new LongMessageId(id))
+                    .OrderBy(mId => mId).SkipWhile(mId => mId.CompareTo(_startId) <= 0);
         }
 
         private static long GetLastSeq()
@@ -114,10 +125,26 @@ namespace Bollywell.Hydra.Messaging.Pollers
 
         #endregion
 
+        #region Switch server
+
+        private void SwitchServer()
+        {
+            // The new server will have a different changes feed, so reinitialise from _lastId.
+            _firstPoll = true;
+            _startId = _lastId;
+            Services.DbConfigProvider.SwitchServer();
+        }
+
+        #endregion
+
+        # region Implementation of IObservable<TMessage>
+
         public IDisposable Subscribe(IObserver<TMessage> observer)
         {
             return _subject.Subscribe(observer);
         }
+
+        #endregion
 
         #region Implementation of IDisposable
 

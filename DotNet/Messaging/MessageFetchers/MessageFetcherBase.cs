@@ -16,9 +16,10 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
 
         #region Implementation of IMessageFetcher<TMessage>
 
-        public IEnumerable<TMessage> MessagesFromIdBeforeSeq(IMessageId startId, long lastSeq)
+        public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(IMessageId startId, long lastSeq)
         {
-            return AllMessagesFrom(startId).Where(row => (long) row["value"] <= lastSeq).Select(TransportMessage.Hydrate<TMessage>);
+            return AllMessagesFrom(startId).Where(row => (long) row["value"] <= lastSeq).Select(TransportMessage.Hydrate<TMessage>)
+                    .SkipWhile(message => message.MessageId == startId);
         }
 
         public IEnumerable<TMessage> MessagesInSet(IEnumerable<IMessageId> messageIds)
@@ -32,6 +33,7 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
 
         private IEnumerable<JToken> AllMessagesFrom(IMessageId fromId)
         {
+            // CouchDb startkey is inclusive, so this returns messages including fromId
             var options = new ViewOptions { IncludeDocs = true, StartKey = MessageKey(fromId), EndKey = EndKey() };
             return Services.GetDb().View(ViewName, options, DesignDoc).Rows;
         }
