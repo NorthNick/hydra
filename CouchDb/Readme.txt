@@ -33,7 +33,7 @@ If this is not the first instance of CouchDb, then set up replication.
 3. For each of the replication targets above, create an equivalent pull replication in its _replicator database. Fields will be identical except that the machine name in source will be the machine on which you're installing CouchDb.
 
 Compaction
-Set up regular compaction. This is a new feature in CouchDb 1.2 and it's not yet clear which setting work best. They will also depend on the volume of Hydra traffic in your database, so you should experiment.
+If you are using CouchDb 1.2, you can set up regular compaction. This is a new feature and it's not yet clear which setting work best. They will also depend on the volume of Hydra traffic in your database, so you should experiment.
 1. In Futon, go to Configuration
 2. Click the "Add a new section" link at the bottom of the page.
 3. Set section=compaction, option=hydra (or whatever name you are using for your hydra database), and
