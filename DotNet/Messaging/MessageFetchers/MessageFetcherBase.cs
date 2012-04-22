@@ -16,26 +16,26 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
 
         #region Implementation of IMessageFetcher<TMessage>
 
-        public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(IMessageId startId, long lastSeq)
+        public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(CouchDatabase db, IMessageId startId, long lastSeq)
         {
-            return AllMessagesFrom(startId).Where(row => (long) row["value"] <= lastSeq).Select(TransportMessage.Hydrate<TMessage>)
+            return AllMessagesFrom(db, startId).Where(row => (long) row["value"] <= lastSeq).Select(TransportMessage.Hydrate<TMessage>)
                     .SkipWhile(message => message.MessageId == startId);
         }
 
-        public IEnumerable<TMessage> MessagesInSet(IEnumerable<IMessageId> messageIds)
+        public IEnumerable<TMessage> MessagesInSet(CouchDatabase db, IEnumerable<IMessageId> messageIds)
         {
             var options = new ViewOptions { IncludeDocs = true, Keys = messageIds.Select(MessageKey) };
-            return Services.GetDb().View(ViewName, options, DesignDoc).Rows.Select(TransportMessage.Hydrate<TMessage>);
+            return db.View(ViewName, options, DesignDoc).Rows.Select(TransportMessage.Hydrate<TMessage>);
         }
 
 
         #endregion
 
-        private IEnumerable<JToken> AllMessagesFrom(IMessageId fromId)
+        private IEnumerable<JToken> AllMessagesFrom(CouchDatabase db, IMessageId fromId)
         {
             // CouchDb startkey is inclusive, so this returns messages including fromId
             var options = new ViewOptions { IncludeDocs = true, StartKey = MessageKey(fromId), EndKey = EndKey() };
-            return Services.GetDb().View(ViewName, options, DesignDoc).Rows;
+            return db.View(ViewName, options, DesignDoc).Rows;
         }
 
     }
