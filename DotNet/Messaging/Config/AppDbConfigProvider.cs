@@ -30,7 +30,7 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
         public AppDbConfigProvider(IEnumerable<string> hydraServers, string database, int? pollIntervalMs = null)
         {
-            if (!hydraServers.Any()) throw new ArgumentException("At least one server must be supplied", "hydraServers");
+            if (hydraServers == null || !hydraServers.Any()) throw new ArgumentException("At least one server must be supplied", "hydraServers");
             _servers = new List<string>(hydraServers);
             _serverIndex = 0;
             Update(_servers[0], database, pollIntervalMs);
@@ -43,8 +43,9 @@ namespace Bollywell.Hydra.Messaging.Config
 
         public bool SwitchServer()
         {
-            // TODO: Make this intelligent e.g. test the next server for responsiveness, cope with the fact that multiple pollers in one app will likely all call at once.
+            // TODO: Make this intelligent e.g. test the next server for responsiveness.
             _serverIndex = (_serverIndex + 1) % _servers.Count;
+            Update(_servers[0], _theConfig.Database, _theConfig.PollIntervalMs);
             return true;
         }
 

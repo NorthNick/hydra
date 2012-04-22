@@ -5,22 +5,23 @@ using System.Reactive.Subjects;
 using System.Threading;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using LoveSeat;
+using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.Pollers
 {
     public class Poller<TMessage> : IPoller<TMessage> where TMessage : TransportMessage
     {
         private const int DefaultTimerInterval = 10000;
-        protected IMessageFetcher<TMessage> MessageFetcher;
-        protected readonly Timer Timer;
-        private bool _disposed = false;
+        private readonly Timer _timer;
+        private readonly IMessageFetcher<TMessage> _messageFetcher;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
-
         private List<TMessage> _messageBuffer = new List<TMessage>();
-        private IMessageId _startId;
-        private bool _firstPoll = true;
-        private long _lastSeq;
         private readonly double _bufferDelayMs;
+        private long _lastSeq;
+        private IMessageId _startId;
+        private string _server;
+        private CouchDatabase _db;
+        private bool _disposed = false;
 
         /// <summary>
         /// The last Id raised to clients. While processing a message, this will be the Id of that message.
@@ -36,12 +37,11 @@ namespace Bollywell.Hydra.Messaging.Pollers
         /// <remarks>The polling interval is taken from Service.GetConfig().PollIntervalMs and is dynamic: changes take effect after the next poll.</remarks>
         public Poller(IMessageFetcher<TMessage> messageFetcher, long bufferDelayMs = 0, IMessageId startId = null)
         {
-            MessageFetcher = messageFetcher;
+            _messageFetcher = messageFetcher;
             _bufferDelayMs = bufferDelayMs;
-            _startId = startId ?? TransportMessage.MessageIdForDate(DateTime.UtcNow);
-            LastId = _startId;
+            LastId = startId ?? TransportMessage.MessageIdForDate(DateTime.UtcNow);
             // Set timer to fire just once
-            Timer = new Timer(TimerOnElapsed, null, Services.GetConfig().PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
+            _timer = new Timer(TimerOnElapsed, null, Services.GetConfig().PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
         }
 
         #region Polling
@@ -50,46 +50,51 @@ namespace Bollywell.Hydra.Messaging.Pollers
         {
             if (_disposed) return;
 
-            // Disable the timer while polling. Poll on a background thread, then reenable the timer when done.
+            // Disable the timer while polling. Poll on a background thread (as that's where the timer fires), then re-enable the timer when done.
             // Do it all inside a try..finally so that the timer gets restarted no matter what happens.
             try {
                 Poll();
-            } catch (Exception ex) {
-                // TODO: detect failure of the server to repond and call SwitchServer if the situation remains bad.
+            } catch (Exception) {
+                // TODO: detect what sort of error this was
+                Services.ServerError(_server);
             } finally {
-                Timer.Change(Services.GetConfig().PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
+                _timer.Change(Services.GetConfig().PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
             }
         }
 
         private void Poll()
         {
-            var db = Services.GetDb();
-            if (_firstPoll) {
+            var server = Services.GetConfig().HydraServer;
+            if (server != _server) {
+                // The server has changed, so reinitialise. As _server is initially null, this will be also be called on the very first poll.
+                // TODO: There is a slim chance of the server changing after the call above, and before the GetDb call below, which would be a problem.
+                // The solution would be to have a single Services call that returns both the server and db (or maybe a version number and db).
+                _server = server;
+                _db = Services.GetDb();
+                _startId = LastId;
                 // Populate _messageBuffer from _startId
-                _lastSeq = GetLastSeq(db);
+                _lastSeq = GetLastSeq(_db);
                 // Fetch messages from _startId, ignoring ones after _lastSeq.
-                _messageBuffer = MessageFetcher.MessagesAfterIdBeforeSeq(db, _startId, _lastSeq).ToList();
-                _firstPoll = false;
+                _messageBuffer = _messageFetcher.MessagesAfterIdBeforeSeq(_db, _startId, _lastSeq).ToList();
             } else {
                 // Get changes from _lastSeq. Fetch messages in the change set and put in _messageBuffer.
-                var changes = GetChanges(db, _lastSeq, out _lastSeq).ToList();
-                if (changes.Any()) _messageBuffer = new List<IEnumerable<TMessage>> {_messageBuffer, MessageFetcher.MessagesInSet(db, changes)}.Merge().ToList();
+                var changes = GetChanges(_db, _lastSeq, out _lastSeq).ToList();
+                if (changes.Any()) _messageBuffer = new List<IEnumerable<TMessage>> {_messageBuffer, _messageFetcher.MessagesInSet(_db, changes)}.Merge().ToList();
             }
 
             var delayedId = TransportMessage.MessageIdForDate(DateTime.UtcNow.AddMilliseconds(-_bufferDelayMs));
             var newMessages = _messageBuffer.TakeWhile(m => m.MessageId.CompareTo(delayedId) <= 0).ToList();
-            // Update _messageBuffer before raising message events so that errors in processing them do not prevent the update.
-            _messageBuffer = _messageBuffer.Skip(newMessages.Count).ToList();
             foreach (var message in newMessages) {
                 // Track the last message processed in case we swap servers.
                 LastId = message.MessageId;
                 OnMessageInQueue(message);
             }
+            _messageBuffer = _messageBuffer.Skip(newMessages.Count).ToList();
         }
 
-        private IEnumerable<IMessageId> GetChanges(CouchDatabase db, long sinceSeq, out long lastSeq)
+        private IEnumerable<IMessageId> GetChanges(IDocumentDatabase db, long sinceSeq, out long lastSeq)
         {
-            // Get changes after sinceSeq, throw out non-messages e.g. design doc updates, and drop message at or before _startId
+            // Get changes after sinceSeq, throw out non-messages e.g. design doc updates, and drop messages at or before _startId
 
             // Loveseat doesn't have a _changes call, so it has to be done like this.
             var changes = db.GetDocument(string.Format("_changes?since={0}", sinceSeq));
@@ -104,7 +109,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
                     .OrderBy(mId => mId).SkipWhile(mId => mId.CompareTo(_startId) <= 0);
         }
 
-        private static long GetLastSeq(CouchDatabase db)
+        private static long GetLastSeq(IDocumentDatabase db)
         {
             // Getting the empty document returns database info as:
             // {"db_name":"hydra","doc_count":499245,"doc_del_count":273331,"update_seq":1045940,"purge_seq":0,"compact_running":false,"disk_size":604704891,"data_size":372365869,
@@ -127,18 +132,6 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 // Swallow errors so that an error processing one message does not stop others from being processed.
                 // TODO: log error
             }
-        }
-
-        #endregion
-
-        #region Switch server
-
-        private void SwitchServer()
-        {
-            // The new server will have a different changes feed, so reinitialise from LastId.
-            _firstPoll = true;
-            _startId = LastId;
-            Services.DbConfigProvider.SwitchServer();
         }
 
         #endregion
@@ -166,7 +159,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
         {
             if (disposing) {
                 // free managed resources
-                Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
                 _subject.OnCompleted();
                 _subject.Dispose();
                 _disposed = true;

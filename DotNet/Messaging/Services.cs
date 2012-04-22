@@ -8,7 +8,7 @@ namespace Bollywell.Hydra.Messaging
     /// Manages knowledge on the location of the Hydra server to poll. In a cloud environment it should update its
     /// info periodically and change the config if necessary.
     /// </summary>
-    public class Services
+    public static class Services
     {
         public static IDbConfigProvider DbConfigProvider { get; set; }
 
@@ -29,5 +29,16 @@ namespace Bollywell.Hydra.Messaging
             return new CouchClient(config.HydraServer, 5984, null, null, false, AuthenticationType.Basic).GetDatabase(config.Database);
         }
 
+        /// <summary>
+        /// Called by poller when it cannot contact a server.
+        /// </summary>
+        /// <param name="server">The server that could not be contacted</param>
+        public static void ServerError(string server)
+        {
+            // Very simplistic check that switches if the problematic server is the current one.
+            if (server == DbConfigProvider.GetConfig().HydraServer) {
+                DbConfigProvider.SwitchServer();
+            }
+        }
     }
 }
