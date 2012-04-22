@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
+using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using LoveSeat;
 using LoveSeat.Interfaces;

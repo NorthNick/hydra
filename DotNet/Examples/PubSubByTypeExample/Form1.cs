@@ -10,7 +10,7 @@ using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.Serializers;
 using Bollywell.Hydra.PubSubByType;
 
-namespace PubSubByTypeExample
+namespace Bollywell.Messaging.PubSubByTypeExample
 {
     public partial class Form1 : Form
     {

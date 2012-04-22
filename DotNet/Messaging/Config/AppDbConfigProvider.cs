@@ -41,12 +41,18 @@ namespace Bollywell.Hydra.Messaging.Config
             return _theConfig;
         }
 
-        public bool SwitchServer()
+        /// <summary>
+        /// Called by poller when it cannot contact a server.
+        /// </summary>
+        /// <param name="server">The server that could not be contacted</param>
+        public void ServerError(string server)
         {
-            // TODO: Make this intelligent e.g. test the next server for responsiveness.
-            _serverIndex = (_serverIndex + 1) % _servers.Count;
-            Update(_servers[0], _theConfig.Database, _theConfig.PollIntervalMs);
-            return true;
+            // Very simplistic check that switches if the problematic server is the current one.
+            if (server == _servers[0]) {
+                // TODO: Make this intelligent e.g. test the next server for responsiveness.
+                _serverIndex = (_serverIndex + 1) % _servers.Count;
+                Update(_servers[0], _theConfig.Database, _theConfig.PollIntervalMs);
+            }
         }
 
         /// <summary>
