@@ -1,4 +1,4 @@
-﻿namespace PubSubByTypeExample
+﻿namespace Bollywell.Messaging.PubSubByTypeExample
 {
     partial class Form1
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Windows.Forms;
 using Bollywell.Hydra.Conversations;
 using Bollywell.Hydra.ConversationExampleDto;
@@ -19,7 +20,8 @@ namespace Bollywell.Hydra.ConversationExampleServer
             InitializeComponent();
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
-            Services.DbConfigProvider = new AppDbConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"], pollIntervalMs);
+            var servers = ConfigurationManager.AppSettings["HydraServers"].Split(',').Select(s => s.Trim());
+            Services.DbConfigProvider = new AppDbConfigProvider(servers, ConfigurationManager.AppSettings["Database"], pollIntervalMs);
 
             new Switchboard<ConversationDto>(MyName).Subscribe(OnNext);
         }
