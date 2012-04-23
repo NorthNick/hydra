@@ -16,11 +16,7 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServer">Hydra server to communicate with</param>
         /// <param name="database">Name of the messaging database</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public AppDbConfigProvider(string hydraServer, string database, int? pollIntervalMs = null)
-        {
-            _servers = new List<string> { hydraServer };
-            Update(hydraServer, database, pollIntervalMs);
-        }
+        public AppDbConfigProvider(string hydraServer, string database, int? pollIntervalMs = null) : this(new List<string> {hydraServer}, database, pollIntervalMs) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
