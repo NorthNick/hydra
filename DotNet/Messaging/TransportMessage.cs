@@ -31,14 +31,14 @@ namespace Bollywell.Hydra.Messaging
         /// </summary>
         public void Send()
         {
+            // TODO: use the "get database and server together" call suggested in Poller
             try {
-                var config = Services.GetConfig();
-                var db = new CouchClient(config.HydraServer, 5984, null, null, false, AuthenticationType.Basic).GetDatabase(config.Database);
                 // The type parameter to Document<T> is irrelevant as it is only used for deserialisation, and here we are only serialising
-                var doc = db.CreateDocument(new Document<TransportMessage>(this).ToString());
+                var doc = Services.GetDb().CreateDocument(new Document<TransportMessage>(this).ToString());
                 // TODO: deal with the case where posting fails but raises a CouchDb {error:xxx, reason:xxx} object and not an exception.
             } catch (Exception ex) {
-                throw new Exception("Cannot send message: " + ex.Message, ex);
+                Services.ServerError(Services.GetConfig().HydraServer);
+                throw new Exception("TransportMessage.Send: error sending message. " + ex.Message, ex);
             }
 
         }
