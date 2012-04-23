@@ -32,7 +32,6 @@ namespace Bollywell.Hydra.Messaging.Config
         {
             if (hydraServers == null || !hydraServers.Any()) throw new ArgumentException("At least one server must be supplied", "hydraServers");
             _servers = new List<string>(hydraServers);
-            _serverIndex = 0;
             Update(_servers[0], database, pollIntervalMs);
         }
 
@@ -48,10 +47,10 @@ namespace Bollywell.Hydra.Messaging.Config
         public void ServerError(string server)
         {
             // Very simplistic check that switches if the problematic server is the current one.
-            if (server == _servers[0]) {
+            if (server == _servers[_serverIndex]) {
                 // TODO: Make this intelligent e.g. test the next server for responsiveness.
                 _serverIndex = (_serverIndex + 1) % _servers.Count;
-                Update(_servers[0], _theConfig.Database, _theConfig.PollIntervalMs);
+                Update(_servers[_serverIndex], _theConfig.Database, _theConfig.PollIntervalMs);
             }
         }
 
