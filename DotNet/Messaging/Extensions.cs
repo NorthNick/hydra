@@ -30,24 +30,22 @@ namespace Bollywell.Hydra.Messaging
         /// <returns>The merged sequence</returns>
         public static IEnumerable<T> Merge<T>(this IEnumerable<IEnumerable<T>> sequences, IComparer<T> comparer, bool dropDuplicates = true)
         {
-            // Put the sequences into an array of IEnumerator<T> containing the elements not yet returned.
+            // Put the sequences into an array of IEnumerator<T> containing the elements not yet returned. These are in a Remainder object so that we can dispose of it with the using statement.
             // Create a SortedSet containing the first element of each sequence and the index of the sequence it comes from.
             // On each iteration return the first element of the SortedSet and pull the next element, if any, from the corresponding sequence into the set.
-            var remainder = sequences.Select(s => s.GetEnumerator()).ToArray();
             var buffer = new SortedSet<Tuple<T, int>>(new TupleComparer<T>(comparer));
-            for (int i = 0; i < remainder.Count(); i++) {
-                GetHead(remainder, i, buffer);
-            }
-            var val = buffer.Any() ? buffer.Min : null;
-            while (buffer.Any()) {
-                var res = val.Item1;
-                yield return res;
-                // Remove val (and any duplicates if required)
-                do {
-                    buffer.Remove(val);
-                    GetHead(remainder, val.Item2, buffer);
-                    val = buffer.Min;
-                } while (dropDuplicates && buffer.Any() && comparer.Compare(val.Item1, res) == 0);
+            using (var remainder = new Remainder<T>(sequences, buffer)) {
+                var val = buffer.Any() ? buffer.Min : null;
+                while (buffer.Any()) {
+                    var res = val.Item1;
+                    yield return res;
+                    // Remove val (and any duplicates if required)
+                    do {
+                        buffer.Remove(val);
+                        remainder.GetHead(val.Item2, buffer);
+                        val = buffer.Min;
+                    } while (dropDuplicates && buffer.Any() && comparer.Compare(val.Item1, res) == 0);
+                }
             }
         }
 
@@ -62,11 +60,35 @@ namespace Bollywell.Hydra.Messaging
             return id.ToString().PadLeft(19, '0');
         }
 
-        private static void GetHead<T>(IEnumerator<T>[] remainder, int index, SortedSet<Tuple<T, int>> buffer)
+        private class Remainder<T> : IDisposable
         {
-            if (remainder[index].MoveNext()) {
-                buffer.Add(Tuple.Create(remainder[index].Current, index));
+            private readonly IEnumerator<T>[] _remainder;
+
+            public Remainder(IEnumerable<IEnumerable<T>> sequences, SortedSet<Tuple<T, int>> buffer)
+            {
+                _remainder = sequences.Select(s => s.GetEnumerator()).ToArray();
+                for (int i = 0; i < _remainder.Count(); i++) {
+                    GetHead(i, buffer);
+                }
             }
+
+            public void GetHead(int index, SortedSet<Tuple<T, int>> buffer)
+            {
+                if (_remainder[index].MoveNext()) {
+                    buffer.Add(Tuple.Create(_remainder[index].Current, index));
+                }
+            }
+
+            #region Implementation of IDisposable
+
+            public void Dispose()
+            {
+                foreach (var enumerator in _remainder) {
+                    enumerator.Dispose();
+                }
+            }
+
+            #endregion
         }
 
         private class TupleComparer<T> : IComparer<Tuple<T, int>>
