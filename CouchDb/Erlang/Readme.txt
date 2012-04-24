@@ -19,7 +19,7 @@ Installation
 
 To modify CouchDb, do as follows. Here $CouchDb refers to the CouchDb installation directory, usually C:\Program Files (x86)\Apache Software Foundation\CouchDB
 
-1. Open a command prompt in this directory.
+1. Open a command prompt and change to the directory containing this Readme.txt file.
 2. Run the Erlang werl.exe program in that command window. This is found in the CouchDb installation tree, at something like $CouchDB\erts-5.9\bin\werl.exe.
 3. In the resulting window, type
    c(couch_uuids).

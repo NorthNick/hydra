@@ -7,7 +7,7 @@ Then modify Erlang as described in Erlang\Readme.txt
 
 If this is the first instance of CouchDb, create the Hydra database as below. Otherwise go to the config step.
 
-1. In Futon create an admin logon with the standard username and password (admin/match in all the Hydra examples)
+1. In Futon create an admin logon with the standard username and password (admin/match in all the Hydra examples). Note that Futon may misbehave in browsers other than Firefox, so it is safest to use that.
 2. Log in as your admin user.
 3. Click Create database and enter a name for your Hydra database. Example programs in the Hydra distribution assume the database is called hydra, but this can be changed in app.config.
 4. Go into your new database and create design documents as follows:
