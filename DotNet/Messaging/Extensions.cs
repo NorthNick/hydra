@@ -30,10 +30,10 @@ namespace Bollywell.Hydra.Messaging
         /// <returns>The merged sequence</returns>
         public static IEnumerable<T> Merge<T>(this IEnumerable<IEnumerable<T>> sequences, IComparer<T> comparer, bool dropDuplicates = true)
         {
-            // Put the sequences into an array of IEnumerable<T> containing the elements not yet returned.
+            // Put the sequences into an array of IEnumerator<T> containing the elements not yet returned.
             // Create a SortedSet containing the first element of each sequence and the index of the sequence it comes from.
             // On each iteration return the first element of the SortedSet and pull the next element, if any, from the corresponding sequence into the set.
-            var remainder = sequences.ToArray();
+            var remainder = sequences.Select(s => s.GetEnumerator()).ToArray();
             var buffer = new SortedSet<Tuple<T, int>>(new TupleComparer<T>(comparer));
             for (int i = 0; i < remainder.Count(); i++) {
                 GetHead(remainder, i, buffer);
@@ -62,11 +62,10 @@ namespace Bollywell.Hydra.Messaging
             return id.ToString().PadLeft(19, '0');
         }
 
-        private static void GetHead<T>(IEnumerable<T>[] remainder, int index, SortedSet<Tuple<T, int>> buffer)
+        private static void GetHead<T>(IEnumerator<T>[] remainder, int index, SortedSet<Tuple<T, int>> buffer)
         {
-            if (remainder[index].Any()) {
-                buffer.Add(Tuple.Create(remainder[index].First(), index));
-                remainder[index] = remainder[index].Skip(1);
+            if (remainder[index].MoveNext()) {
+                buffer.Add(Tuple.Create(remainder[index].Current, index));
             }
         }
 
