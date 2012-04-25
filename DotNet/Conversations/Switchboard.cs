@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Reactive.Subjects;
 using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.Pollers;
 using Bollywell.Hydra.Messaging.Serializers;
@@ -57,7 +54,7 @@ namespace Bollywell.Hydra.Conversations
             if (!_conversations.ContainsKey(handle)) {
                 CreateNewConversation(message.Source, handle);
             }
-            _conversations[handle].OnNext(_serializer.Deserialize(message.Data));
+            _conversations[handle].OnNext(message.Seq, _serializer.Deserialize(message.Data));
         }
 
         private Conversation<TMessage> CreateNewConversation(string remoteParty, string handle)

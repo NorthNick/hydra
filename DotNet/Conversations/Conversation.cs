@@ -10,6 +10,7 @@ namespace Bollywell.Hydra.Conversations
         private ISerializer<TMessage> _serializer;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
         private bool _done;
+        private long _nextSendSeq = 1, _nextRecvSeq = 1;
 
         public string Handle { get; private set; }
         public string RemoteParty { get; private set; }
@@ -18,8 +19,6 @@ namespace Bollywell.Hydra.Conversations
 
         internal event Action<object> DoneEvent;
 
-        internal void OnNext(TMessage message) { _subject.OnNext(message); }
-
         internal void BaseInit(string thisParty, string remoteParty, string topic, string handle, ISerializer<TMessage> serializer)
         {
             ThisParty = thisParty;
@@ -27,6 +26,16 @@ namespace Bollywell.Hydra.Conversations
             Topic = topic;
             Handle = handle;
             _serializer = serializer;
+        }
+
+        internal void OnNext(long seq, TMessage message)
+        {
+            if (seq != _nextRecvSeq) {
+                // Tell the client, but carry on and process the message.
+                _subject.OnError(new Exception(string.Format("Sequence error. Expected {0}, received {1}", _nextRecvSeq, seq)));
+            }
+            _subject.OnNext(message);
+            _nextRecvSeq = seq + 1;
         }
 
         /// <summary>
@@ -38,8 +47,9 @@ namespace Bollywell.Hydra.Conversations
             if (_done) return;
 
             var hydraMessage = new HydraMessage { Source = ThisParty, Destination = RemoteParty, Topic = Topic,
-                                                  Handle = Handle, Data = _serializer.Serialize(message) };
+                                                  Handle = Handle, Seq = _nextSendSeq, Data = _serializer.Serialize(message) };
             hydraMessage.Send();
+            _nextSendSeq++;
         }
 
         #region Implementation of IObservable<out TMessage>

@@ -10,6 +10,7 @@ namespace Bollywell.Hydra.Messaging
         [DataMember] public string Topic { get; set; }
         [DataMember] public string Subject { get; set; }
         [DataMember] public string Handle { get; set; }
+        [DataMember] public long Seq { get; set; }
         [DataMember] public string Data { get; set; }
     }
 }
