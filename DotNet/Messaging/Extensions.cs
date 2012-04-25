@@ -33,19 +33,21 @@ namespace Bollywell.Hydra.Messaging
             // Put the sequences into an array of IEnumerator<T> containing the elements not yet returned. These are in a Remainder object so that we can dispose of it with the using statement.
             // Create a SortedSet containing the first element of each sequence and the index of the sequence it comes from.
             // On each iteration return the first element of the SortedSet and pull the next element, if any, from the corresponding sequence into the set.
+            // Note that buffer.Min returns null when the buffer is empty, so we can check this value to determine if the buffer is empty rather than doing buffer.Any().
             var buffer = new SortedSet<Tuple<T, int>>(new TupleComparer<T>(comparer));
             using (var remainder = new Remainder<T>(sequences, buffer)) {
-                var val = buffer.Any() ? buffer.Min : null;
-                while (buffer.Any()) {
+                var val = buffer.Min;
+                if (val == null) yield break;
+                do {
                     var res = val.Item1;
                     yield return res;
-                    // Remove val (and any duplicates if required)
+                    // Remove val (and any duplicates if required).
                     do {
                         buffer.Remove(val);
                         remainder.GetHead(val.Item2, buffer);
                         val = buffer.Min;
-                    } while (dropDuplicates && buffer.Any() && comparer.Compare(val.Item1, res) == 0);
-                }
+                    } while (dropDuplicates && val != null && comparer.Compare(val.Item1, res) == 0);
+                } while (val != null);
             }
         }
 
