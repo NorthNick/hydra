@@ -10,12 +10,14 @@ namespace Bollywell.Hydra.Conversations
         private ISerializer<TMessage> _serializer;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
         private bool _done;
-        private long _nextSendSeq = 1, _nextRecvSeq = 1;
 
         public string Handle { get; private set; }
         public string RemoteParty { get; private set; }
         public string ThisParty { get; private set; }
         public string Topic { get; private set; }
+        public long LastSendSeq { get; private set; }
+        public long LastRecvSeq { get; private set; }
+        public bool CheckSeq { get; set; }
 
         internal event Action<object> DoneEvent;
 
@@ -30,12 +32,12 @@ namespace Bollywell.Hydra.Conversations
 
         internal void OnNext(long seq, TMessage message)
         {
-            if (seq != _nextRecvSeq) {
+            if (CheckSeq && seq != LastRecvSeq + 1) {
                 // Tell the client, but carry on and process the message.
-                _subject.OnError(new Exception(string.Format("Sequence error. Expected {0}, received {1}", _nextRecvSeq, seq)));
+                _subject.OnError(new Exception(string.Format("Sequence error. Expected {0}, received {1}", LastRecvSeq + 1, seq)));
             }
+            LastRecvSeq = seq;
             _subject.OnNext(message);
-            _nextRecvSeq = seq + 1;
         }
 
         /// <summary>
@@ -47,9 +49,10 @@ namespace Bollywell.Hydra.Conversations
             if (_done) return;
 
             var hydraMessage = new HydraMessage { Source = ThisParty, Destination = RemoteParty, Topic = Topic,
-                                                  Handle = Handle, Seq = _nextSendSeq, Data = _serializer.Serialize(message) };
+                                                  Handle = Handle, Seq = LastSendSeq + 1, Data = _serializer.Serialize(message) };
             hydraMessage.Send();
-            _nextSendSeq++;
+            // Increment LastSendSeq after sending in case the Send fails.
+            LastSendSeq++;
         }
 
         #region Implementation of IObservable<out TMessage>
