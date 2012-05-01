@@ -17,7 +17,7 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
 
         public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(CouchDatabase db, IMessageId startId, long lastSeq)
         {
-            // CouchDb startkey is inclusive, so this returns messages including fromId
+            // CouchDb startkey is inclusive, so we have to throw away startId if it is returned
             var options = new ViewOptions { IncludeDocs = true, StartKey = MessageKey(startId), EndKey = EndKey() };
             return DocRows(db, options).Where(row => (long) row["value"] <= lastSeq).Select(TransportMessage.Hydrate<TMessage>)
                     .SkipWhile(message => message.MessageId == startId);
