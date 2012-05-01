@@ -66,6 +66,7 @@
     <Compile Include="MessageFetchers\HydraByTopicByDestinationMessageFetcher.cs" />
     <Compile Include="MessageFetchers\HydraByTopicMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MessageFetcherBase.cs" />
+    <Compile Include="MessageFetchers\ViewMessageFetcher.cs" />
     <Compile Include="Pollers\Poller.cs" />
     <Compile Include="Serializers\HydraDataContractSerializer.cs" />
     <Compile Include="Serializers\HydraJsonSerializer.cs" />

@@ -18,7 +18,7 @@ If this is the first instance of CouchDb, create the Hydra database as below. Ot
 
 Config
 1. In Futon, go to Configuration.
-2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false.
+2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false. You may also want to set level=error in the log section, to prevent your log becoming too huge.
 3. Ensure that algorithm=utc_machine_id (this should have been done during the Erlang changes above).
 4. Ensure that machine_id is a unique value across all CouchDb instances (see the Erlang changes for a bit more on this).
 
