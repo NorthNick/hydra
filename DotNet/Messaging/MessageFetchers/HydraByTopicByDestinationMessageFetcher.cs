@@ -3,7 +3,7 @@ using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.MessageFetchers
 {
-    public class HydraByTopicByDestinationMessageFetcher : ViewMessageFetcher<HydraMessage>
+    public class HydraByTopicByDestinationMessageFetcher : MessageFetcherBase<HydraMessage>
     {
         private readonly string _topic;
         private readonly string _destination;
