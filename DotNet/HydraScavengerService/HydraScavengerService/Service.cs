@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Linq;
 using System.ServiceProcess;
 using System.Timers;
 using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Config;
 using LoveSeat;
+using Newtonsoft.Json.Linq;
 
 namespace HydraScavengerService
 {
@@ -15,9 +17,9 @@ namespace HydraScavengerService
         private const string EventSource = "Hydra Scavenger Service";
         private const string EventLogName = "Application";
 
-        private TimeSpan _cleanupTime;
         private int _expiryDays;
         private Timer _timer;
+        private int _pollIntervalSeconds;
 
         public Service()
         {
@@ -35,13 +37,13 @@ namespace HydraScavengerService
         {
             EventLogger.WriteEntry(EventSource + " starting", EventLogEntryType.Information);
 
-            _cleanupTime = DateTime.Parse(ConfigurationManager.AppSettings["DailyCleanupTime"]).TimeOfDay;
+            _pollIntervalSeconds = int.Parse(ConfigurationManager.AppSettings["PollIntervalSeconds"]);
             _expiryDays = int.Parse(ConfigurationManager.AppSettings["MessageExpiryDays"]);
             Services.DbConfigProvider = new AppDbConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"]);
 
             _timer = new Timer();
             _timer.Elapsed += TimerOnElapsed;
-            _timer.Interval = GetExpiryInterval();
+            _timer.Interval = _pollIntervalSeconds * 1000;
             _timer.Enabled = true;
 
             EventLogger.WriteEntry(EventSource + " started", EventLogEntryType.Information);
@@ -59,55 +61,37 @@ namespace HydraScavengerService
         {
             _timer.Enabled = false;
             try {
-                // NDN 7/4/12 - removed Compact, as CouchDb 1.2 automates it.
-                var results = new List<string> { ScavengeMessages() };
-
-                EventLogger.WriteEntry(string.Format(EventSource + " daily run.{0}{1}", Environment.NewLine, string.Join(Environment.NewLine, results)));
-
+                ScavengeMessages();
             }
             catch (Exception ex) {
-                EventLogger.WriteEntry(string.Format(EventSource + " daily run error: {0}", ex), EventLogEntryType.Error);
+                EventLogger.WriteEntry(string.Format(EventSource + " error: {0}", ex), EventLogEntryType.Error);
+            } finally {
+                _timer.Interval = _pollIntervalSeconds * 1000;
+                _timer.Enabled = true;
             }
 
-            _timer.Interval = GetExpiryInterval();
-            _timer.Enabled = true;
-
-        }
-
-        private double GetExpiryInterval()
-        {
-            var expiryInterval = DateTime.Now.Date.Add(_cleanupTime) - DateTime.Now;
-            // If expiry is less than 1 minute in the future, move forward by a day
-            if (expiryInterval < new TimeSpan(0, 1, 0)) expiryInterval += new TimeSpan(1, 0, 0, 0);
-
-            return expiryInterval.TotalMilliseconds;
         }
 
         #region Maintenance methods
 
-        private string ScavengeMessages()
+        private void ScavengeMessages()
         {
-            try {
-                // Scavenge messages
                 var messagingConfig = Services.GetConfig();
                 var options = new ViewOptions();
                 options.StartKey.Add(TransportMessage.MessageIdForDate(new DateTime(1970, 1, 1)).ToDocId());
                 options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.Now.AddDays(-_expiryDays)).ToDocId());
                 var db = new CouchClient(messagingConfig.HydraServer, 5984, null, null, false, AuthenticationType.Basic).GetDatabase(messagingConfig.Database);
-                int count = 0;
-                // NOTE: This code deletes the docs one at a time. It would probably be more efficient to use the _bulk_docs interface and supply JSON of the form
-                // { "docs": [{"_id": "xxx", "_rev": "abc", "_delete": true}, {"_id": "yyy", "_rev": "def", "_delete": true}, ...] }
-                // See http://www.couchbase.org/sites/default/files/uploads/all/documentation/couchbase-api-db.html#couchbase-api-db_db-bulk-docs_post
-                // Loveseat now has access to _bulk_docs so really should do this...
-                foreach (var row in db.GetAllDocuments(options).Rows) {
-                    db.DeleteDocument((string) row["id"], (string) row["value"]["rev"]);
-                    count++;
-                }
-                return string.Format("Scavenged {0} messages", count);
-            }
-            catch (Exception ex) {
-                return string.Format("Scavenging error: {0}", ex);
-            }
+                // Use the _bulk_docs interface to delete messages, supplying JSON of the form
+                // { "docs": [{"_id": "xxx", "_rev": "abc", "_deleted": true}, {"_id": "yyy", "_rev": "def", "_deleted": true}, ...] }
+                var docs = db.GetAllDocuments(options).Rows.Select(row => BulkDeleteDoc(row["id"].Value<string>(), row["value"]["rev"].Value<string>())).ToList();
+                db.SaveDocuments(new Documents { Values = docs }, false);
+        }
+
+        private static Document BulkDeleteDoc(string id, string rev)
+        {
+            var jobj = new JObject();
+            jobj["_deleted"] = true;
+            return new Document(jobj) { Id = id, Rev = rev };
         }
 
         #endregion

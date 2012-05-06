@@ -8,7 +8,7 @@ Setting up Hydra
     a) Check that project's App.config file has the right settings for your Hydra database.
     b) Set the solution's startup project to PubSubByTypeExample and run it.
 
-4. Try the conversatoin example:
+4. Try the conversation example:
     a) Check that the settings in the App.config files for ConversationExampleServer and ConversationExampleClient are correct.
     b) Set the solution's startup projects to be ConversationExampleServer and ConversationExampleClient.
     c) Run the solution.
