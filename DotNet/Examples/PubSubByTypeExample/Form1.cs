@@ -16,6 +16,7 @@ namespace Bollywell.Messaging.PubSubByTypeExample
     {
         private Publisher<PstMessage> _publisher;
         private Subscriber<PstMessage> _subscriber;
+        private readonly HydraService _hydraService;
 
         public Form1()
         {
@@ -25,7 +26,7 @@ namespace Bollywell.Messaging.PubSubByTypeExample
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
             var servers = ConfigurationManager.AppSettings["HydraServers"].Split(',').Select(s => s.Trim());
-            Services.DbConfigProvider = new AppDbConfigProvider(servers, ConfigurationManager.AppSettings["Database"], pollIntervalMs);
+            _hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], pollIntervalMs));
 
             SerialiseComboBox.SelectedIndexChanged += SerialiseComboBox_SelectedIndexChanged;
             SerialiseComboBox.SelectedIndex = 0;
@@ -41,8 +42,8 @@ namespace Bollywell.Messaging.PubSubByTypeExample
             } else {
                 serializer = new HydraJsonSerializer<PstMessage>();
             }
-            _publisher = new Publisher<PstMessage>(serializer);
-            _subscriber = new Subscriber<PstMessage>(serializer);
+            _publisher = new Publisher<PstMessage>(_hydraService, serializer);
+            _subscriber = new Subscriber<PstMessage>(_hydraService, serializer);
             _subscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnMessage, _ => { });
         }
 

@@ -13,25 +13,28 @@ namespace Bollywell.Hydra.Conversations
         // Maps handles to their conversations
         private readonly Dictionary<string, Conversation<TMessage>> _conversations = new Dictionary<string, Conversation<TMessage>>();
         private readonly HashSet<string> _deadConversations = new HashSet<string>();
-        private readonly Poller<HydraMessage> _poller;
+        private readonly IPoller<HydraMessage> _poller;
         private readonly Subject<Conversation<TMessage>> _subject = new Subject<Conversation<TMessage>>();
         private readonly ISerializer<TMessage> _serializer;
+        private readonly IHydraService _hydraService;
         private readonly string _thisParty;
         private readonly string _topic;
 
         /// <summary>
         /// Create a new Switchboard to listen for incoming conversations and initiate outgoing ones.
         /// </summary>
+        /// <param name="hydraService">The HydraService with which this Switchboard communicates.</param>
         /// <param name="thisParty">Name of this end of the conversation. This will be the RemoteParty for anyone initiating a conversation with this app.</param>
         /// <param name="topic">Topic of the conversation.</param>
         /// <param name="serializer">Optional serialiser for messages. Defaults to DataContractSerializer.</param>
-        public Switchboard(string thisParty, string topic = null, ISerializer<TMessage> serializer = null)
+        public Switchboard(IHydraService hydraService, string thisParty, string topic = null, ISerializer<TMessage> serializer = null)
         {
+            _hydraService = hydraService;
             _thisParty = thisParty;
             _topic = topic ?? typeof (TMessage).FullName;
             _serializer = serializer ?? new HydraDataContractSerializer<TMessage>();
 
-            _poller = new Poller<HydraMessage>(new HydraByTopicByDestinationMessageFetcher(_topic, thisParty));
+            _poller = hydraService.GetPoller(new HydraByTopicByDestinationMessageFetcher(_topic, thisParty));
             _poller.Subscribe(OnMessage);
         }
 
@@ -61,7 +64,7 @@ namespace Bollywell.Hydra.Conversations
         {
             var conversation = new Conversation<TMessage>();
             conversation.DoneEvent += ConversationDoneEvent;
-            conversation.BaseInit(_thisParty, remoteParty, _topic, handle, _serializer);
+            conversation.BaseInit(_hydraService, _thisParty, remoteParty, _topic, handle, _serializer);
             _conversations[handle] = conversation;
             _subject.OnNext(conversation);
             return conversation;

@@ -15,10 +15,10 @@ namespace Bollywell.Hydra.PubSubByType
 
         public event Action<object, TSub> MessageInQueue;
 
-        public Subscriber(ISerializer<TSub> serializer = null)
+        public Subscriber(IHydraService hydraService, ISerializer<TSub> serializer = null)
         {
             _serializer = serializer ?? new HydraDataContractSerializer<TSub>();
-            _poller = new Poller<HydraMessage>(new HydraByTopicMessageFetcher(typeof (TSub).FullName));
+            _poller = hydraService.GetPoller(new HydraByTopicMessageFetcher(typeof (TSub).FullName));
             _messageSource = _poller.Select(hydraMessage => _serializer.Deserialize(hydraMessage.Data));
             _messageSource.Subscribe(MessageSourceOnNext);
         }

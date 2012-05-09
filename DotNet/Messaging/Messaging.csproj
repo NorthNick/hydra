@@ -58,11 +58,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\AppDbConfigProvider.cs" />
-    <Compile Include="Config\IDbConfigProvider.cs" />
-    <Compile Include="Config\IMessagingConfig.cs" />
-    <Compile Include="Config\MessagingConfig.cs" />
+    <Compile Include="Config\RoundRobinConfigProvider.cs" />
+    <Compile Include="Config\IConfigProvider.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="HydraService.cs" />
+    <Compile Include="IHydraService.cs" />
     <Compile Include="MessageFetchers\HydraByTopicByDestinationMessageFetcher.cs" />
     <Compile Include="MessageFetchers\HydraByTopicMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MessageFetcherBase.cs" />
@@ -74,7 +74,6 @@
     <Compile Include="HydraMessage.cs" />
     <Compile Include="MessageFetchers\IMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MultiFetcher.cs" />
-    <Compile Include="Services.cs" />
     <Compile Include="Pollers\IPoller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

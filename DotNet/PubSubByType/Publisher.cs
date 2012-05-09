@@ -5,18 +5,20 @@ namespace Bollywell.Hydra.PubSubByType
 {
     public class Publisher<TPub>
     {
+        private readonly IHydraService _hydraService;
         private static readonly string _topic = typeof (TPub).FullName;
         private readonly ISerializer<TPub> _serializer;
 
-        public Publisher(ISerializer<TPub> serializer = null)
+        public Publisher(IHydraService hydraService, ISerializer<TPub> serializer = null)
         {
+            _hydraService = hydraService;
             _serializer = serializer ?? new HydraDataContractSerializer<TPub>();
         }
 
         public void Send(TPub message)
         {
-                var hydraMessage = new HydraMessage { Topic = _topic, Data = _serializer.Serialize(message) };
-                hydraMessage.Send();
+            var hydraMessage = new HydraMessage { Topic = _topic, Data = _serializer.Serialize(message) };
+            _hydraService.Send(hydraMessage);
         }
     }
 }

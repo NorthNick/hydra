@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using Bollywell.Hydra.Messaging.Config;
 using LoveSeat;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,15 +30,15 @@ namespace Bollywell.Hydra.Messaging
         /// <summary>
         /// Send this message to the currently configured message centre
         /// </summary>
-        public void Send()
+        public void Send(IConfigProvider configProvider)
         {
             // TODO: use the "get database and server together" call suggested in Poller
             try {
                 // The type parameter to Document<T> is irrelevant as it is only used for deserialisation, and here we are only serialising
-                var doc = Services.GetDb().CreateDocument(new Document<TransportMessage>(this).ToString());
+                var doc = configProvider.GetDb().CreateDocument(new Document<TransportMessage>(this).ToString());
                 // TODO: deal with the case where posting fails but raises a CouchDb {error:xxx, reason:xxx} object and not an exception.
             } catch (Exception ex) {
-                Services.ServerError(Services.GetConfig().HydraServer);
+                configProvider.ServerError(configProvider.HydraServer);
                 throw new Exception("TransportMessage.Send: error sending message. " + ex.Message, ex);
             }
 

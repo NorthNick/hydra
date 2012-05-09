@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using LoveSeat;
+using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.MessageFetchers
 {
-    public interface IMessageFetcher<TMessage> where TMessage : TransportMessage
+    public interface IMessageFetcher<out TMessage> where TMessage : TransportMessage
     {
-        IEnumerable<TMessage> MessagesAfterIdBeforeSeq(CouchDatabase db, IMessageId startId, long lastSeq);
-        IEnumerable<TMessage> MessagesInSet(CouchDatabase db, IEnumerable<IMessageId> messageIds);
+        IEnumerable<TMessage> MessagesAfterIdBeforeSeq(IDocumentDatabase db, IMessageId startId, long lastSeq);
+        IEnumerable<TMessage> MessagesInSet(IDocumentDatabase db, IEnumerable<IMessageId> messageIds);
     }
 }

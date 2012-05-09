@@ -10,6 +10,7 @@ namespace Bollywell.Hydra.Conversations
         private ISerializer<TMessage> _serializer;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
         private bool _done;
+        private IHydraService _hydraService;
 
         public string Handle { get; private set; }
         public string RemoteParty { get; private set; }
@@ -21,8 +22,9 @@ namespace Bollywell.Hydra.Conversations
 
         internal event Action<object> DoneEvent;
 
-        internal void BaseInit(string thisParty, string remoteParty, string topic, string handle, ISerializer<TMessage> serializer)
+        internal void BaseInit(IHydraService hydraService, string thisParty, string remoteParty, string topic, string handle, ISerializer<TMessage> serializer)
         {
+            _hydraService = hydraService;
             ThisParty = thisParty;
             RemoteParty = remoteParty;
             Topic = topic;
@@ -50,7 +52,7 @@ namespace Bollywell.Hydra.Conversations
 
             var hydraMessage = new HydraMessage { Source = ThisParty, Destination = RemoteParty, Topic = Topic,
                                                   Handle = Handle, Seq = LastSendSeq + 1, Data = _serializer.Serialize(message) };
-            hydraMessage.Send();
+            _hydraService.Send(hydraMessage);
             // Increment LastSendSeq after sending in case the Send fails.
             LastSendSeq++;
         }

@@ -5,7 +5,6 @@ using System.Reactive.Subjects;
 using System.Threading;
 using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
-using LoveSeat;
 using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.Pollers
@@ -14,6 +13,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
     {
         private const int DefaultTimerInterval = 10000;
         private readonly Timer _timer;
+        private readonly IConfigProvider _configProvider;
         private readonly IMessageFetcher<TMessage> _messageFetcher;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
         private List<TMessage> _messageBuffer = new List<TMessage>();
@@ -21,7 +21,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
         private long _lastSeq;
         private IMessageId _startId;
         private string _server;
-        private CouchDatabase _db;
+        private IDocumentDatabase _db;
         private bool _disposed = false;
 
         /// <summary>
@@ -32,17 +32,19 @@ namespace Bollywell.Hydra.Messaging.Pollers
         /// <summary>
         /// Construct a Poller and start it polling.
         /// </summary>
+        /// <param name="configProvider"> </param>
         /// <param name="messageFetcher">IMessageFetcher with which to poll.</param>
-        /// <param name="bufferDelayMs">Buffer messages for this many ms to allow late arriving messages to be sorted into order. Defaults to 0.</param>
         /// <param name="startId">Only fetch messages with higher id than startId. Defaults to the id corresponding to now.</param>
+        /// <param name="bufferDelayMs">Buffer messages for this many ms to allow late arriving messages to be sorted into order. Defaults to 0.</param>
         /// <remarks>The polling interval is taken from Service.GetConfig().PollIntervalMs and is dynamic: changes take effect after the next poll.</remarks>
-        public Poller(IMessageFetcher<TMessage> messageFetcher, long bufferDelayMs = 0, IMessageId startId = null)
+        public Poller(IConfigProvider configProvider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, long bufferDelayMs = 0)
         {
+            _configProvider = configProvider;
             _messageFetcher = messageFetcher;
             _bufferDelayMs = bufferDelayMs;
             LastId = startId ?? TransportMessage.MessageIdForDate(DateTime.UtcNow);
             // Set timer to fire just once
-            _timer = new Timer(TimerOnElapsed, null, Services.GetConfig().PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
+            _timer = new Timer(TimerOnElapsed, null, _configProvider.PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
         }
 
         #region Polling
@@ -57,21 +59,21 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 Poll();
             } catch (Exception) {
                 // TODO: detect what sort of error this was
-                Services.ServerError(_server);
+                _configProvider.ServerError(_server);
             } finally {
-                _timer.Change(Services.GetConfig().PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
+                _timer.Change(_configProvider.PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
             }
         }
 
         private void Poll()
         {
-            var server = Services.GetConfig().HydraServer;
+            var server = _configProvider.HydraServer;
             if (server != _server) {
                 // The server has changed, so reinitialise. As _server is initially null, this will be also be called on the very first poll.
                 // TODO: There is a slim chance of the server changing after the call above, and before the GetDb call below, which would be a problem.
-                // The solution would be to have a single Services call that returns both the server and db (or maybe a version number and db).
+                // The solution would be to have a single IConfigProvider call that returns both the server and db (or maybe a version number and db).
                 _server = server;
-                _db = Services.GetDb();
+                _db = _configProvider.GetDb();
                 _startId = LastId;
                 // Populate _messageBuffer from _startId
                 _lastSeq = GetLastSeq(_db);
