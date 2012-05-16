@@ -36,6 +36,6 @@ Compaction
 If you are using CouchDb 1.2, you can set up regular compaction. This is a new feature and it's not yet clear which setting work best. They will also depend on the volume of Hydra traffic in your database, so you should experiment.
 1. In Futon, go to Configuration
 2. Click the "Add a new section" link at the bottom of the page.
-3. Set section=compaction, option=hydra (or whatever name you are using for your hydra database), and
+3. Set section=compactions, option=hydra (or whatever name you are using for your hydra database), and
 value=[{db_fragmentation, "70%"}, {view_fragmentation, "60%"}, {from, "23:00"}, {to, "04:00"}]
 or something similar, where the fragmentation values are percentages of old data and old view index data in the database, and from and to are times of day between which compaction should take place.
