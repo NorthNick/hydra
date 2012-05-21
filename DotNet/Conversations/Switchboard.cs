@@ -20,6 +20,8 @@ namespace Bollywell.Hydra.Conversations
         private readonly string _thisParty;
         private readonly string _topic;
 
+        public long BufferDelayMs { get { return _poller.BufferDelayMs; } set { _poller.BufferDelayMs = value; } }
+
         /// <summary>
         /// Create a new Switchboard to listen for incoming conversations and initiate outgoing ones.
         /// </summary>
