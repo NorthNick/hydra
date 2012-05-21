@@ -15,6 +15,8 @@ namespace Bollywell.Hydra.PubSubByType
 
         public event Action<object, TSub> MessageInQueue;
 
+        public long BufferDelayMs { get { return _poller.BufferDelayMs; } set { _poller.BufferDelayMs = value; } }
+
         public Subscriber(IHydraService hydraService, ISerializer<TSub> serializer = null)
         {
             _serializer = serializer ?? new HydraDataContractSerializer<TSub>();

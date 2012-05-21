@@ -17,12 +17,13 @@ namespace Bollywell.Hydra.Messaging.Pollers
         private readonly IMessageFetcher<TMessage> _messageFetcher;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
         private List<TMessage> _messageBuffer = new List<TMessage>();
-        private readonly double _bufferDelayMs;
         private long _lastSeq;
         private IMessageId _startId;
         private string _server;
         private IDocumentDatabase _db;
         private bool _disposed = false;
+
+        public long BufferDelayMs { get; set; }
 
         /// <summary>
         /// The last Id raised to clients. While processing a message, this will be the Id of that message.
@@ -41,7 +42,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
         {
             _configProvider = configProvider;
             _messageFetcher = messageFetcher;
-            _bufferDelayMs = bufferDelayMs;
+            BufferDelayMs = bufferDelayMs;
             LastId = startId ?? TransportMessage.MessageIdForDate(DateTime.UtcNow);
             // Set timer to fire just once
             _timer = new Timer(TimerOnElapsed, null, _configProvider.PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
@@ -85,7 +86,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 if (changes.Any()) _messageBuffer = new List<IEnumerable<TMessage>> {_messageBuffer, _messageFetcher.MessagesInSet(_db, changes)}.Merge().ToList();
             }
 
-            var delayedId = TransportMessage.MessageIdForDate(DateTime.UtcNow.AddMilliseconds(-_bufferDelayMs));
+            var delayedId = TransportMessage.MessageIdForDate(DateTime.UtcNow.AddMilliseconds(-BufferDelayMs));
             var newMessages = _messageBuffer.TakeWhile(m => m.MessageId.CompareTo(delayedId) <= 0).ToList();
             foreach (var message in newMessages) {
                 // Track the last message processed in case we swap servers.
