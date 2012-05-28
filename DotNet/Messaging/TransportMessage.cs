@@ -30,7 +30,7 @@ namespace Bollywell.Hydra.Messaging
         /// <summary>
         /// Send this message to the currently configured message centre
         /// </summary>
-        public void Send(IConfigProvider configProvider)
+        internal void Send(IConfigProvider configProvider)
         {
             // TODO: use the "get database and server together" call suggested in Poller
             try {
