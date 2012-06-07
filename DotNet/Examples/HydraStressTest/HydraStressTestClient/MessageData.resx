@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="data1" xml:space="preserve">
+    <value>IT is</value>
+  </data>
+  <data name="data10" xml:space="preserve">
+    <value>``It was the prospect of constant society, and good society,'' he added, ``which was my chief inducement to enter the ----shire. I knew it to be a most respectable, agreeable corps, and my friend Denny tempted me farther by his account of their present quarters, and the very great attentions and excellent acquaintance Meryton had procured them. Society, I own, is necessary to me. I have been a disappointed man, and my spirits will not bear solitude. I must have employment and society. A military life is not what I was intended for, but circumstances have now made it eligible. The church ought to have been my profession -- I was brought up for the church, and I should at this time have been in possession of a most valuable living, had it pleased the gentleman we were speaking of just now.'' ``There was just such an informality in the terms of the bequest as to give me no hope from law. A man of honour could not have doubted the intention, but Mr. Darcy chose to doubt it -- or to treat it as a merely conditional recommendation, and to assert that I had forfeited all claim to it by extravagance, imprudence, in short any thing or nothing. Certain it is, that the living became vacant two years ago, exactly as I was of an age to hold it, and that it was given to another man; and no less certain is it, that I cannot accuse myself of having really done any thing to deserve to lose it. I have a warm, unguarded temper, and I may perhaps have sometimes spoken my opinion of him, and to him, too freely. I can recall nothing worse. But the fact is, that we are very different sort of men, and that he hates me.'' ``Yes. It has often led him to be liberal and generous, -- to give his money freely, to display hospitality, to assist his tenants, and relieve the poor. Family pride, and filial pride, for he is very proud of what his father was, have done this. Not to appear to disgrace his family, to degenerate from the popular qualities, or lose the influence of the Pemberley House, is a powerful motive. He has also brotherly pride, which with some brotherly affection, makes him a very kind and careful guardian of his sister; and you will hear him generally cried up as the most attentive and best of brothers.'' He shook his head. -- ``I wish I could call her amiable. It gives me pain to speak ill of a Darcy. But she is too much like her brother, -- very, very proud. -- As a child, she was affectionate and pleasing, and extremely fond of me; and I have devoted hours and hours to her amusement. But she is nothing to me now. She is a handsome girl, about fifteen or sixteen, and, I understand, highly accomplished. Since her father's death, her home has been London, where a lady lives with her, and superintends her education.'' ``Probably not; -- but Mr. Darcy can please where he chuses. He does not want abilities. He can be a conversible companion if he thinks it worth his while. Among those who are at all his equals in consequence, he is a very different man from what he is to the less prosperous. His pride never deserts him; but with the rich, he is liberal-minded, just, sincere, rational, honourable, and perhaps agreeable, -- allowing something for fortune and figure.''</value>
+  </data>
+  <data name="data11" xml:space="preserve">
+    <value>``Be not alarmed, Madam, on receiving this letter, by the apprehension of its containing any repetition of those sentiments, or renewal of those offers, which were last night so disgusting to you. I write without any intention of paining you, or humbling myself, by dwelling on wishes, which, for the happiness of both, cannot be too soon forgotten; and the effort which the formation and the perusal of this letter must occasion should have been spared, had not my character required it to be written and read. You must, therefore, pardon the freedom with which I demand your attention; your feelings, I know, will bestow it unwillingly, but I demand it of your justice. Two offences of a very different nature, and by no means of equal magnitude, you last night laid to my charge. The first mentioned was, that, regardless of the sentiments of either, I had detached Mr. Bingley from your sister; -- and the other, that I had, in defiance of various claims, in defiance of honour and humanity, ruined the immediate prosperity, and blasted the prospects of Mr. Wickham. -- Wilfully and wantonly to have thrown off the companion of my youth, the acknowledged favourite of my father, a young man who had scarcely any other dependence than on our patronage, and who had been brought up to expect its exertion, would be a depravity to which the separation of two young persons, whose affection could be the growth of only a few weeks, could bear no comparison. -- But from the severity of that blame which was last night so liberally bestowed, respecting each circumstance, I shall hope to be in future secured, when the following account of my actions and their motives has been read. -- If, in the explanation of them which is due to myself, I am under the necessity of relating feelings which may be offensive to your's, I can only say that I am sorry. -- The necessity must be obeyed -- and farther apology would be absurd. -- I had not been long in Hertfordshire, before I saw, in common with others, that Bingley preferredyour eldest sister to any other young woman in the country. -- But it was not till the evening of the dance at Netherfield that I had any apprehension of his feeling a serious attachment. -- I had often seen him in love before. -- At that ball, while I had the honour of dancing with you, I was first made acquainted, by Sir William Lucas's accidental information, that Bingley's attentions to your sister had given rise to a general expectation of their marriage. He spoke of it as a certain event, of which the time alone could be undecided. From that moment I observed my friend's behaviour attentively; and I could then perceive that his partiality for Miss Bennet was beyond what I had ever witnessed in him. Your sister I also watched. -- Her look and manners were open, cheerful, and engaging as ever, but without any symptom of peculiar regard, and I remained convinced from the evening's scrutiny, that though she received his attentions with pleasure, she did not invite them by any participation of sentiment. -- If youhave not been mistaken here, I must have been in an error. Your superior knowledge of your sister must make the latter probable. -- If it be so, if I have been misled by such error, to inflict pain on her, your resentment has not been unreasonable. But I shall not scruple to assert that the serenity of your sister's countenance and air was such as might have given the most acute observer a conviction that, however amiable her temper, her heart was not likely to be easily touched. -- That I was desirous of believing her indifferent is certain, -- but I will venture to say that my investigations and decisions are not usually influenced by my hopes or fears. -- I did not believe her to be indifferent because I wished it; -- I believed it on impartial conviction, as truly as I wished it in reason. -- My objections to the marriage were not merely those which I last night acknowledged to have required the utmost force of passion to put aside in my own case; the want of connection could not be so great an evil to my friend as to me. -- But there were other causes of repugnance; -- causes which, though still existing, and existing to an equal degree in both instances, I had myself endeavoured to forget, because they were not immediately before me. -- These causes must be stated, though briefly. -- The situation of your mother's family, though objectionable, was nothing in comparison of that total want of propriety so frequently, so almost uniformly, betrayed by herself, by your three younger sisters, and occasionally even by your father. -- Pardon me. -- It pains me to offend you. But amidst your concern for the defects of your nearest relations, and your displeasure at this representation of them, let it give you consolation to consider that to have conducted yourselves so as to avoid any share of the like censure is praise no less generally bestowed on you and your eldest sister, than it is honourable to the sense and disposition of both. -- I will only say farther that, from what passed that evening, my opinion of all parties was confirmed, and every inducement heightened, which could have led me before to preserve my friend from what I esteemed a most unhappy connection. -- He left Netherfield forLondon, on the day following, as you, I am certain, remember, with the design of soon returning. The part which I acted is now to be explained. -- His sisters' uneasiness had been equally excited with my own; our coincidence of feeling was soon discovered; and, alike sensible that no time was to be lost in detaching their brother, we shortly resolved on joining him directly in London. -- We accordingly went -- and there I readily engaged in the office of pointing out to my friend, the certain evils of such a choice. -- I described, and enforced them earnestly. -- But, however this remonstrance might have staggered or delayed his determination, I do not suppose that it would ultimately have prevented the marriage, had it not been seconded by the assurance, which I hesitated not in giving, of your sister's indifference.</value>
+  </data>
+  <data name="data2" xml:space="preserve">
+    <value>universally</value>
+  </data>
+  <data name="data3" xml:space="preserve">
+    <value>acknowledged, that a</value>
+  </data>
+  <data name="data4" xml:space="preserve">
+    <value>single man in possession of a good fortune must be in want</value>
+  </data>
+  <data name="data5" xml:space="preserve">
+    <value>However little known the feelings or views of such a man may be on his first entering a neighbourhood,</value>
+  </data>
+  <data name="data6" xml:space="preserve">
+    <value>Why, my dear, you must know, Mrs. Long says that Netherfield is taken by a young man of large fortune from the north of England; that he came down on Monday in a chaise and four to see the place, and was</value>
+  </data>
+  <data name="data7" xml:space="preserve">
+    <value>``You are over-scrupulous, surely. I dare say Mr. Bingley will be very glad to see you; and I will send a few lines by you to assure him of my hearty consent to his marrying which ever he chuses of the girls; though I must throw in a good word for my little Lizzy.''
+``I desire you will do no such thing. Lizzy is not a bit better than the others; and I am sure she is not half so handsome as Jane, nor half so good humoured as Lydia. But you are always giving her the preference.''</value>
+  </data>
+  <data name="data8" xml:space="preserve">
+    <value>In describing to her all the grandeur of Lady Catherine and her mansion, with occasional digressions in praise of his own humble abode and the improvements it was receiving, he was happily employed until the gentlemen joined them; and he found in Mrs. Philips a very attentive listener, whose opinion of his consequence increased with what she heard, and who was resolving to retail it all among her neighbours as soon as she could. To the girls, who could not listen to their cousin, and who had nothing to do but to wish for an instrument, and examine their own indifferent imitations of china on the mantlepiece, the interval of waiting appeared very long. It was over at last, however. The gentlemen did approach; and when Mr. Wickham walked into the room, Elizabeth felt that she had neither been seeing him before, nor thinking of him since, with the smallest degree of unreasonable admiration.</value>
+  </data>
+  <data name="data9" xml:space="preserve">
+    <value>Mr. Wickham did not play at whist, and with ready delight was he received at the other table between Elizabeth and Lydia. At first there seemed danger of Lydia's engrossing him entirely for she was a most determined talker; but being likewise extremely fond of lottery tickets, she soon grew too much interested in the game, too eager in making bets and exclaiming after prizes, to have attention for any one in particular. Allowing for the common demands of the game, Mr. Wickham was therefore at leisure to talk to Elizabeth, and she was very willing to hear him, though what she chiefly wished to hear she could not hope to be told, the history of his acquaintance with Mr. Darcy. She dared not even mention that gentleman. Her curiosity however was unexpectedly relieved. Mr. Wickham began the subject himself. He inquired how far Netherfield was from Meryton; and, after receiving her answer, asked in an hesitating manner how long Mr. Darcy had been staying there. ``Oh! no -- it is not for me to be driven away by Mr. Darcy. If he wishes to avoid seeing me, he must go. We are not on friendly terms, and it always gives me pain to meet him, but I have no reason for avoiding him but what I might proclaim to all the world; a sense of very great ill-usage, and most painful regrets at his being what he is. His father, Miss Bennet, the late Mr. Darcy, was one of the best men that ever breathed, and the truest friend I ever had; and I can never be in company with this Mr. Darcy without being grieved to the soul by a thousand tender recollections. His behaviour to myself has been scandalous; but I verily believe I could forgive him any thing and every thing, rather than his disappointing the hopes and disgracing the memory of his father.''</value>
+  </data>
+</root>
