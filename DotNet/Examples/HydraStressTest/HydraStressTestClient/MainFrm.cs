@@ -44,9 +44,9 @@ namespace Bollywell.Hydra.HydraStressTestClient
         private readonly Publisher<StressTestData> _stressSender;
         private long _errorCount;
         private readonly Publisher<StressTestError> _errorSender;
-        private readonly IPoller<HydraMessage> _poller;
         private readonly ISerializer<StressTestControl> _serializer = new HydraDataContractSerializer<StressTestControl>();
         private IDisposable _controlSubscription;
+        private readonly Publisher<StressTestControl> _controlPublisher;
         private bool _listening, _sending;
         private int _heartbeatIntervalMs;
         private IObservable<long> _heartbeatObservable;
@@ -68,8 +68,8 @@ namespace Bollywell.Hydra.HydraStressTestClient
             _hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], pollIntervalMs));
             _stressSender = new Publisher<StressTestData>(_hydraService);
             _errorSender = new Publisher<StressTestError>(_hydraService);
-            _poller = _hydraService.GetPoller(new HydraByTopicByDestinationMessageFetcher(typeof(StressTestControl).FullName, _myName));
-            _controlSubscription = _poller.Select(hydraMessage => _serializer.Deserialize(hydraMessage.Data)).ObserveOn(SynchronizationContext.Current).Subscribe(OnControlRecv);
+            _controlSubscription = new Subscriber<StressTestControl>(_hydraService, _myName).ObserveOn(SynchronizationContext.Current).Subscribe(OnControlRecv);
+            _controlPublisher = new Publisher<StressTestControl>(_hydraService) {RemoteParty = "StressTestConsole", ThisParty = _myName};
             _heartbeatIntervalMs = int.Parse(ConfigurationManager.AppSettings["HeartbeatIntervalMs"]);
             _heartbeatObservable = Observable.Interval(TimeSpan.FromMilliseconds(_heartbeatIntervalMs), Scheduler.ThreadPool);
             _heartbeatSubscription = _heartbeatObservable.Subscribe(OnHeartbeat);
@@ -185,7 +185,7 @@ namespace Bollywell.Hydra.HydraStressTestClient
                     Listen = _listening, Send = _sending, SendBatchSize = _maxSendBatchSize, SendIntervalMs = _sendIntervalMs,
                     SendMaxDataLength = _maxDataLength, BufferDelayMs = (_subscriber == null) ? 0 : _subscriber.BufferDelayMs
                 };
-                _hydraService.Send(new HydraMessage { Source = _myName, Destination = "StressTestConsole", Topic = typeof(StressTestControl).FullName, Data = _serializer.Serialize(reply) });
+                _controlPublisher.Send(reply);
             } catch (Exception) {
                 // Ignore errors
             }
