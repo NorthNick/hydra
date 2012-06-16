@@ -20,6 +20,7 @@ namespace HydraScavengerService
         private int _expiryDays;
         private Timer _timer;
         private int _pollIntervalSeconds;
+        private int _deleteBatchSize;
 
         public Service()
         {
@@ -39,6 +40,7 @@ namespace HydraScavengerService
 
             _pollIntervalSeconds = int.Parse(ConfigurationManager.AppSettings["PollIntervalSeconds"]);
             _expiryDays = int.Parse(ConfigurationManager.AppSettings["MessageExpiryDays"]);
+            _deleteBatchSize = int.Parse(ConfigurationManager.AppSettings["DeleteBatchSize"]);
 
             _timer = new Timer();
             _timer.Elapsed += TimerOnElapsed;
@@ -78,16 +80,21 @@ namespace HydraScavengerService
             var options = new ViewOptions();
             options.StartKey.Add(TransportMessage.MessageIdForDate(new DateTime(1970, 1, 1)).ToDocId());
             options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.Now.AddDays(-_expiryDays)).ToDocId());
+            options.Limit = _deleteBatchSize;
             // Cast to CouchDatabase as IDocumentDatabase does not currently contains SaveDocuments. IDocumentDatabase should be updated soon, when the cast can be removed.
             var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"]).GetDb() as CouchDatabase;
-            // Use the _bulk_docs interface to delete messages, supplying JSON of the form
-            // { "docs": [{"_id": "xxx", "_rev": "abc", "_deleted": true}, {"_id": "yyy", "_rev": "def", "_deleted": true}, ...] }
-            var docs = db.GetAllDocuments(options).Rows.Select(row => BulkDeleteDoc(row["id"].Value<string>(), row["value"]["rev"].Value<string>())).ToList();
-            db.SaveDocuments(new Documents { Values = docs }, false);
+            var rows = db.GetAllDocuments(options).Rows;
+            while (rows.Any()) {
+                var docs = rows.Select(row => BulkDeleteDoc(row["id"].Value<string>(), row["value"]["rev"].Value<string>())).ToList();
+                db.SaveDocuments(new Documents {Values = docs}, false);
+                rows = db.GetAllDocuments(options).Rows;
+            }
         }
 
         private static Document BulkDeleteDoc(string id, string rev)
         {
+            // Use the _bulk_docs interface to delete messages, supplying JSON of the form
+            // { "docs": [{"_id": "xxx", "_rev": "abc", "_deleted": true}, {"_id": "yyy", "_rev": "def", "_deleted": true}, ...] }
             var jobj = new JObject();
             jobj["_deleted"] = true;
             return new Document(jobj) { Id = id, Rev = rev };
