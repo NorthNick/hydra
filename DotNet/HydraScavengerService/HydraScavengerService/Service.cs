@@ -17,10 +17,7 @@ namespace HydraScavengerService
         private const string EventSource = "Hydra Scavenger Service";
         private const string EventLogName = "Application";
 
-        private int _expiryDays;
         private Timer _timer;
-        private int _pollIntervalSeconds;
-        private int _deleteBatchSize;
 
         public Service()
         {
@@ -38,13 +35,9 @@ namespace HydraScavengerService
         {
             EventLogger.WriteEntry(EventSource + " starting", EventLogEntryType.Information);
 
-            _pollIntervalSeconds = int.Parse(ConfigurationManager.AppSettings["PollIntervalSeconds"]);
-            _expiryDays = int.Parse(ConfigurationManager.AppSettings["MessageExpiryDays"]);
-            _deleteBatchSize = int.Parse(ConfigurationManager.AppSettings["DeleteBatchSize"]);
-
             _timer = new Timer();
             _timer.Elapsed += TimerOnElapsed;
-            _timer.Interval = _pollIntervalSeconds * 1000;
+            _timer.Interval = int.Parse(ConfigurationManager.AppSettings["PollIntervalSeconds"]) * 1000;
             _timer.Enabled = true;
 
             EventLogger.WriteEntry(EventSource + " started", EventLogEntryType.Information);
@@ -62,12 +55,14 @@ namespace HydraScavengerService
         {
             _timer.Enabled = false;
             try {
-                ScavengeMessages();
+                var deleteBatchSize = int.Parse(ConfigurationManager.AppSettings["DeleteBatchSize"]);
+                ScavengeByDate(deleteBatchSize);
+                ScavengeByNumber(deleteBatchSize);
             }
             catch (Exception ex) {
                 EventLogger.WriteEntry(string.Format(EventSource + " error: {0}", ex), EventLogEntryType.Error);
             } finally {
-                _timer.Interval = _pollIntervalSeconds * 1000;
+                _timer.Interval = int.Parse(ConfigurationManager.AppSettings["PollIntervalSeconds"]) * 1000;
                 _timer.Enabled = true;
             }
 
@@ -75,20 +70,48 @@ namespace HydraScavengerService
 
         #region Maintenance methods
 
-        private void ScavengeMessages()
+        private void ScavengeByDate(int deleteBatchSize)
         {
+            if (ConfigurationManager.AppSettings["MessageExpiryDays"] == null) return;
+            
+            var expiryDays = double.Parse(ConfigurationManager.AppSettings["MessageExpiryDays"]);
             var options = new ViewOptions();
             options.StartKey.Add(TransportMessage.MessageIdForDate(new DateTime(1970, 1, 1)).ToDocId());
-            options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.Now.AddDays(-_expiryDays)).ToDocId());
-            options.Limit = _deleteBatchSize;
+            options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.UtcNow.AddDays(-expiryDays)).ToDocId());
+            options.Limit = deleteBatchSize;
             // Cast to CouchDatabase as IDocumentDatabase does not currently contains SaveDocuments. IDocumentDatabase should be updated soon, when the cast can be removed.
             var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"]).GetDb() as CouchDatabase;
             var rows = db.GetAllDocuments(options).Rows;
             while (rows.Any()) {
-                var docs = rows.Select(row => BulkDeleteDoc(row["id"].Value<string>(), row["value"]["rev"].Value<string>())).ToList();
-                db.SaveDocuments(new Documents {Values = docs}, false);
+                DeleteDocs(rows, db);
                 rows = db.GetAllDocuments(options).Rows;
             }
+        }
+
+        private void ScavengeByNumber(int deleteBatchSize)
+        {
+            if (ConfigurationManager.AppSettings["MaxDocsInDatabase"] == null) return;
+
+            var maxDocs = long.Parse(ConfigurationManager.AppSettings["MaxDocsInDatabase"]);
+            var options = new ViewOptions();
+            options.StartKey.Add(TransportMessage.MessageIdForDate(new DateTime(1970, 1, 1)).ToDocId());
+            options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.UtcNow).ToDocId());
+            var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"]).GetDb() as CouchDatabase;
+            // Getting the empty document returns general database info
+            var deleteCount = db.GetDocument("").Value<long>("doc_count") - maxDocs;
+            while (deleteCount > 0) {
+                options.Limit = (int) Math.Min(deleteCount, deleteBatchSize);
+                var rows = db.GetAllDocuments(options).Rows;
+                if (!rows.Any()) break;
+                DeleteDocs(rows, db);
+                deleteCount -= deleteBatchSize;
+            }
+        }
+
+        private static void DeleteDocs(IEnumerable<JToken> rows, CouchDatabase db)
+        {
+            var docs = rows.Select(row => BulkDeleteDoc(row.Value<string>("id"), row["value"].Value<string>("rev"))).ToList();
+            db.SaveDocuments(new Documents { Values = docs }, false);
         }
 
         private static Document BulkDeleteDoc(string id, string rev)
