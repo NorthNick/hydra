@@ -1,14 +1,21 @@
-Setting up Hydra
+Hydra
 
-1. Follow the instructions in Readme.txt in the CouchDb directory of the distribution to set up CouchDb.
+Hydra is a simple, highly redundant pull-based messaging system. It uses CouchDb as its message store, and replication to deliver messages. It can be used by any language capable of making HTTP calls, and a C# client implementation is included.
 
-2. Open the Hydra solution in the DotNet directory and compile the Messaging project.The DLLs created in its bin directory are the ones you will need to use Hydra in your projects. If you are going to use PubSubByType or Conversations, you will need to compile up those projects as well.
 
-3. Try the PubSubByTypeExample project:
-    a) Check that project's App.config file has the right settings for your Hydra database.
-    b) Set the solution's startup project to PubSubByTypeExample and run it.
 
-4. Try the conversation example:
-    a) Check that the settings in the App.config files for ConversationExampleServer and ConversationExampleClient are correct.
-    b) Set the solution's startup projects to be ConversationExampleServer and ConversationExampleClient.
-    c) Run the solution.
+Description and documentation
+
+To find out more about Hydra, please visit the GitHub wiki at http://github.com/NorthNick/hydra/wiki or the CodePlex project page at http://hydra.codeplex.com.
+
+
+
+Releases
+
+The latest binary release is available from the CodePlex project page, and the latest code release is available from the GitHub tags page at https://github.com/NorthNick/hydra/tags or the CodePlex download page at http://hydra.codeplex.com/releases/view/89473.
+
+
+
+Installation
+
+See the Install.txt file.
