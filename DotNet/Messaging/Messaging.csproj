@@ -58,8 +58,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\NearestServerConfigProvider.cs" />
     <Compile Include="Config\RoundRobinConfigProvider.cs" />
     <Compile Include="Config\IConfigProvider.cs" />
+    <Compile Include="Config\ServerDistance.cs" />
+    <Compile Include="Config\ServerDistanceInfo.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="HydraService.cs" />
     <Compile Include="IHydraService.cs" />
