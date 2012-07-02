@@ -11,9 +11,13 @@ namespace Bollywell.Hydra.Messaging.Config
     /// </summary>
     public class RoundRobinConfigProvider : IConfigProvider
     {
+        private const string DefaultDatabase = "hydra";
+        private const int DefaultPort = 5984;
+
         private static List<string> _servers;
         private static int _serverIndex;
         private readonly string _database;
+        private readonly int _port;
 
         public string HydraServer { get; private set; }
         public int? PollIntervalMs { get; private set; }
@@ -22,21 +26,25 @@ namespace Bollywell.Hydra.Messaging.Config
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="hydraServer">Hydra server to communicate with</param>
-        /// <param name="database">Name of the messaging database</param>
+        /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
+        /// <param name="port">Port number of the messaging database. defaults to 5984</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public RoundRobinConfigProvider(string hydraServer, string database, int? pollIntervalMs = null) : this(new List<string> {hydraServer}, database, pollIntervalMs) {}
+        public RoundRobinConfigProvider(string hydraServer, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null) 
+            : this(new List<string> {hydraServer}, database, port, pollIntervalMs) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="hydraServers">Hydra servers to communicate with</param>
-        /// <param name="database">Name of the messaging database</param>
+        /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
+        /// <param name="port">Port number of the messaging database. defaults to 5984</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public RoundRobinConfigProvider(IEnumerable<string> hydraServers, string database, int? pollIntervalMs = null)
+        public RoundRobinConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
         {
             if (hydraServers == null || !hydraServers.Any()) throw new ArgumentException("At least one server must be supplied", "hydraServers");
             _servers = new List<string>(hydraServers);
             _database = database;
+            _port = port;
             HydraServer = _servers[0];
             PollIntervalMs = pollIntervalMs;
         }
@@ -46,7 +54,7 @@ namespace Bollywell.Hydra.Messaging.Config
         /// </summary>
         public IDocumentDatabase GetDb()
         {
-            return new CouchClient(HydraServer, 5984, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
+            return new CouchClient(HydraServer, _port, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
         }
 
         /// <summary>

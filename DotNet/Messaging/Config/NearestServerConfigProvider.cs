@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
-using System.Threading;
 using LoveSeat;
 using LoveSeat.Interfaces;
 
@@ -12,8 +11,11 @@ namespace Bollywell.Hydra.Messaging.Config
 {
     public class NearestServerConfigProvider : IConfigProvider
     {
+        private const string DefaultDatabase = "hydra";
+        private const int DefaultPort = 5984;
+
         private readonly string _database;
-        private readonly int _port = 5984;
+        private readonly int _port;
         private readonly ServerDistance<ServerDistanceInfo> _distances;
         private IDisposable _subscription;
 
@@ -24,20 +26,24 @@ namespace Bollywell.Hydra.Messaging.Config
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="hydraServer">Hydra server to communicate with</param>
-        /// <param name="database">Name of the messaging database</param>
+        /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
+        /// <param name="port">Port number of the messaging database. defaults to 5984</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public NearestServerConfigProvider(string hydraServer, string database, int? pollIntervalMs = null) : this(new List<string> {hydraServer}, database, pollIntervalMs) {}
+        public NearestServerConfigProvider(string hydraServer, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null) 
+            : this(new List<string> {hydraServer}, database, port, pollIntervalMs) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="hydraServers">Hydra servers to communicate with</param>
-        /// <param name="database">Name of the messaging database</param>
+        /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
+        /// <param name="port">Port number of the messaging database. defaults to 5984</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public NearestServerConfigProvider(IEnumerable<string> hydraServers, string database, int? pollIntervalMs = null)
+        public NearestServerConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
         {
             if (hydraServers == null || !hydraServers.Any()) throw new ArgumentException("At least one server must be supplied", "hydraServers");
             _database = database;
+            _port = port;
             PollIntervalMs = pollIntervalMs;
             _distances = new ServerDistance<ServerDistanceInfo>(hydraServers, MeasureDistance);
             Subscribe();

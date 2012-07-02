@@ -21,7 +21,8 @@ namespace Bollywell.Hydra.ConversationExampleServer
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
             var servers = ConfigurationManager.AppSettings["HydraServers"].Split(',').Select(s => s.Trim());
-            var hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], pollIntervalMs));
+            var port = int.Parse(ConfigurationManager.AppSettings["Port"]);
+            var hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], port, pollIntervalMs));
 
             new Switchboard<ConversationDto>(hydraService, MyName).Subscribe(OnNext);
         }

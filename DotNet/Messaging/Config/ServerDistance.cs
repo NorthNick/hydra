@@ -1,24 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
 
 namespace Bollywell.Hydra.Messaging.Config
 {
     internal class ServerDistance<TServerDistanceInfo> : IObservable<TServerDistanceInfo>, IDisposable where TServerDistanceInfo : class, IServerDistanceInfo
     {
-        private class TsdComparer : IComparer<TServerDistanceInfo>
-        {
-            public int Compare(TServerDistanceInfo x, TServerDistanceInfo y)
-            {
-                return x.Distance.CompareTo(y.Distance);
-            }
-        }
-
         // Timer interval of 5 mins in milliseconds.
         private const double TimerInterval = 5 * 60 * 1000;
 

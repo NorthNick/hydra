@@ -80,7 +80,8 @@ namespace HydraScavengerService
             options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.UtcNow.AddDays(-expiryDays)).ToDocId());
             options.Limit = deleteBatchSize;
             // Cast to CouchDatabase as IDocumentDatabase does not currently contains SaveDocuments. IDocumentDatabase should be updated soon, when the cast can be removed.
-            var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"]).GetDb() as CouchDatabase;
+            var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"],
+                                                  int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb() as CouchDatabase;
             var rows = db.GetAllDocuments(options).Rows;
             while (rows.Any()) {
                 DeleteDocs(rows, db);
@@ -96,7 +97,8 @@ namespace HydraScavengerService
             var options = new ViewOptions();
             options.StartKey.Add(TransportMessage.MessageIdForDate(new DateTime(1970, 1, 1)).ToDocId());
             options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.UtcNow).ToDocId());
-            var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"]).GetDb() as CouchDatabase;
+            var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"],
+                                                  int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb() as CouchDatabase;
             // Getting the empty document returns general database info
             var deleteCount = db.GetDocument("").Value<long>("doc_count") - maxDocs;
             while (deleteCount > 0) {

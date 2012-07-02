@@ -26,7 +26,8 @@ namespace Bollywell.Messaging.PubSubByTypeExample
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
             var servers = ConfigurationManager.AppSettings["HydraServers"].Split(',').Select(s => s.Trim());
-            _hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], pollIntervalMs));
+            var port = int.Parse(ConfigurationManager.AppSettings["Port"]);
+            _hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], port, pollIntervalMs));
 
             SerialiseComboBox.SelectedIndexChanged += SerialiseComboBox_SelectedIndexChanged;
             SerialiseComboBox.SelectedIndex = 0;
