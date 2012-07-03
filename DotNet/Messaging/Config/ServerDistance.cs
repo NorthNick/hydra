@@ -63,8 +63,9 @@ namespace Bollywell.Hydra.Messaging.Config
             // Poll each server immediately, then with an Interval millisecond gap, each on task pool threads.
             // Note that Generate runs measureDistance immediately, then waits for the timeSelector interval before passing on the result and immediately running measureDistance again. In
             // order to get results quickly timeSelector is zero fist time through, then a longer gap, but this means you get two measureDistances close together initially.
+            // We use the TaskPool Scheduler, as the observables don't seem to shut down on disposal if we use NewThread.
             _poller = _servers.Select(server => Observable.Generate(true, _ => true, _ => false, _ => _measureDistance(server),
-                                                                    isFirst => isFirst ? TimeSpan.Zero : TimeSpan.FromMilliseconds(Interval), Scheduler.NewThread))
+                                                                    isFirst => isFirst ? TimeSpan.Zero : TimeSpan.FromMilliseconds(Interval), Scheduler.TaskPool))
                               .Merge().Subscribe(OnDistanceInfo);
         }
 
