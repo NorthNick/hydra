@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using LoveSeat;
 using LoveSeat.Interfaces;
 
@@ -45,7 +46,7 @@ namespace Bollywell.Hydra.Messaging.Config
             _database = database;
             _port = port;
             PollIntervalMs = pollIntervalMs;
-            _distances = new ServerDistance<ServerDistanceInfo>(hydraServers, MeasureDistance);
+            _distances = new ServerDistance<ServerDistanceInfo>(hydraServers, MeasureDistance, InitDistance);
             Subscribe();
         }
 
@@ -83,18 +84,27 @@ namespace Bollywell.Hydra.Messaging.Config
 
         private ServerDistanceInfo MeasureDistance(string server)
         {
-            var timer = Stopwatch.StartNew();
             bool responseOk = false;
+            long elapsed = 0;
             try {
                 // This URL checks both that the server is up, and that the view index is up to date
                 string url = string.Format("http://{0}:{1}/{2}/_design/hydra/_view/broadcastMessages?limit=0", server, _port, _database);
-                HttpWebResponse response = (HttpWebResponse) WebRequest.Create(url).GetResponse();
-                responseOk = response.StatusCode == HttpStatusCode.OK;
+                var timer = Stopwatch.StartNew();
+                using (HttpWebResponse response = (HttpWebResponse)WebRequest.Create(url).GetResponse()) {
+                    elapsed = timer.ElapsedMilliseconds;
+                    responseOk = response.StatusCode == HttpStatusCode.OK;
+                }
             } catch (Exception) {
                 // Swallow errors
             }
-            return new ServerDistanceInfo {Address = server, Distance = responseOk ? timer.ElapsedMilliseconds : long.MaxValue, IsReachable = responseOk};
+            return new ServerDistanceInfo {Address = server, Distance = responseOk ? elapsed : long.MaxValue, IsReachable = responseOk};
         }
+
+        private void InitDistance(IEnumerable<string> servers)
+        {
+            Task.WaitAll(servers.Select(server => Task.Factory.StartNew(() => { MeasureDistance(server); })).ToArray(), 1500);
+        }
+
         #endregion
     }
 }

@@ -12,13 +12,14 @@ namespace Bollywell.Hydra.Messaging.Config
         // Timer interval of 5 mins in milliseconds.
         private const double TimerInterval = 5 * 60 * 1000;
 
-        private readonly IEnumerable<string> _servers;
+        private readonly List<string> _servers;
         private readonly Subject<TServerDistanceInfo> _subject = new Subject<TServerDistanceInfo>();
         private Dictionary<string, TServerDistanceInfo> _serverInfo = new Dictionary<string,TServerDistanceInfo>();
         private string _closestServer;
         private IDisposable _poller;
         private readonly Func<string, TServerDistanceInfo> _measureDistance;
         private readonly object _lock = new object();
+        private bool _allUnreachable = false;
 
         #region Properties
 
@@ -46,11 +47,13 @@ namespace Bollywell.Hydra.Messaging.Config
         /// </summary>
         /// <param name="servers">Names or string representation of IP addresses of the servers to monitor</param>
         /// <param name="measureDistance">Optional function to measure distance to a server</param>
-        public ServerDistance(IEnumerable<string> servers, Func<string, TServerDistanceInfo> measureDistance = null)
+        /// <param name="init">Optional initialisation function</param>
+        public ServerDistance(IEnumerable<string> servers, Func<string, TServerDistanceInfo> measureDistance = null, Action<IEnumerable<string>> init = null)
         {
             Interval = TimerInterval;
-            _servers = servers;
+            _servers = servers.ToList();
             _measureDistance = measureDistance ?? MeasureDistance;
+            (init ?? Init)(_servers);
         }
 
         #endregion
@@ -82,9 +85,13 @@ namespace Bollywell.Hydra.Messaging.Config
             // Ensure that multiple threads do not attempt to update _distances at the same time.
             lock (_lock) {
                 _serverInfo[sdi.Address] = sdi;
-                if (_closestServer == null || (_closestServer != sdi.Address && sdi.Distance < _serverInfo[_closestServer].Distance - Tolerance)) {
+                if (sdi.IsReachable && (_closestServer == null || (_closestServer != sdi.Address && sdi.Distance < _serverInfo[_closestServer].Distance - Tolerance))) {
                     _closestServer = sdi.Address;
+                    _allUnreachable = false;
                     _subject.OnNext(sdi);
+                } else if (!_allUnreachable && !sdi.IsReachable && _serverInfo.Count == _servers.Count && _serverInfo.All(kvp => !kvp.Value.IsReachable)) {
+                    _allUnreachable = true;
+                    _subject.OnError(new Exception("All servers unreachable"));
                 }
             }
         }
@@ -95,6 +102,8 @@ namespace Bollywell.Hydra.Messaging.Config
         {
             throw new NotImplementedException("MeasureDistance must be overridden or supplied in the constructor");
         }
+
+        protected virtual void Init(IEnumerable<string> servers) {}
 
         #region Implementation of Interfaces
 
