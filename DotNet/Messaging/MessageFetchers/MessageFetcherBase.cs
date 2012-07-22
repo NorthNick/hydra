@@ -19,7 +19,7 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
         public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(IDocumentDatabase db, IMessageId startId, long lastSeq)
         {
             return AllMessagesFrom(db, startId).Where(row => (long) row["value"] <= lastSeq).Select(TransportMessage.Hydrate<TMessage>)
-                    .SkipWhile(message => message.MessageId == startId);
+                    .SkipWhile(message => message.MessageId.CompareTo(startId) <= 0);
         }
 
         public IEnumerable<TMessage> MessagesInSet(IDocumentDatabase db, IEnumerable<IMessageId> messageIds)
