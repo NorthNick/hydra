@@ -62,7 +62,10 @@ namespace Bollywell.Hydra.Messaging.Config
 
         public void Start()
         {
-            _serverInfo = new Dictionary<string, TServerDistanceInfo>();
+            lock (_lock) {
+                _serverInfo = new Dictionary<string, TServerDistanceInfo>();
+                _closestServer = null;
+            }
             // Poll each server immediately, then with an Interval millisecond gap, each on task pool threads.
             // Note that Generate runs measureDistance immediately, then waits for the timeSelector interval before passing on the result and immediately running measureDistance again. In
             // order to get results quickly timeSelector is zero fist time through, then a longer gap, but this means you get two measureDistances close together initially.

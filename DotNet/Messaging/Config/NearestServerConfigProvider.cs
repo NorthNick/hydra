@@ -19,6 +19,7 @@ namespace Bollywell.Hydra.Messaging.Config
         private readonly int _port;
         private readonly ServerDistance<ServerDistanceInfo> _distances;
         private IDisposable _subscription;
+        private readonly object _lock = new object();
 
         public string HydraServer { get; private set; }
         public int? PollIntervalMs { get; private set; }
@@ -64,11 +65,15 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="server">The server that could not be contacted</param>
         public void ServerError(string server)
         {
-            if (server == HydraServer) {
-                // The current server has gone offline. Restart _distances to force a repoll.
-                _subscription.Dispose();
-                _distances.Stop();
-                Subscribe();
+            // The lock ensures that multiple threads do not attempt to reset at the same time.
+            // We could use double-checked locking, but even Jon Skeet is doubtful about it, and there would not be much performance gain.
+            lock (_lock) {
+                if (server == HydraServer) {
+                    // The current server has gone offline. Restart _distances to force a repoll.
+                    _subscription.Dispose();
+                    _distances.Stop();
+                    Subscribe();
+                }
             }
         }
 
@@ -102,6 +107,8 @@ namespace Bollywell.Hydra.Messaging.Config
 
         private void InitDistance(IEnumerable<string> servers)
         {
+            // Do a one-off poll of everything and discard the results, but only wait 1.5 seconds in case of very slow responses. For some reason the first connection to
+            // a CouchDb server on localhost takes one second for the TCP connect phase, so this gets over that initial slow poll.
             Task.WaitAll(servers.Select(server => Task.Factory.StartNew(() => { MeasureDistance(server); })).ToArray(), 1500);
         }
 
