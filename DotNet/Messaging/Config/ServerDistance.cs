@@ -9,8 +9,8 @@ namespace Bollywell.Hydra.Messaging.Config
 {
     internal class ServerDistance<TServerDistanceInfo> : IObservable<TServerDistanceInfo>, IDisposable where TServerDistanceInfo : class, IServerDistanceInfo
     {
-        // Timer interval of 5 mins in milliseconds.
-        private const double TimerInterval = 5 * 60 * 1000;
+        // Default interval of 20 seconds.
+        private const double TimerInterval = 20000;
 
         private readonly List<string> _servers;
         private readonly Subject<TServerDistanceInfo> _subject = new Subject<TServerDistanceInfo>();

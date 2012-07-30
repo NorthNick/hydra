@@ -21,8 +21,28 @@ namespace Bollywell.Hydra.Messaging.Config
         private IDisposable _subscription;
         private readonly object _lock = new object();
 
+        #region Properties
+
+        /// <summary>
+        /// The currently nearest Hydra server.
+        /// </summary>
         public string HydraServer { get; private set; }
+
+        /// <summary>
+        /// Interval at which to poll for new messages, in milliseconds.
+        /// </summary>
         public int? PollIntervalMs { get; private set; }
+
+        /// <summary>
+        /// The interval at which distance to Hydra servers is measured, in milliseonds.
+        /// </summary>
+        public double DistanceIntervalMs
+        {
+            get { return _distances.Interval; }
+            set { _distances.Interval = value; }
+        }
+
+        #endregion
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
