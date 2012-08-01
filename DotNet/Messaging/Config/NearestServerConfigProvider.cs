@@ -10,7 +10,7 @@ using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.Config
 {
-    public class NearestServerConfigProvider : IConfigProvider
+    public class NearestServerConfigProvider : IConfigProvider, IDisposable
     {
         private const string DefaultDatabase = "hydra";
         private const int DefaultPort = 5984;
@@ -133,5 +133,27 @@ namespace Bollywell.Hydra.Messaging.Config
         }
 
         #endregion
+
+        #region Implementation of IDisposable
+
+        // See http://msdn.microsoft.com/en-us/library/ms244737.aspx
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                // free managed resources
+                _distances.Dispose();
+            }
+            // free native resources if there are any.
+        }
+
+        #endregion
+
     }
 }
