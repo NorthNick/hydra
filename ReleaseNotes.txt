@@ -1,0 +1,23 @@
+30/7/2012 Version 0.4
+
+The first beta release of Hydra. Full source code is in hydra0.4.source.zip. Binaries and CouchDb setup information only are in hydra0.4.dist.zip. These correspond to the Git repository tag v0.4.
+
+The main change is the addition of NearestServerConfigProvider, which gives failover and failback functionality. There have also been some improvement to the Scavenger Service, and several components are more configurable.
+
+13/6/2012 Version 0.3
+
+The third release of Hydra. Full source code is in hydra0.3.source.zip. Binaries and CouchDb setup information only are in hydra0.3.dist.zip. These correspond to the Mercurial repository tag v0.3.
+
+The main change is the addition of the Stress Tester example application. This has been used to run Hydra at over 2,000,000 messages per day for extended periods to determine server load and see if CouchDb is up to the job. Useful for testing your own setup and as an example of the use of multiple message types to communicate between apps.
+
+9/5/2012 Version 0.2
+
+The second public release of Hydra. Full source code is in hydra0.2.source.zip. Binaries and CouchDb setup information only are in hydra0.2.dist.zip. These correspond to the Mercurial repository tag v0.2.
+
+The primary change from v0.1 is to remove the static Services class and replace it with the new HydraService class, which is instanced, allowing one app to talk to multiple Hydra clouds. This lets you split up the messaging world into multiple subsystems, with their own collections of replicating databases.
+
+As Services has gone, there are breaking changes from v0.1 in this distribution - the documentation has been updated to match the new code, so please see the examples for use of HydraService. While messages can be sent and received between v0.1 and v0.2 applications, v0.1 code will not compile with v0.2 binaries and vice versa.
+
+28/4/2012 Version 0.1
+
+The first public release of Hydra. Full source code is in hydra0.1.source.zip. Binaries and CouchDb setup information only are in hydra0.1.dist.zip. These correspond to the Mercurial repository tag v0.1.
