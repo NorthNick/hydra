@@ -1,4 +1,5 @@
-﻿using LoveSeat;
+﻿using Bollywell.Hydra.Messaging.MessageIds;
+using LoveSeat;
 using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.MessageFetchers

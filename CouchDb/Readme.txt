@@ -3,25 +3,21 @@
 
 Install CouchDb Version 1.2: get the installer from couchdb.apache.org. Install.
 
-Then modify Erlang as described in Erlang\Readme.txt
-
 If this is the first instance of CouchDb, create the Hydra database as below. Otherwise go to the config step.
 
-1. In Futon create an admin logon with the standard username and password (admin/match in all the Hydra examples). Note that Futon may misbehave in browsers other than Firefox, so it is safest to use that.
+1. In Futon create an admin logon with a username and password of your choice. Note that Futon may misbehave in browsers other than Firefox, so it is safest to use that.
 2. Log in as your admin user.
 3. Click Create database and enter a name for your Hydra database. Example programs in the Hydra distribution assume the database is called hydra, but this can be changed in app.config.
 4. Go into your new database and create design documents as follows:
    Click New document, then click the Source box on the resulting page.
-   Replace the text with the contents of the validate.json file from the CouchDb project in the Hydra distribution.
-   Click Save document.
+   Replace the text with the contents of the validate.json file from the _design subdirectory of this directory.
+   Click Save Document.
    Repeat with the contents of the hydra.json document.
 
 Config
 1. In Futon, go to Configuration.
-2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false. You may also want to set level=error in the log section, to prevent your log becoming too huge.
-3. Ensure that algorithm=utc_machine_id (this should have been done during the Erlang changes above).
-4. Ensure that machine_id is a unique value across all CouchDb instances (see the Erlang changes for a bit more on this).
-5. If you are installing on Windows 2008 Server, then be aware that the default file compression technique, snappy, does not work properly as of CouchDb version 1.2 - see https://issues.apache.org/jira/browse/COUCHDB-1482. You can change file_compression on these machines to something like deflate_6 to get working file compression. Note that different instances can specify different compression settings with no harm.
+2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false, algorithm=utc_random. You may also want to set level=error in the log section, to prevent your log becoming too huge.
+3. If you are installing on Windows 2008 Server, then be aware that the default file compression technique, snappy, does not work properly as of CouchDb version 1.2 - see https://issues.apache.org/jira/browse/COUCHDB-1482. You can change file_compression on these machines to something like deflate_6 to get working file compression. Note that different instances can specify different compression settings with no harm.
 
 Replication
 If this is not the first instance of CouchDb, then set up replication.

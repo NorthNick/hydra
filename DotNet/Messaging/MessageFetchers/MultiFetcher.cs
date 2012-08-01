@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.MessageFetchers

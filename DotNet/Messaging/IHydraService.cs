@@ -1,4 +1,5 @@
 using Bollywell.Hydra.Messaging.MessageFetchers;
+using Bollywell.Hydra.Messaging.MessageIds;
 using Bollywell.Hydra.Messaging.Pollers;
 
 namespace Bollywell.Hydra.Messaging
