@@ -9,17 +9,17 @@ namespace Bollywell.Hydra.Messaging.MessageIds
     {
         public static IMessageId Create(string couchId)
         {
-            return new LongMessageId(couchId);
+            return new UtcIdMessageId(couchId);
         }
 
         public static IMessageId Create(DateTime utcDate)
         {
-            return new LongMessageId(utcDate);
+            return new UtcIdMessageId(utcDate);
         }
 
         public static bool IsMessageId(string couchId)
         {
-            return LongMessageId.IsMessageId(couchId);
+            return UtcIdMessageId.IsMessageId(couchId);
         }
 
     }

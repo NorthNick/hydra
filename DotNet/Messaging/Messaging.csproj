@@ -70,9 +70,8 @@
     <Compile Include="MessageFetchers\HydraByTopicMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MessageFetcherBase.cs" />
     <Compile Include="MessageIds\IMessageId.cs" />
-    <Compile Include="MessageIds\LongMessageId.cs" />
     <Compile Include="MessageIds\MessageIdManager.cs" />
-    <Compile Include="MessageIds\UtcRandomMessageId.cs" />
+    <Compile Include="MessageIds\UtcIdMessageId.cs" />
     <Compile Include="Pollers\Poller.cs" />
     <Compile Include="Serializers\HydraDataContractSerializer.cs" />
     <Compile Include="Serializers\HydraJsonSerializer.cs" />

@@ -17,8 +17,8 @@ If this is the first instance of CouchDb, create the Hydra database as below. Ot
 
 Config
 1. In Futon, go to Configuration.
-2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false, algorithm=utc_random. You may also want to set level=error in the log section, to prevent your log becoming too huge.
-3. Set algorithm=utc_id_suffix. At the bottom of the Futon page, click "Add a new section"; in the resulting dialogue box, set section=uuids, option=utc_id_suffix, value=xy where xy is a two-digit hex value e.g. 06 or a5. Each separate CouchDb instance must have a unique value two-digit hex value. Click the Create button.
+2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false. You may also want to set level=error in the log section, to prevent your log becoming too huge.
+3. Set algorithm=utc_id. At the bottom of the Futon page, click "Add a new section"; in the resulting dialogue box, set section=uuids, option=utc_id_suffix, value=<suffix> where <suffix> is a string of your choice, unique to this CouchDb instance. (You might choose a number e.g. 23, or the machine name, or any unique string you fancy. But bear in mind that these strings occur in every message and in all the database indexes, so long suffixes can use up a lot of space.) Click the Create button.
 4. If you are installing on Windows 2008 Server, then be aware that the default file compression technique, snappy, does not work properly as of CouchDb version 1.2 - see https://issues.apache.org/jira/browse/COUCHDB-1482. You can change file_compression on these machines to something like deflate_6 to get working file compression. Note that different instances can specify different compression settings with no harm.
 
 Replication

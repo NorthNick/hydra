@@ -2,7 +2,7 @@
 ------------------------------------
 
 Hydra requires document ids that are monotonically increasing for any CouchDb instance, and globally unique across instances. The files here implement a document id
-scheme with these properties, by modifying the couch_uuids.erl file in the CouchDb source at http://git-wip-us.apache.org/repos/asf?p=couchdb.git.
+scheme with these properties, by modifying the couch_uuids.erl file in the CouchDb source at git://git.apache.org/couchdb.git.
 
 Files
 -----
@@ -25,7 +25,4 @@ To modify CouchDb, do as follows. Here $CouchDb refers to the CouchDb installati
    including the final dot, and then hit return. That should yield {ok,couch_uuids}. Type halt().<return> to exit Erlang.
 4. You should now have a couch_uuids.beam file in this directory. Stop the Apache CouchDb service if it's running; copy couch_uuids.beam to the CouchDb binary directory at somewhere like
    $CouchDB\lib\couch-1.2.0\ebin, replacing the existing copy.
-5. Edit $CouchDB\etc\couchdb\local.ini to add a line in the [couchdb] section along the lines of
-   machine_id = 3
-   (the value of machine_id must be different for each instance of CouchDb, and must be <= 255).
-6. Restart the service, go into Futon, Configuration, and change the algorithm in the uuids section to utc_machine_id.
+5. Restart the service. Now configure CouchDb as described in the README in the directory above this one.
