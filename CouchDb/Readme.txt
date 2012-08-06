@@ -4,7 +4,6 @@
 Install the latest version of CouchDb: get the installer from couchdb.apache.org. Install.
 
 If your CouchDb is Version 1.2 or below, then modify Erlang as described in Erlang\Readme.txt. (Later versions do not need modification, as the Erlang changes have been incorporated in the CouchDb distribution.)
-
 If this is the first instance of CouchDb, create the Hydra database as below. Otherwise go to the config step.
 
 1. In Futon create an admin logon with username and password of your choice. Note that Futon may misbehave in browsers other than Firefox, so it is safest to use that.
@@ -12,13 +11,13 @@ If this is the first instance of CouchDb, create the Hydra database as below. Ot
 3. Click Create database and enter a name for your Hydra database. Example programs in the Hydra distribution assume the database is called hydra, but this can be changed in app.config.
 4. Go into your new database and create design documents as follows:
    Click New document, then click the Source box on the resulting page.
-   Replace the text with the contents of the validate.json file from the CouchDb project in the Hydra distribution.
-   Click Save document.
+   Replace the text with the contents of the validate.json file from the _design subdirectory of this directory.
+   Click Save Document.
    Repeat with the contents of the hydra.json document.
 
 Config
 1. In Futon, go to Configuration.
-2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false. You may also want to set level=error in the log section, to prevent your log becoming too huge.
+2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false, algorithm=utc_random. You may also want to set level=error in the log section, to prevent your log becoming too huge.
 3. Set algorithm=utc_id_suffix. At the bottom of the Futon page, click "Add a new section"; in the resulting dialogue box, set section=uuids, option=utc_id_suffix, value=xy where xy is a two-digit hex value e.g. 06 or a5. Each separate CouchDb instance must have a unique value two-digit hex value. Click the Create button.
 4. If you are installing on Windows 2008 Server, then be aware that the default file compression technique, snappy, does not work properly as of CouchDb version 1.2 - see https://issues.apache.org/jira/browse/COUCHDB-1482. You can change file_compression on these machines to something like deflate_6 to get working file compression. Note that different instances can specify different compression settings with no harm.
 

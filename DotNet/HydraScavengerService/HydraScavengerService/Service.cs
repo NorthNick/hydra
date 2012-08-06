@@ -7,6 +7,7 @@ using System.ServiceProcess;
 using System.Timers;
 using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Config;
+using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat;
 using Newtonsoft.Json.Linq;
 
@@ -76,8 +77,8 @@ namespace HydraScavengerService
             
             var expiryDays = double.Parse(ConfigurationManager.AppSettings["MessageExpiryDays"]);
             var options = new ViewOptions();
-            options.StartKey.Add(TransportMessage.MessageIdForDate(new DateTime(1970, 1, 1)).ToDocId());
-            options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.UtcNow.AddDays(-expiryDays)).ToDocId());
+            options.StartKey.Add(MessageIdManager.Create(new DateTime(1970, 1, 1)).ToDocId());
+            options.EndKey.Add(MessageIdManager.Create(DateTime.UtcNow.AddDays(-expiryDays)).ToDocId());
             options.Limit = deleteBatchSize;
             // Cast to CouchDatabase as IDocumentDatabase does not currently contains SaveDocuments. IDocumentDatabase should be updated soon, when the cast can be removed.
             var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"],
@@ -95,8 +96,8 @@ namespace HydraScavengerService
 
             var maxDocs = long.Parse(ConfigurationManager.AppSettings["MaxDocsInDatabase"]);
             var options = new ViewOptions();
-            options.StartKey.Add(TransportMessage.MessageIdForDate(new DateTime(1970, 1, 1)).ToDocId());
-            options.EndKey.Add(TransportMessage.MessageIdForDate(DateTime.UtcNow).ToDocId());
+            options.StartKey.Add(MessageIdManager.Create(new DateTime(1970, 1, 1)).ToDocId());
+            options.EndKey.Add(MessageIdManager.Create(DateTime.UtcNow).ToDocId());
             var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"],
                                                   int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb() as CouchDatabase;
             // Getting the empty document returns general database info

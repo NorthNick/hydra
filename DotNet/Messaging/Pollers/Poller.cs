@@ -5,6 +5,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
+using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.Pollers
@@ -43,7 +44,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
             _configProvider = configProvider;
             _messageFetcher = messageFetcher;
             BufferDelayMs = bufferDelayMs;
-            LastId = startId ?? TransportMessage.MessageIdForDate(DateTime.UtcNow);
+            LastId = startId ?? MessageIdManager.Create(DateTime.UtcNow);
             // Set timer to fire just once
             _timer = new Timer(TimerOnElapsed, null, _configProvider.PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
         }
@@ -86,7 +87,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 if (changes.Any()) _messageBuffer = new List<IEnumerable<TMessage>> {_messageBuffer, _messageFetcher.MessagesInSet(_db, changes)}.Merge().ToList();
             }
 
-            var delayedId = TransportMessage.MessageIdForDate(DateTime.UtcNow.AddMilliseconds(-BufferDelayMs));
+            var delayedId = MessageIdManager.Create(DateTime.UtcNow.AddMilliseconds(-BufferDelayMs));
             var newMessages = _messageBuffer.TakeWhile(m => m.MessageId.CompareTo(delayedId) <= 0).ToList();
             foreach (var message in newMessages) {
                 // Track the last message processed in case we swap servers.
@@ -109,7 +110,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
             //            ],
             //  "last_seq":28313}
             lastSeq = (long) changes["last_seq"];
-            return changes["results"].Select(jObj => (string) jObj["id"]).Where(LongMessageId.IsMessageId).Select(id => new LongMessageId(id))
+            return changes["results"].Select(jObj => (string) jObj["id"]).Where(MessageIdManager.IsMessageId).Select(MessageIdManager.Create)
                     .OrderBy(mId => mId).SkipWhile(mId => mId.CompareTo(_startId) <= 0);
         }
 
