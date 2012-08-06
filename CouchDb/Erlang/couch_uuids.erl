@@ -33,7 +33,7 @@ random() ->
     list_to_binary(couch_util:to_hex(crypto:rand_bytes(16))).
 
 utc_random() ->
-	utc_suffix(couch_util:to_hex(crypto:rand_bytes(9))).
+    utc_suffix(couch_util:to_hex(crypto:rand_bytes(9))).
 
 utc_suffix(Suffix) ->
     Now = {_, _, Micro} = now(),
@@ -56,8 +56,8 @@ handle_call(create, _From, random) ->
     {reply, random(), random};
 handle_call(create, _From, utc_random) ->
     {reply, utc_random(), utc_random};
-handle_call(create, _From, {utc_machine_id, MachineId}) ->
-	{reply, utc_suffix(MachineId), {utc_machine_id, MachineId}};
+handle_call(create, _From, {utc_id_suffix, UtcIdSuffix}) ->
+    {reply, utc_suffix(UtcIdSuffix), {utc_id_suffix, UtcIdSuffix}};
 handle_call(create, _From, {sequential, Pref, Seq}) ->
     Result = ?l2b(Pref ++ io_lib:format("~6.16.0b", [Seq])),
     case Seq >= 16#fff000 of
@@ -88,15 +88,14 @@ inc() ->
 
 state() ->
     AlgoStr = couch_config:get("uuids", "algorithm", "random"),
-	MachineId = io_lib:format("~2.16.0b", [list_to_integer(
-			couch_config:get("couchdb", "machine_id", "0"))]),
+    UtcIdSuffix = couch_config:get("uuids", "utc_id_suffix", ""),
     case couch_util:to_existing_atom(AlgoStr) of
         random ->
             random;
         utc_random ->
             utc_random;
-		utc_machine_id ->
-			{utc_machine_id, MachineId};
+        utc_id_suffix ->
+            {utc_id_suffix, UtcIdSuffix};
         sequential ->
             {sequential, new_prefix(), inc()};
         Unknown ->

@@ -11,8 +11,7 @@ couch_db.hrl		- include file needed for compilation. Taken directly from the Cou
 couch_uuids.erl		- modified version of couch_uuids.erl
 couch_uuids.src.erl - original version, taken from the CouchDb source.
 
-When new versions of CouchDb are released, check the source code against couch_uuids.src.erl, and make corresponding modifications to couch_uuids.erl if necessary.
-NOTE: do not edit these files in Notepad or Visual Studio. They save files in ways that Erlang does not understand and you get strange syntax and compilation errors. Notepad++ works well though.
+Versions of CouchDb after 1.2.0 should include this code, so the changes described here will not be necessary.
 
 Installation
 ------------

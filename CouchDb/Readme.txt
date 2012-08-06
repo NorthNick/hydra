@@ -1,13 +1,13 @@
 ﻿CouchDb setup
 -------------
 
-Install CouchDb Version 1.2: get the installer from couchdb.apache.org. Install.
+Install the latest version of CouchDb: get the installer from couchdb.apache.org. Install.
 
-Then modify Erlang as described in Erlang\Readme.txt
+If your CouchDb is Version 1.2 or below, then modify Erlang as described in Erlang\Readme.txt. (Later versions do not need modification, as the Erlang changes have been incorporated in the CouchDb distribution.)
 
 If this is the first instance of CouchDb, create the Hydra database as below. Otherwise go to the config step.
 
-1. In Futon create an admin logon with the standard username and password (admin/match in all the Hydra examples). Note that Futon may misbehave in browsers other than Firefox, so it is safest to use that.
+1. In Futon create an admin logon with username and password of your choice. Note that Futon may misbehave in browsers other than Firefox, so it is safest to use that.
 2. Log in as your admin user.
 3. Click Create database and enter a name for your Hydra database. Example programs in the Hydra distribution assume the database is called hydra, but this can be changed in app.config.
 4. Go into your new database and create design documents as follows:
@@ -19,17 +19,16 @@ If this is the first instance of CouchDb, create the Hydra database as below. Ot
 Config
 1. In Futon, go to Configuration.
 2. Set bind_address=0.0.0.0, max_replication_retry_count=infinity, delayed_commits=false. You may also want to set level=error in the log section, to prevent your log becoming too huge.
-3. Ensure that algorithm=utc_machine_id (this should have been done during the Erlang changes above).
-4. Ensure that machine_id is a unique value across all CouchDb instances (see the Erlang changes for a bit more on this).
-5. If you are installing on Windows 2008 Server, then be aware that the default file compression technique, snappy, does not work properly as of CouchDb version 1.2 - see https://issues.apache.org/jira/browse/COUCHDB-1482. You can change file_compression on these machines to something like deflate_6 to get working file compression. Note that different instances can specify different compression settings with no harm.
+3. Set algorithm=utc_id_suffix. At the bottom of the Futon page, click "Add a new section"; in the resulting dialogue box, set section=uuids, option=utc_id_suffix, value=xy where xy is a two-digit hex value e.g. 06 or a5. Each separate CouchDb instance must have a unique value two-digit hex value. Click the Create button.
+4. If you are installing on Windows 2008 Server, then be aware that the default file compression technique, snappy, does not work properly as of CouchDb version 1.2 - see https://issues.apache.org/jira/browse/COUCHDB-1482. You can change file_compression on these machines to something like deflate_6 to get working file compression. Note that different instances can specify different compression settings with no harm.
 
 Replication
 If this is not the first instance of CouchDb, then set up replication.
 1. In Futon go into the _replicator database.
 2. For each machine, <machine_name> with which you want to replicate:
    a. Create a document in _replicator called PullFrom<machine-name>
-   b. Give it fields create_target=true, continuous=true, source=http://admin:match@<machine_name>:5984/hydra, target=http://admin:match@127.0.0.1:5984/hydra
-      It's probably best to make the <machine_name> in source a FQDN to prevent ambiguity.
+   b. Give it fields create_target=true, continuous=true, source=http://<user>:<password>@<machine_name>:5984/hydra, target=http://<user>:<password>@127.0.0.1:5984/hydra
+      <user> and <password> are those for your CouchDb admin logon. It's probably best to make the <machine_name> in source a FQDN to prevent ambiguity.
    c. Save the document. Check that it gets modified to say replication_state=triggered.
 3. For each of the replication targets above, create an equivalent pull replication in its _replicator database. Fields will be identical except that the machine name in source will be the machine on which you're installing CouchDb.
 
