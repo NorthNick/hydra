@@ -9,6 +9,7 @@ using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat;
+using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
 
 namespace HydraScavengerService
@@ -80,9 +81,8 @@ namespace HydraScavengerService
             options.StartKey.Add(MessageIdManager.Create(new DateTime(1970, 1, 1)).ToDocId());
             options.EndKey.Add(MessageIdManager.Create(DateTime.UtcNow.AddDays(-expiryDays)).ToDocId());
             options.Limit = deleteBatchSize;
-            // Cast to CouchDatabase as IDocumentDatabase does not currently contains SaveDocuments. IDocumentDatabase should be updated soon, when the cast can be removed.
             var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"],
-                                                  int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb() as CouchDatabase;
+                                                  int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb();
             var rows = db.GetAllDocuments(options).Rows;
             while (rows.Any()) {
                 DeleteDocs(rows, db);
@@ -99,7 +99,7 @@ namespace HydraScavengerService
             options.StartKey.Add(MessageIdManager.Create(new DateTime(1970, 1, 1)).ToDocId());
             options.EndKey.Add(MessageIdManager.Create(DateTime.UtcNow).ToDocId());
             var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"],
-                                                  int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb() as CouchDatabase;
+                                                  int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb();
             // Getting the empty document returns general database info
             var deleteCount = db.GetDocument("").Value<long>("doc_count") - maxDocs;
             while (deleteCount > 0) {
@@ -111,7 +111,7 @@ namespace HydraScavengerService
             }
         }
 
-        private static void DeleteDocs(IEnumerable<JToken> rows, CouchDatabase db)
+        private static void DeleteDocs(IEnumerable<JToken> rows, IDocumentDatabase db)
         {
             var docs = rows.Select(row => BulkDeleteDoc(row.Value<string>("id"), row["value"].Value<string>("rev"))).ToList();
             db.SaveDocuments(new Documents { Values = docs }, false);
