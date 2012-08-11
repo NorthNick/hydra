@@ -1,8 +1,15 @@
+11/8/2012 Not yet released
+
+Updated Erlang UUID code to match the official CouchDb source.
+Improved MessageId management to allow any suffix, rather than just two-byte hex strings.
+Added PreferenceOrderConfigProvider.
+
+
 30/7/2012 Version 0.4
 
 The first beta release of Hydra. Full source code is in hydra0.4.source.zip. Binaries and CouchDb setup information only are in hydra0.4.dist.zip. These correspond to the Git repository tag v0.4.
 
-The main change is the addition of NearestServerConfigProvider, which gives failover and failback functionality. There have also been some improvement to the Scavenger Service, and several components are more configurable.
+The main change is the addition of NearestServerConfigProvider, which gives failover and failback functionality. There have also been some improvements to the Scavenger Service, and several components are more configurable.
 
 13/6/2012 Version 0.3
 

@@ -107,9 +107,20 @@ namespace Bollywell.Hydra.Messaging.Config
 
         public void Dispose()
         {
-            Stop();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) {
+                // free managed resources
+                Stop();
+            }
+            // free native resources if there are any.
         }
 
         #endregion
+
     }
 }
