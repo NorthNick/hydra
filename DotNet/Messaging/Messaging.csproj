@@ -59,6 +59,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\NearestServerConfigProvider.cs" />
+    <Compile Include="Config\PollingConfigProviderBase.cs" />
+    <Compile Include="Config\PreferenceOrderConfigProvider.cs" />
     <Compile Include="Config\RoundRobinConfigProvider.cs" />
     <Compile Include="Config\IConfigProvider.cs" />
     <Compile Include="Config\ServerDistance.cs" />

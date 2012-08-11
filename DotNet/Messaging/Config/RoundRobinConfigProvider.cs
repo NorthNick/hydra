@@ -7,7 +7,7 @@ using LoveSeat.Interfaces;
 namespace Bollywell.Hydra.Messaging.Config
 {
     /// <summary>
-    /// Fail over between servers on a rouns robing basis.
+    /// Fail over between servers on a round robin basis.
     /// </summary>
     public class RoundRobinConfigProvider : IConfigProvider
     {
