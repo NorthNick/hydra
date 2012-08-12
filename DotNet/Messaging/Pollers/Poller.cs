@@ -6,7 +6,6 @@ using System.Threading;
 using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
-using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.Pollers
 {
@@ -21,7 +20,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
         private long _lastSeq;
         private IMessageId _startId;
         private string _server;
-        private IDocumentDatabase _db;
+        private IStore _store;
         private bool _disposed = false;
 
         public long BufferDelayMs { get; set; }
@@ -75,16 +74,16 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 // TODO: There is a slim chance of the server changing after the call above, and before the GetDb call below, which would be a problem.
                 // The solution would be to have a single IConfigProvider call that returns both the server and db (or maybe a version number and db).
                 _server = server;
-                _db = _configProvider.GetDb();
+                _store = _configProvider.GetStore();
                 _startId = LastId;
                 // Populate _messageBuffer from _startId
-                _lastSeq = GetLastSeq(_db);
+                _lastSeq = _store.GetLastSeq();
                 // Fetch messages from _startId, ignoring ones after _lastSeq.
-                _messageBuffer = _messageFetcher.MessagesAfterIdBeforeSeq(_db, _startId, _lastSeq).ToList();
+                _messageBuffer = _messageFetcher.MessagesAfterIdBeforeSeq(_store, _startId, _lastSeq).ToList();
             } else {
                 // Get changes from _lastSeq. Fetch messages in the change set and put in _messageBuffer.
-                var changes = GetChanges(_db, _lastSeq, out _lastSeq).ToList();
-                if (changes.Any()) _messageBuffer = new List<IEnumerable<TMessage>> {_messageBuffer, _messageFetcher.MessagesInSet(_db, changes)}.Merge().ToList();
+                var changes = _store.GetChanges(_startId, _lastSeq, out _lastSeq).ToList();
+                if (changes.Any()) _messageBuffer = new List<IEnumerable<TMessage>> {_messageBuffer, _messageFetcher.MessagesInSet(_store, changes)}.Merge().ToList();
             }
 
             var delayedId = MessageIdManager.Create(DateTime.UtcNow.AddMilliseconds(-BufferDelayMs));
@@ -95,31 +94,6 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 OnMessageInQueue(message);
             }
             _messageBuffer = _messageBuffer.Skip(newMessages.Count).ToList();
-        }
-
-        private IEnumerable<IMessageId> GetChanges(IDocumentDatabase db, long sinceSeq, out long lastSeq)
-        {
-            // Get changes after sinceSeq, throw out non-messages e.g. design doc updates, and drop messages at or before _startId
-
-            // Loveseat doesn't have a _changes call, so it has to be done like this.
-            var changes = db.GetDocument(string.Format("_changes?since={0}", sinceSeq));
-            // Changes are returned as 
-            // {"results":[{"seq":28312,"id":"04b8dbf49b5d2603","changes":[{"rev":"1-ea426b58321d93c39a3486cc4d55abe2"}]},
-            //             ...
-            //             {"seq":28313,"id":"_design/mce","changes":[{"rev":"9-4d4ec5b438064ab0d602f2ed2ea9ac34"}]}
-            //            ],
-            //  "last_seq":28313}
-            lastSeq = (long) changes["last_seq"];
-            return changes["results"].Select(jObj => (string) jObj["id"]).Where(MessageIdManager.IsMessageId).Select(MessageIdManager.Create)
-                    .OrderBy(mId => mId).SkipWhile(mId => mId.CompareTo(_startId) <= 0);
-        }
-
-        private static long GetLastSeq(IDocumentDatabase db)
-        {
-            // Getting the empty document returns database info as:
-            // {"db_name":"hydra","doc_count":499245,"doc_del_count":273331,"update_seq":1045940,"purge_seq":0,"compact_running":false,"disk_size":604704891,"data_size":372365869,
-            //  "instance_start_time":"1332323453803000","disk_format_version":6,"committed_update_seq":1045940}
-            return (long) db.GetDocument("")["update_seq"];
         }
 
         #endregion

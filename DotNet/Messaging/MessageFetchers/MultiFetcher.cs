@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bollywell.Hydra.Messaging.MessageIds;
-using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.MessageFetchers
 {
@@ -14,14 +13,14 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
             _fetchers = fetchers;
         }
 
-        public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(IDocumentDatabase db, IMessageId startId, long lastSeq)
+        public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(IStore store, IMessageId startId, long lastSeq)
         {
-            return _fetchers.AsParallel().Select(f => f.MessagesAfterIdBeforeSeq(db, startId, lastSeq)).Merge();
+            return _fetchers.AsParallel().Select(f => f.MessagesAfterIdBeforeSeq(store, startId, lastSeq)).Merge();
         }
 
-        public IEnumerable<TMessage> MessagesInSet(IDocumentDatabase db, IEnumerable<IMessageId> messageIds)
+        public IEnumerable<TMessage> MessagesInSet(IStore store, IEnumerable<IMessageId> messageIds)
         {
-            return _fetchers.AsParallel().Select(f => f.MessagesInSet(db, messageIds)).Merge();
+            return _fetchers.AsParallel().Select(f => f.MessagesInSet(store, messageIds)).Merge();
         }
     }
 }

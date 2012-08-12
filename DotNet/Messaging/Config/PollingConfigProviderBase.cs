@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net;
-using LoveSeat;
-using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.Config
 {
@@ -13,10 +9,9 @@ namespace Bollywell.Hydra.Messaging.Config
         protected const string DefaultDatabase = "hydra";
         protected const int DefaultPort = 5984;
 
-        private readonly string _database;
-        private readonly int _port;
         protected readonly ServerDistance<ServerDistanceInfo> Distances;
         private readonly object _lock = new object();
+        private readonly Dictionary<string, IStore> _storeDict;
 
         #region Properties
 
@@ -59,20 +54,27 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
         protected PollingConfigProviderBase(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
+             : this(hydraServers.Select(s => new LoveSeatStore(s, s, database, port)), pollIntervalMs) {}
+
+        /// <summary>
+        /// Initialise messaging. Must be called before any attempt to send or listen.
+        /// </summary>
+        /// <param name="stores">Hydra stores to communicate with</param>
+        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
+        protected PollingConfigProviderBase(IEnumerable<IStore> stores, int? pollIntervalMs = null)
         {
-            if (hydraServers == null || !hydraServers.Any()) throw new ArgumentException("At least one server must be supplied", "hydraServers");
-            _database = database;
-            _port = port;
+            if (stores == null || !stores.Any()) throw new ArgumentException("At least one store must be supplied", "stores");
+            _storeDict = stores.ToDictionary(store => store.Name);
             PollIntervalMs = pollIntervalMs;
-            Distances = new ServerDistance<ServerDistanceInfo>(hydraServers, MeasureDistance, InitDistance);
+            Distances = new ServerDistance<ServerDistanceInfo>(stores.Select(store => store.Name), MeasureDistance, InitDistance);
         }
 
         /// <summary>
-        /// Fetches the current database to use for polling.
+        /// Fetches the current store to use for polling.
         /// </summary>
-        public IDocumentDatabase GetDb()
+        public IStore GetStore()
         {
-            return new CouchClient(HydraServer, _port, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
+            return _storeDict[HydraServer];
         }
 
         /// <summary>
@@ -106,20 +108,7 @@ namespace Bollywell.Hydra.Messaging.Config
 
         protected ServerDistanceInfo MeasureDistance(string server)
         {
-            bool responseOk = false;
-            long elapsed = 0;
-            try {
-                // This URL checks both that the server is up, and that the view index is up to date
-                string url = string.Format("http://{0}:{1}/{2}/_design/hydra/_view/broadcastMessages?limit=0", server, _port, _database);
-                var timer = Stopwatch.StartNew();
-                using (HttpWebResponse response = (HttpWebResponse)WebRequest.Create(url).GetResponse()) {
-                    elapsed = timer.ElapsedMilliseconds;
-                    responseOk = response.StatusCode == HttpStatusCode.OK;
-                }
-            } catch (Exception) {
-                // Swallow errors
-            }
-            return new ServerDistanceInfo {Address = server, Distance = responseOk ? elapsed : long.MaxValue, IsReachable = responseOk};
+            return _storeDict[server].MeasureDistance();
         }
 
         protected virtual void InitDistance(IEnumerable<string> servers) {}

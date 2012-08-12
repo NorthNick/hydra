@@ -31,7 +31,7 @@ namespace Bollywell.Hydra.Messaging
             // TODO: use the "get database and server together" call suggested in Poller
             try {
                 // The type parameter to Document<T> is irrelevant as it is only used for deserialisation, and here we are only serialising
-                var doc = configProvider.GetDb().CreateDocument(new Document<TransportMessage>(this).ToString());
+                configProvider.GetStore().SaveDoc(new Document<TransportMessage>(this).ToString());
                 // TODO: deal with the case where posting fails but raises a CouchDb {error:xxx, reason:xxx} object and not an exception.
             } catch (Exception ex) {
                 configProvider.ServerError(configProvider.HydraServer);

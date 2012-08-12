@@ -22,7 +22,6 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
             _endKey = new KeyOptions(_topic, _destination, CouchValue.MaxValue);
         }
 
-        protected override string DesignDoc { get { return "hydra"; } }
         protected override string ViewName { get { return "directedMessages"; } }
 
         // The directedMessages view is indexed on [topic, destination, id]

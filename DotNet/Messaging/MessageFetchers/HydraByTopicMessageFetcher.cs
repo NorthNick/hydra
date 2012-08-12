@@ -15,7 +15,6 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
             _endKey = new KeyOptions(_topic, CouchValue.MaxValue);
         }
 
-        protected override string DesignDoc { get { return "hydra"; } }
         protected override string ViewName { get { return "broadcastMessages"; } }
 
         // The broadcastMessages view is indexed on [topic, id]

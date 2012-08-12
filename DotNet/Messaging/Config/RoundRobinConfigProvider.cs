@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LoveSeat;
-using LoveSeat.Interfaces;
 
 namespace Bollywell.Hydra.Messaging.Config
 {
@@ -14,10 +12,8 @@ namespace Bollywell.Hydra.Messaging.Config
         private const string DefaultDatabase = "hydra";
         private const int DefaultPort = 5984;
 
-        private static List<string> _servers;
-        private static int _serverIndex;
-        private readonly string _database;
-        private readonly int _port;
+        private static int _storeIndex;
+        private readonly List<IStore> _stores;
 
         public string HydraServer { get; private set; }
         public int? PollIntervalMs { get; private set; }
@@ -40,21 +36,27 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
         public RoundRobinConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
+            : this(hydraServers.Select(s => new LoveSeatStore(s, s, database, port)), pollIntervalMs) {}
+
+        /// <summary>
+        /// Initialise messaging. Must be called before any attempt to send or listen.
+        /// </summary>
+        /// <param name="stores">Hydra stores to communicate with</param>
+        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
+        public RoundRobinConfigProvider(IEnumerable<IStore> stores, int? pollIntervalMs = null)
         {
-            if (hydraServers == null || !hydraServers.Any()) throw new ArgumentException("At least one server must be supplied", "hydraServers");
-            _servers = new List<string>(hydraServers);
-            _database = database;
-            _port = port;
-            HydraServer = _servers[0];
+            if (stores == null || !stores.Any()) throw new ArgumentException("At least one store must be supplied", "stores");
+            _stores = new List<IStore>(stores);
+            HydraServer = _stores[0].Name;
             PollIntervalMs = pollIntervalMs;
         }
 
         /// <summary>
-        /// Fetches the current database to use for polling.
+        /// Fetches the current store to use for polling.
         /// </summary>
-        public IDocumentDatabase GetDb()
+        public IStore GetStore()
         {
-            return new CouchClient(HydraServer, _port, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
+            return _stores[_storeIndex];
         }
 
         /// <summary>
@@ -64,10 +66,10 @@ namespace Bollywell.Hydra.Messaging.Config
         public void ServerError(string server)
         {
             // Very simplistic check that switches if the problematic server is the current one.
-            if (server == _servers[_serverIndex]) {
+            if (server == _stores[_storeIndex].Name) {
                 // TODO: Make this intelligent e.g. test the next server for responsiveness.
-                _serverIndex = (_serverIndex + 1) % _servers.Count;
-                HydraServer = _servers[_serverIndex];
+                _storeIndex = (_storeIndex + 1) % _stores.Count;
+                HydraServer = _stores[_storeIndex].Name;
             }
         }
 

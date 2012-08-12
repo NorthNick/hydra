@@ -37,7 +37,15 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
         public NearestServerConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
-            :base(hydraServers, database, port, pollIntervalMs)
+            : this(hydraServers.Select(s => new LoveSeatStore(s, s, database, port)), pollIntervalMs) {}
+
+        /// <summary>
+        /// Initialise messaging. Must be called before any attempt to send or listen.
+        /// </summary>
+        /// <param name="stores">Hydra stores to communicate with</param>
+        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
+        public NearestServerConfigProvider(IEnumerable<IStore> stores, int? pollIntervalMs = null)
+            : base(stores, pollIntervalMs)
         {
             Start();
         }

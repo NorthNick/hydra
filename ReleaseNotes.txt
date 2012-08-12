@@ -3,6 +3,7 @@
 Updated Erlang UUID code to match the official CouchDb source.
 Improved MessageId management to allow any suffix, rather than just two-byte hex strings.
 Added PreferenceOrderConfigProvider.
+Created IStore interface and ConfigProvider constructors to help with testing.
 
 
 30/7/2012 Version 0.4
