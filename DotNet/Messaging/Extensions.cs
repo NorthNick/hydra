@@ -51,17 +51,6 @@ namespace Bollywell.Hydra.Messaging
             }
         }
 
-        /// <summary>
-        /// Convert a long id to a string, left-padding with zeroes to ensure they compare correctly
-        /// </summary>
-        /// <param name="id">id to convert</param>
-        /// <returns>The resulting string</returns>
-        public static string ToDocId(this long id)
-        {
-            // long.MaxValue is 9,223,372,036,854,775,807 so pad to 19 digits
-            return id.ToString().PadLeft(19, '0');
-        }
-
         private class Remainder<T> : IDisposable
         {
             private readonly IEnumerator<T>[] _remainder;

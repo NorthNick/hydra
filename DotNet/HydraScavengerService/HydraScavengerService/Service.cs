@@ -81,8 +81,8 @@ namespace HydraScavengerService
             options.StartKey.Add(MessageIdManager.Create(new DateTime(1970, 1, 1)).ToDocId());
             options.EndKey.Add(MessageIdManager.Create(DateTime.UtcNow.AddDays(-expiryDays)).ToDocId());
             options.Limit = deleteBatchSize;
-            var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"],
-                                                  int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb();
+            var db = new CouchClient(ConfigurationManager.AppSettings["HydraServer"], int.Parse(ConfigurationManager.AppSettings["Port"]), null, null, false, AuthenticationType.Basic).
+                GetDatabase(ConfigurationManager.AppSettings["Database"]);
             var rows = db.GetAllDocuments(options).Rows;
             while (rows.Any()) {
                 DeleteDocs(rows, db);
@@ -98,8 +98,8 @@ namespace HydraScavengerService
             var options = new ViewOptions();
             options.StartKey.Add(MessageIdManager.Create(new DateTime(1970, 1, 1)).ToDocId());
             options.EndKey.Add(MessageIdManager.Create(DateTime.UtcNow).ToDocId());
-            var db = new RoundRobinConfigProvider(ConfigurationManager.AppSettings["HydraServer"], ConfigurationManager.AppSettings["Database"],
-                                                  int.Parse(ConfigurationManager.AppSettings["Port"])).GetDb();
+            var db = new CouchClient(ConfigurationManager.AppSettings["HydraServer"], int.Parse(ConfigurationManager.AppSettings["Port"]), null, null, false, AuthenticationType.Basic).
+                GetDatabase(ConfigurationManager.AppSettings["Database"]);
             // Getting the empty document returns general database info
             var deleteCount = db.GetDocument("").Value<long>("doc_count") - maxDocs;
             while (deleteCount > 0) {

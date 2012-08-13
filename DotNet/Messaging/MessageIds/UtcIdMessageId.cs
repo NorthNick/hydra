@@ -43,7 +43,7 @@ namespace Bollywell.Hydra.Messaging.MessageIds
 
             public static bool IsMessageId(string couchId)
             {
-                return IdPattern.IsMatch(couchId);
+                return couchId != null && IdPattern.IsMatch(couchId);
             }
 
             public string ToDocId()

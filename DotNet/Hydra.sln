@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 11
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messaging", "Messaging\Messaging.csproj", "{43BFA34D-4D3E-4A6B-B49D-8C327DFF918C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PubSubByType", "PubSubByType\PubSubByType.csproj", "{81EF3F08-744A-401F-860E-3C46DE724F29}"
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConversationExampleServer", "Examples\Conversation\ConversationExampleServer\ConversationExampleServer.csproj", "{B42EB5F3-EA9C-4EF0-BCB4-0F0E81CAE1C6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conversations", "Conversations\Conversations.csproj", "{F517FE6E-D620-430F-917C-BAF1A0F17A75}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{675A6281-7C94-4709-A09D-25E394EB209B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{58F561B9-296B-49F7-B65A-FE41BCB12C4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58F561B9-296B-49F7-B65A-FE41BCB12C4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58F561B9-296B-49F7-B65A-FE41BCB12C4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{675A6281-7C94-4709-A09D-25E394EB209B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{675A6281-7C94-4709-A09D-25E394EB209B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{675A6281-7C94-4709-A09D-25E394EB209B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{675A6281-7C94-4709-A09D-25E394EB209B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{81EF3F08-744A-401F-860E-3C46DE724F29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{81EF3F08-744A-401F-860E-3C46DE724F29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81EF3F08-744A-401F-860E-3C46DE724F29}.Release|Any CPU.ActiveCfg = Release|Any CPU
