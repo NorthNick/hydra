@@ -60,6 +60,14 @@ namespace Bollywell.Hydra.Messaging.MessageIds
             {
                 return string.Format("{0:x14}{1} Time {2}", _timeBits, _suffix, ToDateTime().ToString("o"));
             }
+
+            public override int GetHashCode()
+            {
+                unchecked {
+                    return (_timeBits.GetHashCode() * 397) ^ (_suffix != null ? _suffix.GetHashCode() : 0);
+                }
+            }
+
         }
     }
 }

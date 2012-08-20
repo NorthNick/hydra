@@ -79,7 +79,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 // Populate _messageBuffer from _startId
                 _lastSeq = _store.GetLastSeq();
                 // Fetch messages from _startId, ignoring ones after _lastSeq.
-                _messageBuffer = _messageFetcher.MessagesAfterIdBeforeSeq(_store, _startId, _lastSeq).ToList();
+                _messageBuffer = _messageFetcher.MessagesAfterIdUpToSeq(_store, _startId, _lastSeq).ToList();
             } else {
                 // Get changes from _lastSeq. Fetch messages in the change set and put in _messageBuffer.
                 var changes = _store.GetChanges(_startId, _lastSeq, out _lastSeq).ToList();

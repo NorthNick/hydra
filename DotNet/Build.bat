@@ -5,6 +5,7 @@ Rem Set MSBuild to the appropriate location for your version of the .NET Framewo
 Set MSBuild="C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild"
 %MSBuild% Hydra.sln
 %MSBuild% HydraScavengerService\HydraScavengerService.sln
+%MSBuild% Examples\HydraStressTest\HydraStressTest.sln
 
 Rem If you have VS2012, change to VS110COMNTOOLS
 "%VS100COMNTOOLS%..\IDE\mstest.exe" /TestContainer:Tests\bin\Debug\Tests.dll

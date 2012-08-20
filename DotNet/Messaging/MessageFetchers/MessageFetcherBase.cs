@@ -16,7 +16,7 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
 
         #region Implementation of IMessageFetcher<TMessage>
 
-        public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(IStore store, IMessageId startId, long lastSeq)
+        public IEnumerable<TMessage> MessagesAfterIdUpToSeq(IStore store, IMessageId startId, long lastSeq)
         {
             return AllMessagesFrom(store, startId).Where(row => (long) row["value"] <= lastSeq).Select(TransportMessage.Hydrate<TMessage>)
                     .SkipWhile(message => message.MessageId.CompareTo(startId) <= 0);

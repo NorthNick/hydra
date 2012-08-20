@@ -13,9 +13,9 @@ namespace Bollywell.Hydra.Messaging.MessageFetchers
             _fetchers = fetchers;
         }
 
-        public IEnumerable<TMessage> MessagesAfterIdBeforeSeq(IStore store, IMessageId startId, long lastSeq)
+        public IEnumerable<TMessage> MessagesAfterIdUpToSeq(IStore store, IMessageId startId, long lastSeq)
         {
-            return _fetchers.AsParallel().Select(f => f.MessagesAfterIdBeforeSeq(store, startId, lastSeq)).Merge();
+            return _fetchers.AsParallel().Select(f => f.MessagesAfterIdUpToSeq(store, startId, lastSeq)).Merge();
         }
 
         public IEnumerable<TMessage> MessagesInSet(IStore store, IEnumerable<IMessageId> messageIds)
