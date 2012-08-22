@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Bollywell.Hydra.Messaging;
+using Bollywell.Hydra.Messaging.Config;
+using Bollywell.Hydra.Messaging.Serializers;
+using Bollywell.Hydra.PubSubByType;
+using HydraStressTestDtos;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
@@ -12,13 +17,6 @@ using System.Resources;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Config;
-using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.Pollers;
-using Bollywell.Hydra.Messaging.Serializers;
-using Bollywell.Hydra.PubSubByType;
-using HydraStressTestDtos;
 
 namespace Bollywell.Hydra.HydraStressTestClient
 {
@@ -71,7 +69,7 @@ namespace Bollywell.Hydra.HydraStressTestClient
             _controlSubscription = new Subscriber<StressTestControl>(_hydraService, _myName).ObserveOn(SynchronizationContext.Current).Subscribe(OnControlRecv);
             _controlPublisher = new Publisher<StressTestControl>(_hydraService) {RemoteParty = "StressTestConsole", ThisParty = _myName};
             _heartbeatIntervalMs = int.Parse(ConfigurationManager.AppSettings["HeartbeatIntervalMs"]);
-            _heartbeatObservable = Observable.Interval(TimeSpan.FromMilliseconds(_heartbeatIntervalMs), Scheduler.ThreadPool);
+            _heartbeatObservable = Observable.Interval(TimeSpan.FromMilliseconds(_heartbeatIntervalMs), ThreadPoolScheduler.Instance);
             _heartbeatSubscription = _heartbeatObservable.Subscribe(OnHeartbeat);
         }
 
@@ -127,7 +125,7 @@ namespace Bollywell.Hydra.HydraStressTestClient
         {
             if (newState == _sending) return;
             if (newState) {
-                _sendObservable = Observable.Interval(TimeSpan.FromMilliseconds(_sendIntervalMs), Scheduler.ThreadPool);
+                _sendObservable = Observable.Interval(TimeSpan.FromMilliseconds(_sendIntervalMs), ThreadPoolScheduler.Instance);
                 _sendSubscription = _sendObservable.Subscribe(OnSend);
                 SendBtn.Text = "Stop sending";
             } else {

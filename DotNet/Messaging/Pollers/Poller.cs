@@ -4,7 +4,6 @@ using Bollywell.Hydra.Messaging.MessageIds;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -24,7 +23,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
         private IStore _store;
         private bool _disposed = false;
         private readonly IDisposable _messageSub;
-        private IScheduler _scheduler;
+        private readonly IScheduler _scheduler;
 
         public long BufferDelayMs { get; set; }
 
@@ -40,13 +39,13 @@ namespace Bollywell.Hydra.Messaging.Pollers
         /// <param name="messageFetcher">IMessageFetcher with which to poll.</param>
         /// <param name="startId">Only fetch messages with higher id than startId. Defaults to the id corresponding to now.</param>
         /// <param name="bufferDelayMs">Buffer messages for this many ms to allow late arriving messages to be sorted into order. Defaults to 0.</param>
-        /// <param name="scheduler">Scheduler to use for polling. Defaults to Scheduler.TaskPool.</param>
+        /// <param name="scheduler">Scheduler to use for polling. Defaults to TaskPoolScheduler.Default.</param>
         /// <remarks>The polling interval is taken from Service.GetConfig().PollIntervalMs and is dynamic: changes take effect after the next poll.</remarks>
         public Poller(IConfigProvider configProvider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, long bufferDelayMs = 0, IScheduler scheduler = null)
         {
             _configProvider = configProvider;
             _messageFetcher = messageFetcher;
-            _scheduler = scheduler ?? Scheduler.TaskPool;
+            _scheduler = scheduler ?? TaskPoolScheduler.Default;
             BufferDelayMs = bufferDelayMs;
             LastId = startId ?? MessageIdManager.Create(_scheduler.Now.UtcDateTime);
             _messageSub = Observable.Generate(true, _ => true, _ => false, _ => OnElapsed(), _ => TimeSpan.FromMilliseconds(_configProvider.PollIntervalMs ?? DefaultTimerInterval), _scheduler).
