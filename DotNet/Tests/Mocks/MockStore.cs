@@ -41,7 +41,7 @@ namespace Tests.Mocks
 
         public long GetLastSeq()
         {
-            // SeqId is the index of the last element of _backingStoreIds
+            // SeqId is the index of the last element of _docs
             return _docs.Count - 1;
         }
 
@@ -50,7 +50,7 @@ namespace Tests.Mocks
             Replicate();
 
             JToken doc = JToken.Parse(json);
-            var date = _scheduler.Now.DateTime.ToUniversalTime();
+            var date = _scheduler.Now.UtcDateTime;
             string docId = CreateDocId(date);
             JToken stored = new JObject(new JProperty("id", docId), new JProperty("doc", doc));
             var docInfo = new DocInfo(docId, (string) doc["topic"], (string) doc["destination"], date);

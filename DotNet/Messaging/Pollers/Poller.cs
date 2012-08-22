@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Subjects;
-using System.Threading;
-using Bollywell.Hydra.Messaging.Config;
+﻿using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace Bollywell.Hydra.Messaging.Pollers
 {
     public class Poller<TMessage> : IPoller<TMessage> where TMessage : TransportMessage
     {
         private const int DefaultTimerInterval = 10000;
-        private readonly Timer _timer;
         private readonly IConfigProvider _configProvider;
         private readonly IMessageFetcher<TMessage> _messageFetcher;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
@@ -22,6 +23,8 @@ namespace Bollywell.Hydra.Messaging.Pollers
         private string _server;
         private IStore _store;
         private bool _disposed = false;
+        private readonly IDisposable _messageSub;
+        private IScheduler _scheduler;
 
         public long BufferDelayMs { get; set; }
 
@@ -37,42 +40,43 @@ namespace Bollywell.Hydra.Messaging.Pollers
         /// <param name="messageFetcher">IMessageFetcher with which to poll.</param>
         /// <param name="startId">Only fetch messages with higher id than startId. Defaults to the id corresponding to now.</param>
         /// <param name="bufferDelayMs">Buffer messages for this many ms to allow late arriving messages to be sorted into order. Defaults to 0.</param>
+        /// <param name="scheduler">Scheduler to use for polling. Defaults to Scheduler.TaskPool.</param>
         /// <remarks>The polling interval is taken from Service.GetConfig().PollIntervalMs and is dynamic: changes take effect after the next poll.</remarks>
-        public Poller(IConfigProvider configProvider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, long bufferDelayMs = 0)
+        public Poller(IConfigProvider configProvider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, long bufferDelayMs = 0, IScheduler scheduler = null)
         {
             _configProvider = configProvider;
             _messageFetcher = messageFetcher;
+            _scheduler = scheduler ?? Scheduler.TaskPool;
             BufferDelayMs = bufferDelayMs;
-            LastId = startId ?? MessageIdManager.Create(DateTime.UtcNow);
-            // Set timer to fire just once
-            _timer = new Timer(TimerOnElapsed, null, _configProvider.PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
+            LastId = startId ?? MessageIdManager.Create(_scheduler.Now.UtcDateTime);
+            _messageSub = Observable.Generate(true, _ => true, _ => false, _ => OnElapsed(), _ => TimeSpan.FromMilliseconds(_configProvider.PollIntervalMs ?? DefaultTimerInterval), _scheduler).
+                          SelectMany(messages => messages).Subscribe(OnMessageInQueue);
         }
 
         #region Polling
 
-        private void TimerOnElapsed(object state)
-        {
-            if (_disposed) return;
+        private readonly IEnumerable<TMessage> _noMessages = Enumerable.Empty<TMessage>();
 
-            // Disable the timer while polling. Poll on a background thread (as that's where the timer fires), then re-enable the timer when done.
-            // Do it all inside a try..finally so that the timer gets restarted no matter what happens.
+        private IEnumerable<TMessage> OnElapsed()
+        {
+            if (_disposed) return _noMessages;
+
             try {
-                Poll();
+                return Poll();
             } catch (Exception) {
                 // TODO: detect what sort of error this was
                 _configProvider.ServerError(_server);
-            } finally {
-                _timer.Change(_configProvider.PollIntervalMs ?? DefaultTimerInterval, Timeout.Infinite);
+                return _noMessages;
             }
         }
 
-        private void Poll()
+        private IEnumerable<TMessage> Poll()
         {
             var server = _configProvider.HydraServer;
             if (server != _server) {
                 // The server has changed, so reinitialise. As _server is initially null, this will be also be called on the very first poll.
-                // TODO: There is a slim chance of the server changing after the call above, and before the GetDb call below, which would be a problem.
-                // The solution would be to have a single IConfigProvider call that returns both the server and db (or maybe a version number and db).
+                // TODO: There is a slim chance of the server changing after the call above, and before the GetStore call below, which would be a problem.
+                // The solution would be to have a single IConfigProvider call that returns both the server and store (or maybe a version number and store).
                 _server = server;
                 _store = _configProvider.GetStore();
                 _startId = LastId;
@@ -86,14 +90,10 @@ namespace Bollywell.Hydra.Messaging.Pollers
                 if (changes.Any()) _messageBuffer = new List<IEnumerable<TMessage>> {_messageBuffer, _messageFetcher.MessagesInSet(_store, changes)}.Merge().ToList();
             }
 
-            var delayedId = MessageIdManager.Create(DateTime.UtcNow.AddMilliseconds(-BufferDelayMs));
+            var delayedId = MessageIdManager.Create(_scheduler.Now.UtcDateTime.AddMilliseconds(-BufferDelayMs));
             var newMessages = _messageBuffer.TakeWhile(m => m.MessageId.CompareTo(delayedId) <= 0).ToList();
-            foreach (var message in newMessages) {
-                // Track the last message processed in case we swap servers.
-                LastId = message.MessageId;
-                OnMessageInQueue(message);
-            }
-            _messageBuffer = _messageBuffer.Skip(newMessages.Count).ToList();
+            _messageBuffer.RemoveRange(0, newMessages.Count);
+            return newMessages;
         }
 
         #endregion
@@ -105,6 +105,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
         protected virtual void OnMessageInQueue(TMessage message)
         {
             try {
+                LastId = message.MessageId;
                 _subject.OnNext(message);
                 if (MessageInQueue != null) MessageInQueue(this, message);
             } catch (Exception) {
@@ -138,7 +139,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
         {
             if (disposing) {
                 // free managed resources
-                _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                _messageSub.Dispose();
                 _subject.OnCompleted();
                 _subject.Dispose();
                 _disposed = true;
