@@ -1,6 +1,6 @@
 using System;
 
-namespace Tests.Mocks
+namespace Bollywell.Hydra.Tests.Mocks
 {
     internal class DocInfo
     {

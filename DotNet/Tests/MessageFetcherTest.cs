@@ -5,10 +5,10 @@ using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
+using Bollywell.Hydra.Tests.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Tests.Mocks;
 
-namespace Tests
+namespace Bollywell.Hydra.Tests
 {
     [TestClass]
     public class MessageFetcherTest

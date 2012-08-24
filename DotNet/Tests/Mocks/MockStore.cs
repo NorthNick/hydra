@@ -10,7 +10,7 @@ using LoveSeat;
 using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
 
-namespace Tests.Mocks
+namespace Bollywell.Hydra.Tests.Mocks
 {
     internal class MockStore : IStore
     {
@@ -18,16 +18,17 @@ namespace Tests.Mocks
         private readonly List<DocInfo>  _docInfos = new List<DocInfo>();
         private readonly Dictionary<string, JToken> _docs = new Dictionary<string, JToken>();
         // This is purely for providing a timestamp for DocIds. Later we can inject a TestScheduler freeing ourselves from realtime.
-        private readonly IScheduler _scheduler = Scheduler.CurrentThread;
+        private readonly IScheduler _scheduler;
         private readonly object _lock = new object();
         private long _lastMicroseconds = 0;
 
         public string Name { get; private set; }
 
-        public MockStore(string name, string suffix)
+        public MockStore(string name, string suffix = null, IScheduler scheduler = null)
         {
             Name = name;
-            _suffix = suffix;
+            _suffix = suffix ?? "";
+            _scheduler = scheduler ?? Scheduler.CurrentThread;
         }
 
         public IEnumerable<IMessageId> GetChanges(IMessageId startId, long sinceSeq, out long lastSeq)
@@ -84,10 +85,10 @@ namespace Tests.Mocks
                 filterArray = JArray.Parse(HttpUtility.UrlDecode(voptions.StartKey.ToString()));
                 startId = (string) filterArray.Last;
             } else {
-                var keyArray = JArray.Parse(HttpUtility.UrlDecode(voptions.Keys.ToString()));
+                var keyArray = voptions.Keys.Select(key => JArray.Parse(HttpUtility.UrlDecode(key.ToString()))).ToList();
                 // Empty array of keys for some reason
-                if (keyArray.Count == 0) return Enumerable.Empty<JToken>();
-                filterArray = (JArray) keyArray[0];
+                if (!voptions.Keys.Any()) return Enumerable.Empty<JToken>();
+                filterArray = keyArray[0];
                 keySet = new HashSet<string>(keyArray.Select(key => (string) key.Last));
             }
             string topic = (string) filterArray[0];

@@ -4,7 +4,7 @@ using System.Linq;
 using Bollywell.Hydra.Messaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests
+namespace Bollywell.Hydra.Tests
 {
     [TestClass]
     public class ExtensionsTest

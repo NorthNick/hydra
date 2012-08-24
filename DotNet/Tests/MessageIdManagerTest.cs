@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Bollywell.Hydra.Messaging.MessageIds;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Tests
+namespace Bollywell.Hydra.Tests
 {
     [TestClass]
     public class MessageIdManagerTest
