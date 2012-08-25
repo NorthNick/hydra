@@ -105,4 +105,5 @@ Backup*/
 UpgradeLog*.XML
 
 # NuGet
-packages/
+[Pp]ackages/
+DotNet/NuGet/*/lib/

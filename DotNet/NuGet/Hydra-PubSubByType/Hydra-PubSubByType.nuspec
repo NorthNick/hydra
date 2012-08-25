@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Hydra-PubSubByType</id>
+    <version>0.4.0</version>
+    <authors>Nick North</authors>
+    <owners>Nick North</owners>
+    <projectUrl>http://github.com/NorthNick/hydra/wiki</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Publications and subscription by type functionality for the Hydra distributed messaging system.</description>
+    <releaseNotes>First NuGet release.</releaseNotes>
+    <copyright>Copyright 2012</copyright>
+    <tags>Hydra Messaging</tags>
+    <dependencies>
+      <dependency id="Hydra-Messaging" version="0.4.0" />
+    </dependencies>
+  </metadata>
+</package>

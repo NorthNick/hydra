@@ -17,7 +17,6 @@ namespace Bollywell.Hydra.Tests.Mocks
         private readonly string _suffix;
         private readonly List<DocInfo>  _docInfos = new List<DocInfo>();
         private readonly Dictionary<string, JToken> _docs = new Dictionary<string, JToken>();
-        // This is purely for providing a timestamp for DocIds. Later we can inject a TestScheduler freeing ourselves from realtime.
         private readonly IScheduler _scheduler;
         private readonly object _lock = new object();
         private long _lastMicroseconds = 0;

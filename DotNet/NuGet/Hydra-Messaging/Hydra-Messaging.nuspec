@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Hydra-Messaging</id>
+    <version>0.4.0</version>
+    <authors>Nick North</authors>
+    <owners>Nick North</owners>
+    <projectUrl>http://github.com/NorthNick/hydra/wiki</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Core functionality for the Hydra distributed messaging system.</description>
+    <releaseNotes>First NuGet release.</releaseNotes>
+    <copyright>Copyright 2012</copyright>
+    <tags>Hydra Messaging</tags>
+    <dependencies>
+      <dependency id="Rx-Main" version="2.0" />
+      <dependency id="Newtonsoft.Json" version="4.5" />
+    </dependencies>
+  </metadata>
+</package>
