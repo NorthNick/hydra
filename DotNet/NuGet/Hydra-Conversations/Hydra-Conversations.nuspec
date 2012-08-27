@@ -5,12 +5,13 @@
     <version>0.4.0</version>
     <authors>Nick North</authors>
     <owners>Nick North</owners>
-    <projectUrl>http://github.com/NorthNick/hydra/wiki</projectUrl>
+    <projectUrl>https://github.com/NorthNick/hydra/wiki</projectUrl>
+    <iconUrl>https://github.com/NorthNick/hydra/wiki/Images/Hydra128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Conversation functionality for the Hydra distributed messaging system.</description>
     <releaseNotes>First NuGet release.</releaseNotes>
     <copyright>Copyright 2012</copyright>
-    <tags>Hydra Messaging</tags>
+    <tags>Hydra Messaging CouchDb</tags>
     <dependencies>
       <dependency id="Hydra-Messaging" version="0.4.0" />
     </dependencies>

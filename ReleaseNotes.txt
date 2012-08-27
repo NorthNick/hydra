@@ -1,9 +1,10 @@
-11/8/2012 Not yet released
+26/8/2012 Not yet released
 
 Updated Erlang UUID code to match the official CouchDb source.
 Improved MessageId management to allow any suffix, rather than just two-byte hex strings.
 Added PreferenceOrderConfigProvider.
-Created IStore interface and ConfigProvider constructors to help with testing.
+Created IStore interface and ConfigProvider constructors, and replaced timers with Schedulers, to help with testing. Created some tests.
+Upgraded to Rx 2.0.
 
 
 30/7/2012 Version 0.4
