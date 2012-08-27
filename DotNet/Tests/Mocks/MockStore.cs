@@ -74,19 +74,17 @@ namespace Bollywell.Hydra.Tests.Mocks
             //   Keys = list of keys to get, each all [topic, couchId] or all [topic, destination, couchId] respectively. Or
             //   StartKey = [topic, couchId] or [topic, destination, couchId] and EndKey = [topic, maxvalue] or [topic, destination, maxvalue] respectively
 
-            // IViewOptions does not include Keys, so use the concrete type until LoveSeat is fixed
-            var voptions = (ViewOptions) options;
             // Extract topic and possibly destination from here
             JArray filterArray;
             string startId = null;
             HashSet<string> keySet = null;
-            if (voptions.StartKey.HasValues) {
-                filterArray = JArray.Parse(HttpUtility.UrlDecode(voptions.StartKey.ToString()));
+            if (options.StartKey.HasValues) {
+                filterArray = JArray.Parse(HttpUtility.UrlDecode(options.StartKey.ToString()));
                 startId = (string) filterArray.Last;
             } else {
-                var keyArray = voptions.Keys.Select(key => JArray.Parse(HttpUtility.UrlDecode(key.ToString()))).ToList();
+                var keyArray = options.Keys.Select(key => JArray.Parse(HttpUtility.UrlDecode(key.ToString()))).ToList();
                 // Empty array of keys for some reason
-                if (!voptions.Keys.Any()) return Enumerable.Empty<JToken>();
+                if (!options.Keys.Any()) return Enumerable.Empty<JToken>();
                 filterArray = keyArray[0];
                 keySet = new HashSet<string>(keyArray.Select(key => (string) key.Last));
             }
