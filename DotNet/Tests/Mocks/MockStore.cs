@@ -15,7 +15,7 @@ namespace Bollywell.Hydra.Tests.Mocks
     internal class MockStore : IStore
     {
         private readonly string _suffix;
-        private readonly List<DocInfo>  _docInfos = new List<DocInfo>();
+        private readonly List<DocInfo> _docInfos = new List<DocInfo>();
         private readonly Dictionary<string, JToken> _docs = new Dictionary<string, JToken>();
         private readonly IScheduler _scheduler;
         private readonly object _lock = new object();
@@ -50,10 +50,19 @@ namespace Bollywell.Hydra.Tests.Mocks
             Replicate();
 
             JToken doc = JToken.Parse(json);
-            var date = _scheduler.Now.UtcDateTime;
-            string docId = CreateDocId(date);
+            DateTime idDate;
+            string docId;
+            // Allow the default DocId to be overridden in a TestHydraMessage
+            if (doc["idDate"] != null) {
+                idDate = DateTime.Parse((string) doc["idDate"]);
+                // This bypasses the uniqueness check, so don't specify the same date twice.
+                docId = ((long) (idDate.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds) * 1000).ToString("x14") + _suffix;
+            } else {
+                idDate = _scheduler.Now.UtcDateTime;
+                docId = CreateDocId(idDate);
+            }
             JToken stored = new JObject(new JProperty("id", docId), new JProperty("doc", doc));
-            var docInfo = new DocInfo(docId, (string) doc["topic"], (string) doc["destination"], date);
+            var docInfo = new DocInfo(docId, (string) doc["topic"], (string) doc["destination"], idDate);
             // Lock out other SaveDoc calls so that we definitely get the right list length
             lock (_lock) {
                 stored["value"] = _docInfos.Count;
@@ -64,7 +73,7 @@ namespace Bollywell.Hydra.Tests.Mocks
 
         public ServerDistanceInfo MeasureDistance()
         {
-            return new ServerDistanceInfo {Address = Name, Distance = 10, IsReachable = true};
+            return new ServerDistanceInfo { Address = Name, Distance = 10, IsReachable = true };
         }
 
         public IEnumerable<JToken> GetDocs(string viewName, IViewOptions options)

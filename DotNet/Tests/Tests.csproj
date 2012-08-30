@@ -67,6 +67,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <Choose>
@@ -86,6 +87,7 @@
     <Compile Include="Mocks\DocInfo.cs" />
     <Compile Include="Mocks\MockConfigProvider.cs" />
     <Compile Include="Mocks\MockStore.cs" />
+    <Compile Include="Mocks\TestHydraMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="MessageFetcherTest.cs" />

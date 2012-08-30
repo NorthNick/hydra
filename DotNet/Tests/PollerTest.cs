@@ -24,6 +24,7 @@ namespace Bollywell.Hydra.Tests
         private IMessageFetcher<HydraMessage> _fetcher;
         private IStore _store;
         private DateTime _startDate;
+        private Poller<HydraMessage> _poller;
 
         [TestInitialize]
         public void Initialize()
@@ -35,6 +36,9 @@ namespace Bollywell.Hydra.Tests
             _fetcher = new HydraByTopicMessageFetcher("Test");
             // Any time after 1/1/1970 will do for startDate. CouchIds go wrong before that date as they are microseconds since 1/1/1970.
             _startDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            // Dispose of the poller after 10 minutes. (res disposes of its subscription to poller, but poller itself also has to be disposed of otherwise the test never terminates.)
+            // Note that the scheduler unsubscribes before the disposal, otherwise it will get an OnCompleted event from the poller, and res.messages.Count will be one larger.
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddMinutes(10)), () => _poller.Dispose());
         }
 
         [TestMethod]
@@ -42,14 +46,10 @@ namespace Bollywell.Hydra.Tests
         {
             // Send a message after 20 seconds
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Poller test", Data = "TestSingleMessage" }));
-            // Dispose of the poller after 1 minute. (res disposes of its subscription to poller, but poller itself also has to be disposed of otherwise the test never terminates.)
-            // Note that the scheduler unsubscribes before the disposal, otherwise it will get an OnCompleted event from the poller, and res.messages.Count will be one larger.
-            Poller<HydraMessage> poller = null;
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddMinutes(1)), () => { poller.Dispose(); });
             var res = _scheduler.Start(() =>
                 {
-                    poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), 0, _scheduler);
-                    return poller;
+                    _poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), 0, _scheduler);
+                    return _poller;
                 },
                 _startDate.Ticks, _startDate.Ticks, _startDate.AddSeconds(30).Ticks);
             Assert.AreEqual(1, res.Messages.Count(), "Should receive one message.");
@@ -63,11 +63,9 @@ namespace Bollywell.Hydra.Tests
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Poller test", Data = "TestMultipleMessages 2" }));
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(23)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Poller test", Data = "TestMultipleMessages 3" }));
 
-            Poller<HydraMessage> poller = null;
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddMinutes(1)), () => { poller.Dispose(); });
             var res = _scheduler.Start(() => {
-                    poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), 0, _scheduler);
-                    return poller;
+                    _poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), 0, _scheduler);
+                    return _poller;
                 },
                 _startDate.Ticks, _startDate.Ticks, _startDate.AddSeconds(30).Ticks);
             Assert.AreEqual(3, res.Messages.Count(), "Should receive three messages.");
@@ -79,13 +77,11 @@ namespace Bollywell.Hydra.Tests
             // Send a message after 20 seconds
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Poller test", Data = "TestMissMessageSentBeforePolling" }));
 
-            Poller<HydraMessage> poller = null;
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddMinutes(1)), () => { poller.Dispose(); });
             // Start polling 10 seconds after the message was sent, so we should not receive it.
             var pollerStartDate = _startDate.AddSeconds(30);
             var res = _scheduler.Start(() => {
-                    poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), 0, _scheduler);
-                    return poller;
+                    _poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), 0, _scheduler);
+                    return _poller;
                 },
                 pollerStartDate.Ticks, pollerStartDate.Ticks, _startDate.AddSeconds(50).Ticks);
             Assert.AreEqual(0, res.Messages.Count(), "Should receive no message, as none were sent after polling started.");
@@ -94,17 +90,52 @@ namespace Bollywell.Hydra.Tests
         [TestMethod]
         public void TestPollerSendsOnCompleted()
         {
-            Poller<HydraMessage> poller = null;
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddMinutes(1)), () => { poller.Dispose(); });
             // Set disposal time after the poller has shut down, so we should get OnCompleted
             var res = _scheduler.Start(() => {
-                poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), 0, _scheduler);
-                return poller;
-            },
-               _startDate.Ticks, _startDate.Ticks, _startDate.AddSeconds(100).Ticks);
+                    _poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), 0, _scheduler);
+                    return _poller;
+                },
+               _startDate.Ticks, _startDate.Ticks, _startDate.AddMinutes(20).Ticks);
             Assert.AreEqual(1, res.Messages.Count(), "Should receive one event.");
             Assert.AreEqual(NotificationKind.OnCompleted, res.Messages.First().Value.Kind, "The event should be OnCompleted");
         }
 
+        [TestMethod]
+        public void TestMessagesInBufferWindowAreOrdered()
+        {
+            // Ordinary message after 20 seconds
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Poller test", Data = "second" }));
+            // Send message after 22 seconds, predating the first by 1 second, so it should be produced by _poller before the first one
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(22)), () => 
+                _service.Send(new TestHydraMessage { Topic = "Test", Source = "Poller test", Data = "first", IdDate = _startDate.AddSeconds(19) }));
+
+            // Set buffer window of 1500ms
+            var res = _scheduler.Start(() => {
+                    _poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), 3000, _scheduler);
+                    return _poller;
+                },
+               _startDate.Ticks, _startDate.Ticks, _startDate.AddMinutes(9).Ticks);
+            Assert.AreEqual(2, res.Messages.Count(), "Should receive two messages");
+            Assert.AreEqual("firstsecond", res.Messages[0].Value.Value.Data + res.Messages[1].Value.Value.Data, "The second message sent should arrive before the first");
+        }
+
+        [TestMethod]
+        public void TestMessagesOutsideBufferWindowAreNotOrdered()
+        {
+            // Ordinary message after 20 seconds
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Poller test", Data = "second" }));
+            // Send message after 22 seconds, predating the first by 1 second, so it should be produced by _poller before the first one
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(22)), () =>
+                _service.Send(new TestHydraMessage { Topic = "Test", Source = "Poller test", Data = "first", IdDate = _startDate.AddSeconds(19) }));
+
+            // Set buffer window of 500ms
+            var res = _scheduler.Start(() => {
+                    _poller = new Poller<HydraMessage>(_configProvider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), 500, _scheduler);
+                    return _poller;
+                },
+               _startDate.Ticks, _startDate.Ticks, _startDate.AddMinutes(9).Ticks);
+            Assert.AreEqual(2, res.Messages.Count(), "Should receive two messages");
+            Assert.AreEqual("secondfirst", res.Messages[0].Value.Value.Data + res.Messages[1].Value.Value.Data, "The second message sent should arrive after the first");
+        }
     }
 }
