@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bollywell.Hydra.Messaging
 {
-    internal class LoveSeatStore : IStore
+    internal class CouchDbStore : IStore
     {
         private const string DesignDoc = "hydra";
         private readonly string _database;
@@ -20,7 +20,7 @@ namespace Bollywell.Hydra.Messaging
 
         public string Name { get; private set; }
 
-        public LoveSeatStore(string name, string server, string database, int port)
+        public CouchDbStore(string name, string server, string database, int port)
         {
             _database = database;
             _port = port;

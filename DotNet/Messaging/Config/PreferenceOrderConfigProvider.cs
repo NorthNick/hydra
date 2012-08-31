@@ -23,7 +23,7 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
         /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
         public PreferenceOrderConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
-            : this(hydraServers.Select(s => new LoveSeatStore(s, s, database, port)), pollIntervalMs) {}
+            : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port)), pollIntervalMs) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.

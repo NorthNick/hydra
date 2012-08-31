@@ -105,7 +105,7 @@ namespace Bollywell.Hydra.Tests
         {
             // Ordinary message after 20 seconds
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Poller test", Data = "second" }));
-            // Send message after 22 seconds, predating the first by 1 second, so it should be produced by _poller before the first one
+            // Send message after 22 seconds, predating the first by 1 second
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(22)), () => 
                 _service.Send(new TestHydraMessage { Topic = "Test", Source = "Poller test", Data = "first", IdDate = _startDate.AddSeconds(19) }));
 
@@ -124,7 +124,7 @@ namespace Bollywell.Hydra.Tests
         {
             // Ordinary message after 20 seconds
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Poller test", Data = "second" }));
-            // Send message after 22 seconds, predating the first by 1 second, so it should be produced by _poller before the first one
+            // Send message after 22 seconds, predating the first by 1 second
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(22)), () =>
                 _service.Send(new TestHydraMessage { Topic = "Test", Source = "Poller test", Data = "first", IdDate = _startDate.AddSeconds(19) }));
 

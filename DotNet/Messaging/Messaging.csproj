@@ -82,7 +82,7 @@
     <Compile Include="HydraService.cs" />
     <Compile Include="IHydraService.cs" />
     <Compile Include="IStore.cs" />
-    <Compile Include="LoveSeatStore.cs" />
+    <Compile Include="CouchDbStore.cs" />
     <Compile Include="MessageFetchers\HydraByTopicByDestinationMessageFetcher.cs" />
     <Compile Include="MessageFetchers\HydraByTopicMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MessageFetcherBase.cs" />
