@@ -24,9 +24,10 @@ $dllDir = "$scriptDir\$dll\bin\debug"
 Remove-Item $libDir -recurse
 New-Item $libDir -type directory
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
+Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
 Copy-Item "$dllDir\LoveSeat.dll" $libDir
 Copy-Item "$dllDir\LoveSeat.Interfaces.dll" $libDir
-& $nuget pack "$root\$package\$package.nuspec" -OutputDirectory $outputDir
+& $nuget pack "$root\$package\$package.nuspec" -Symbols -OutputDirectory $outputDir
 
 # Hydra-Conversations
 $dll = "Conversations"
@@ -36,7 +37,8 @@ $dllDir = "$scriptDir\$dll\bin\debug"
 Remove-Item $libDir -recurse
 New-Item $libDir -type directory
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
-& $nuget pack "$root\$package\$package.nuspec" -OutputDirectory $outputDir
+Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
+& $nuget pack "$root\$package\$package.nuspec" -Symbols -OutputDirectory $outputDir
 
 # Hydra-PubSubByType
 $dll = "PubSubByType"
@@ -46,4 +48,5 @@ $dllDir = "$scriptDir\$dll\bin\debug"
 Remove-Item $libDir -recurse
 New-Item $libDir -type directory
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
-& $nuget pack "$root\$package\$package.nuspec" -OutputDirectory $outputDir
+Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
+& $nuget pack "$root\$package\$package.nuspec" -Symbols -OutputDirectory $outputDir

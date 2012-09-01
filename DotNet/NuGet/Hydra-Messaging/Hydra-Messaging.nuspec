@@ -9,8 +9,11 @@
     <iconUrl>https://github.com/NorthNick/hydra/wiki/Images/Hydra128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Core functionality for the Hydra distributed messaging system.</description>
-    <releaseNotes>First NuGet release.</releaseNotes>
+    <releaseNotes>Beta NuGet release.</releaseNotes>
     <copyright>Copyright 2012</copyright>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Xml"  />
+    </frameworkAssemblies>
     <tags>Hydra Messaging CouchDb</tags>
     <dependencies>
       <dependency id="Rx-Main" version="1.0" />
