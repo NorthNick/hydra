@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat;
 using Newtonsoft.Json;
@@ -24,23 +23,6 @@ namespace Bollywell.Hydra.Messaging
         }
 
         /// <summary>
-        /// Send this message to the currently configured message centre
-        /// </summary>
-        internal void Send(IConfigProvider configProvider)
-        {
-            // TODO: use the "get database and server together" call suggested in Poller
-            try {
-                // The type parameter to Document<T> is irrelevant as it is only used for deserialisation, and here we are only serialising
-                configProvider.GetStore().SaveDoc(new Document<TransportMessage>(this).ToString());
-                // TODO: deal with the case where posting fails but raises a CouchDb {error:xxx, reason:xxx} object and not an exception.
-            } catch (Exception ex) {
-                configProvider.ServerError(configProvider.HydraServer);
-                throw new Exception("TransportMessage.Send: error sending message. " + ex.Message, ex);
-            }
-
-        }
-
-        /// <summary>
         /// Hydrate a CouchDb view row into a TMessage. The row has an id property, which is the document id, and a doc property which is the HydraMessage JSON.
         /// </summary>
         /// <param name="row"></param>
@@ -50,6 +32,16 @@ namespace Bollywell.Hydra.Messaging
             var res = JsonConvert.DeserializeObject<TMessage>(row["doc"].ToString());
             res.SetFromCouchId((string)row["id"]);
             return res;
+        }
+
+        /// <summary>
+        /// Serialise the message for sending to a Store.
+        /// </summary>
+        /// <returns>The message serialised to a JSON string</returns>
+        /// <remarks>The type parameter to Document&lt;T&gt; is irrelevant as it is only used for deserialisation, and here we are only serialising.</remarks>
+        internal string ToJson()
+        {
+            return new Document<TransportMessage>(this).ToString();
         }
 
         public int CompareTo(TransportMessage other)

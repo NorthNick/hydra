@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Subjects;
 using Bollywell.Hydra.Messaging;
+using Bollywell.Hydra.Messaging.MessageIds;
 using Bollywell.Hydra.Messaging.Serializers;
 
 namespace Bollywell.Hydra.Conversations
@@ -46,15 +47,17 @@ namespace Bollywell.Hydra.Conversations
         /// Send a message to the other end of the conversation
         /// </summary>
         /// <param name="message">The message to send</param>
-        public void Send(TMessage message)
+        /// <returns>The id of the message sent</returns>
+        public IMessageId Send(TMessage message)
         {
-            if (_done) return;
+            if (_done) return null;
 
             var hydraMessage = new HydraMessage { Source = ThisParty, Destination = RemoteParty, Topic = Topic,
                                                   Handle = Handle, Seq = LastSendSeq + 1, Data = _serializer.Serialize(message) };
-            _hydraService.Send(hydraMessage);
+            var res = _hydraService.Send(hydraMessage);
             // Increment LastSendSeq after sending in case the Send fails.
             LastSendSeq++;
+            return res;
         }
 
         #region Implementation of IObservable<out TMessage>

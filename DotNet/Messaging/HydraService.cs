@@ -1,4 +1,5 @@
-﻿using Bollywell.Hydra.Messaging.Config;
+﻿using System;
+using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
 using Bollywell.Hydra.Messaging.Pollers;
@@ -8,12 +9,10 @@ namespace Bollywell.Hydra.Messaging
     public class HydraService : IHydraService
     {
         private readonly IConfigProvider _configProvider;
-        private readonly long _bufferDelayMs;
 
-        public HydraService(IConfigProvider configProvider, long bufferDelayMs = 0)
+        public HydraService(IConfigProvider configProvider)
         {
             _configProvider = configProvider;
-            _bufferDelayMs = bufferDelayMs;
         }
 
         #region Implementation of IHydraService
@@ -23,10 +22,18 @@ namespace Bollywell.Hydra.Messaging
             return new Poller<TMessage>(_configProvider, messageFetcher, startId, bufferDelayMs);
         }
 
-        public void Send<TMessage>(TMessage message) where TMessage : TransportMessage
+        public IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage
         {
-            message.Send(_configProvider);
+            // TODO: use the "get database and server together" call suggested in Poller
+            try {
+                return _configProvider.GetStore().SaveDoc(message.ToJson());
+            }
+            catch (Exception ex) {
+                _configProvider.ServerError(_configProvider.HydraServer);
+                throw new Exception("HydraService.Send: error sending message. " + ex.Message, ex);
+            }
         }
+
 
         public string ServerName
         {

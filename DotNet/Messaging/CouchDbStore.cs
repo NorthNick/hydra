@@ -53,9 +53,11 @@ namespace Bollywell.Hydra.Messaging
             return (long) _db.GetDocument("")["update_seq"];
         }
 
-        public void SaveDoc(string json)
+        public IMessageId SaveDoc(string json)
         {
-            _db.CreateDocument(json);
+            // TODO: deal with the case where posting fails but raises a CouchDb {error:xxx, reason:xxx} object and not an exception.
+            var jobj = _db.CreateDocument(json);
+            return MessageIdManager.Create((string) jobj["id"]);
         }
 
         public IEnumerable<JToken> GetDocs(string viewName, IViewOptions options)

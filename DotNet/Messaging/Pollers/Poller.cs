@@ -12,7 +12,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
 {
     public class Poller<TMessage> : IPoller<TMessage> where TMessage : TransportMessage
     {
-        private const int DefaultTimerInterval = 10000;
+        private const int DefaultPollIntervalMs = 1000;
         private readonly IConfigProvider _configProvider;
         private readonly IMessageFetcher<TMessage> _messageFetcher;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
@@ -26,6 +26,7 @@ namespace Bollywell.Hydra.Messaging.Pollers
         private readonly IScheduler _scheduler;
 
         public long BufferDelayMs { get; set; }
+        public long PollIntervalMs { get; set; }
 
         /// <summary>
         /// The last Id raised to clients. While processing a message, this will be the Id of that message.
@@ -47,8 +48,9 @@ namespace Bollywell.Hydra.Messaging.Pollers
             _messageFetcher = messageFetcher;
             _scheduler = scheduler ?? TaskPoolScheduler.Default;
             BufferDelayMs = bufferDelayMs;
+            PollIntervalMs = DefaultPollIntervalMs;
             LastId = startId ?? MessageIdManager.Create(_scheduler.Now.UtcDateTime);
-            _messageSub = Observable.Generate(true, _ => true, _ => false, _ => OnElapsed(), _ => TimeSpan.FromMilliseconds(_configProvider.PollIntervalMs ?? DefaultTimerInterval), _scheduler).
+            _messageSub = Observable.Generate(true, _ => true, _ => false, _ => OnElapsed(), _ => TimeSpan.FromMilliseconds(PollIntervalMs), _scheduler).
                           SelectMany(messages => messages).Subscribe(OnMessageInQueue);
         }
 

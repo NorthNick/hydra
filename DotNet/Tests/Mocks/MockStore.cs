@@ -44,7 +44,7 @@ namespace Bollywell.Hydra.Tests.Mocks
             return _docs.Count - 1;
         }
 
-        public void SaveDoc(string json)
+        public IMessageId SaveDoc(string json)
         {
             Replicate();
 
@@ -68,6 +68,7 @@ namespace Bollywell.Hydra.Tests.Mocks
                 _docInfos.Add(docInfo);
             }
             _docs[docId] = stored;
+            return MessageIdManager.Create(docId);
         }
 
         public ServerDistanceInfo MeasureDistance()

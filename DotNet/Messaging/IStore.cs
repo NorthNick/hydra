@@ -11,7 +11,7 @@ namespace Bollywell.Hydra.Messaging
         string Name { get; }
         IEnumerable<IMessageId> GetChanges(IMessageId startId, long sinceSeq, out long lastSeq);
         long GetLastSeq();
-        void SaveDoc(string json);
+        IMessageId SaveDoc(string json);
         IEnumerable<JToken> GetDocs(string viewName, IViewOptions options);
         ServerDistanceInfo MeasureDistance();
     }

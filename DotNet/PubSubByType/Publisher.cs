@@ -1,4 +1,5 @@
 ﻿using Bollywell.Hydra.Messaging;
+using Bollywell.Hydra.Messaging.MessageIds;
 using Bollywell.Hydra.Messaging.Serializers;
 
 namespace Bollywell.Hydra.PubSubByType
@@ -40,10 +41,11 @@ namespace Bollywell.Hydra.PubSubByType
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <param name="remoteParty">Optional RemoteParty override.</param>
-        public void Send(TPub message, string remoteParty = null)
+        /// <returns>The id of the message sent.</returns>
+        public IMessageId Send(TPub message, string remoteParty = null)
         {
             var hydraMessage = new HydraMessage { Source = ThisParty, Destination = remoteParty ?? RemoteParty, Topic = _topic, Data = _serializer.Serialize(message) };
-            _hydraService.Send(hydraMessage);
+            return _hydraService.Send(hydraMessage);
         }
     }
 }
