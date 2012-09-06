@@ -25,9 +25,8 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServer">Hydra server to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public NearestServerConfigProvider(string hydraServer, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null) 
-            : this(new List<string> {hydraServer}, database, port, pollIntervalMs) {}
+        public NearestServerConfigProvider(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
+            : this(new List<string> {hydraServer}, database, port) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
@@ -35,17 +34,15 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServers">Hydra servers to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public NearestServerConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
-            : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port)), pollIntervalMs) {}
+        public NearestServerConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
+            : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="stores">Hydra stores to communicate with</param>
-        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public NearestServerConfigProvider(IEnumerable<IStore> stores, int? pollIntervalMs = null)
-            : base(stores, pollIntervalMs)
+        public NearestServerConfigProvider(IEnumerable<IStore> stores)
+            : base(stores)
         {
             Start();
         }

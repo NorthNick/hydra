@@ -1,30 +1,32 @@
 ﻿using System;
 using Bollywell.Hydra.Messaging.Config;
+using Bollywell.Hydra.Messaging.Listeners;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Pollers;
 
 namespace Bollywell.Hydra.Messaging
 {
     public class HydraService : IHydraService
     {
         private readonly IConfigProvider _configProvider;
+        private readonly ListenerOptions _listenerOptions;
 
-        public HydraService(IConfigProvider configProvider)
+        public HydraService(IConfigProvider configProvider, ListenerOptions listenerOptions = null)
         {
             _configProvider = configProvider;
+            _listenerOptions = listenerOptions;
         }
 
         #region Implementation of IHydraService
 
-        public IPoller<TMessage> GetPoller<TMessage>(IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, long bufferDelayMs = 0) where TMessage : TransportMessage
+        public IListener<TMessage> GetListener<TMessage>(IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null) where TMessage : TransportMessage
         {
-            return new Poller<TMessage>(_configProvider, messageFetcher, startId, bufferDelayMs);
+            return new Listener<TMessage>(_configProvider, messageFetcher, startId, listenerOptions ?? _listenerOptions);
         }
 
         public IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage
         {
-            // TODO: use the "get database and server together" call suggested in Poller
+            // TODO: use the "get database and server together" call suggested in Listener
             try {
                 return _configProvider.GetStore().SaveDoc(message.ToJson());
             }
@@ -33,8 +35,7 @@ namespace Bollywell.Hydra.Messaging
                 throw new Exception("HydraService.Send: error sending message. " + ex.Message, ex);
             }
         }
-
-
+        
         public string ServerName
         {
             get { return _configProvider.HydraServer; }

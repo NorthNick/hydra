@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Reactive.Subjects;
 using Bollywell.Hydra.Messaging;
+using Bollywell.Hydra.Messaging.Listeners;
 using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.Pollers;
 using Bollywell.Hydra.Messaging.Serializers;
 
 namespace Bollywell.Hydra.Conversations
@@ -13,14 +13,14 @@ namespace Bollywell.Hydra.Conversations
         // Maps handles to their conversations
         private readonly Dictionary<string, Conversation<TMessage>> _conversations = new Dictionary<string, Conversation<TMessage>>();
         private readonly HashSet<string> _deadConversations = new HashSet<string>();
-        private readonly IPoller<HydraMessage> _poller;
+        private readonly IListener<HydraMessage> _listener;
         private readonly Subject<Conversation<TMessage>> _subject = new Subject<Conversation<TMessage>>();
         private readonly ISerializer<TMessage> _serializer;
         private readonly IHydraService _hydraService;
         private readonly string _thisParty;
         private readonly string _topic;
 
-        public long BufferDelayMs { get { return _poller.BufferDelayMs; } set { _poller.BufferDelayMs = value; } }
+        public long BufferDelayMs { get { return _listener.BufferDelayMs; } set { _listener.BufferDelayMs = value; } }
 
         /// <summary>
         /// Create a new Switchboard to listen for incoming conversations and initiate outgoing ones.
@@ -36,8 +36,8 @@ namespace Bollywell.Hydra.Conversations
             _topic = topic ?? typeof (TMessage).FullName;
             _serializer = serializer ?? new HydraDataContractSerializer<TMessage>();
 
-            _poller = hydraService.GetPoller(new HydraByTopicByDestinationMessageFetcher(_topic, thisParty));
-            _poller.Subscribe(OnMessage);
+            _listener = hydraService.GetListener(new HydraByTopicByDestinationMessageFetcher(_topic, thisParty));
+            _listener.Subscribe(OnMessage);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Bollywell.Hydra.Conversations
         {
             if (disposing) {
                 // free managed resources
-                _poller.Dispose();
+                _listener.Dispose();
                 _subject.Dispose();
             }
             // free native resources if there are any.

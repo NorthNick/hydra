@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Bollywell.Hydra.Messaging.Pollers
+namespace Bollywell.Hydra.Messaging.Listeners
 {
-    public interface IPoller<out TMessage> : IObservable<TMessage>, IDisposable where TMessage : TransportMessage
+    public interface IListener<out TMessage> : IObservable<TMessage>, IDisposable where TMessage : TransportMessage
     {
         long BufferDelayMs { get; set; }
         long PollIntervalMs { get; set; }

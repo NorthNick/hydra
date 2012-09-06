@@ -21,11 +21,6 @@ namespace Bollywell.Hydra.Messaging.Config
         public string HydraServer { get; protected set; }
 
         /// <summary>
-        /// Interval at which to poll for new messages, in milliseconds.
-        /// </summary>
-        public int? PollIntervalMs { get; private set; }
-
-        /// <summary>
         /// The interval at which distance to Hydra servers is measured, in milliseonds.
         /// </summary>
         public double DistanceIntervalMs
@@ -42,9 +37,8 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServer">Hydra server to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        protected PollingConfigProviderBase(string hydraServer, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null) 
-            : this(new List<string> {hydraServer}, database, port, pollIntervalMs) {}
+        protected PollingConfigProviderBase(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
+            : this(new List<string> {hydraServer}, database, port) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
@@ -52,20 +46,17 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServers">Hydra servers to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        protected PollingConfigProviderBase(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
-             : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port)), pollIntervalMs) {}
+        protected PollingConfigProviderBase(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
+             : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="stores">Hydra stores to communicate with</param>
-        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        protected PollingConfigProviderBase(IEnumerable<IStore> stores, int? pollIntervalMs = null)
+        protected PollingConfigProviderBase(IEnumerable<IStore> stores)
         {
             if (stores == null || !stores.Any()) throw new ArgumentException("At least one store must be supplied", "stores");
             _storeDict = stores.ToDictionary(store => store.Name);
-            PollIntervalMs = pollIntervalMs;
             Distances = new ServerDistance<ServerDistanceInfo>(stores.Select(store => store.Name), MeasureDistance, InitDistance);
         }
 
@@ -78,7 +69,7 @@ namespace Bollywell.Hydra.Messaging.Config
         }
 
         /// <summary>
-        /// Called by poller when it cannot contact a server.
+        /// Called by listener when it cannot contact a server.
         /// </summary>
         /// <param name="server">The server that could not be contacted</param>
         public void ServerError(string server)

@@ -8,11 +8,12 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace Bollywell.Hydra.Messaging.Pollers
+namespace Bollywell.Hydra.Messaging.Listeners
 {
-    public class Poller<TMessage> : IPoller<TMessage> where TMessage : TransportMessage
+    public class Listener<TMessage> : IListener<TMessage> where TMessage : TransportMessage
     {
-        private const int DefaultPollIntervalMs = 1000;
+        private const long DefaultPollIntervalMs = 1000;
+        private const long DefaultBufferDelayMs = 0;
         private readonly IConfigProvider _configProvider;
         private readonly IMessageFetcher<TMessage> _messageFetcher;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
@@ -34,21 +35,21 @@ namespace Bollywell.Hydra.Messaging.Pollers
         public IMessageId LastId { get; private set; }
 
         /// <summary>
-        /// Construct a Poller and start it polling.
+        /// Construct a Listener and start it polling.
         /// </summary>
         /// <param name="configProvider"> </param>
         /// <param name="messageFetcher">IMessageFetcher with which to poll.</param>
         /// <param name="startId">Only fetch messages with higher id than startId. Defaults to the id corresponding to now.</param>
-        /// <param name="bufferDelayMs">Buffer messages for this many ms to allow late arriving messages to be sorted into order. Defaults to 0.</param>
+        /// <param name="listenerOptions">Default values for Listener options.</param>
         /// <param name="scheduler">Scheduler to use for polling. Defaults to TaskPoolScheduler.Default.</param>
         /// <remarks>The polling interval is taken from Service.GetConfig().PollIntervalMs and is dynamic: changes take effect after the next poll.</remarks>
-        public Poller(IConfigProvider configProvider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, long bufferDelayMs = 0, IScheduler scheduler = null)
+        internal Listener(IConfigProvider configProvider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null, IScheduler scheduler = null)
         {
             _configProvider = configProvider;
             _messageFetcher = messageFetcher;
             _scheduler = scheduler ?? TaskPoolScheduler.Default;
-            BufferDelayMs = bufferDelayMs;
-            PollIntervalMs = DefaultPollIntervalMs;
+            BufferDelayMs = listenerOptions == null ? DefaultBufferDelayMs : listenerOptions.BufferDelayMs;
+            PollIntervalMs = listenerOptions == null || !listenerOptions.PollIntervalMs.HasValue ? DefaultPollIntervalMs : listenerOptions.PollIntervalMs.Value;
             LastId = startId ?? MessageIdManager.Create(_scheduler.Now.UtcDateTime);
             _messageSub = Observable.Generate(true, _ => true, _ => false, _ => OnElapsed(), _ => TimeSpan.FromMilliseconds(PollIntervalMs), _scheduler).
                           SelectMany(messages => messages).Subscribe(OnMessageInQueue);

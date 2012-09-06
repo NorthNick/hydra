@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Config;
+using Bollywell.Hydra.Messaging.Listeners;
 using Bollywell.Hydra.Messaging.Serializers;
 using Bollywell.Hydra.PubSubByType;
 
@@ -27,7 +28,7 @@ namespace Bollywell.Messaging.PubSubByTypeExample
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
             var servers = ConfigurationManager.AppSettings["HydraServers"].Split(',').Select(s => s.Trim());
             var port = int.Parse(ConfigurationManager.AppSettings["Port"]);
-            _hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], port, pollIntervalMs));
+            _hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], port), new ListenerOptions {PollIntervalMs = pollIntervalMs});
 
             SerialiseComboBox.SelectedIndexChanged += SerialiseComboBox_SelectedIndexChanged;
             SerialiseComboBox.SelectedIndex = 0;

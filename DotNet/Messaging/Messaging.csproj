@@ -78,13 +78,14 @@
     <Compile Include="IHydraService.cs" />
     <Compile Include="IStore.cs" />
     <Compile Include="CouchDbStore.cs" />
+    <Compile Include="Listeners\ListenerOptions.cs" />
     <Compile Include="MessageFetchers\HydraByTopicByDestinationMessageFetcher.cs" />
     <Compile Include="MessageFetchers\HydraByTopicMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MessageFetcherBase.cs" />
     <Compile Include="MessageIds\IMessageId.cs" />
     <Compile Include="MessageIds\MessageIdManager.cs" />
     <Compile Include="MessageIds\UtcIdMessageId.cs" />
-    <Compile Include="Pollers\Poller.cs" />
+    <Compile Include="Listeners\Listener.cs" />
     <Compile Include="Serializers\HydraDataContractSerializer.cs" />
     <Compile Include="Serializers\HydraJsonSerializer.cs" />
     <Compile Include="Serializers\ISerializer.cs" />
@@ -92,7 +93,7 @@
     <Compile Include="HydraMessage.cs" />
     <Compile Include="MessageFetchers\IMessageFetcher.cs" />
     <Compile Include="MessageFetchers\MultiFetcher.cs" />
-    <Compile Include="Pollers\IPoller.cs" />
+    <Compile Include="Listeners\IListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

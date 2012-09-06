@@ -21,16 +21,14 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServers">Hydra servers to communicate with, in decreasing order of preference</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public PreferenceOrderConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort, int? pollIntervalMs = null)
-            : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port)), pollIntervalMs) {}
+        public PreferenceOrderConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
+            : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="stores">Hydra stores to communicate with</param>
-        /// <param name="pollIntervalMs">Optional polling interval of the database, in milliseconds</param>
-        public PreferenceOrderConfigProvider(IEnumerable<IStore> stores, int? pollIntervalMs = null) : base(stores, pollIntervalMs)
+        public PreferenceOrderConfigProvider(IEnumerable<IStore> stores) : base(stores)
         {
             _servers = stores.Select(s => s.Name).ToList();
             Enumerable.Range(0, _servers.Count).ToList().ForEach(index => _serverIndices[_servers[index]] = index);

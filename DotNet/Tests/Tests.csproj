@@ -91,7 +91,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="MessageFetcherTest.cs" />
-    <Compile Include="PollerTest.cs" />
+    <Compile Include="ListenerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Messaging\Messaging.csproj">

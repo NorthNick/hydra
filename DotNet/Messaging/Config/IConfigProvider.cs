@@ -4,7 +4,6 @@
     {
         IStore GetStore();
         string HydraServer { get; }
-        int? PollIntervalMs { get; }
         void ServerError(string server);
     }
 }

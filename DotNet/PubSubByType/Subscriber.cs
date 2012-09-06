@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reactive.Linq;
 using Bollywell.Hydra.Messaging;
+using Bollywell.Hydra.Messaging.Listeners;
 using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.Pollers;
 using Bollywell.Hydra.Messaging.Serializers;
 
 namespace Bollywell.Hydra.PubSubByType
@@ -13,13 +13,14 @@ namespace Bollywell.Hydra.PubSubByType
     /// <typeparam name="TSub">The type of messages to subscribe to.</typeparam>
     public class Subscriber<TSub> : IObservable<TSub>, IDisposable
     {
-        private readonly IPoller<HydraMessage> _poller;
+        private readonly IListener<HydraMessage> _listener;
         private readonly IObservable<TSub> _messageSource;
         private readonly ISerializer<TSub> _serializer;
 
         public event Action<object, TSub> MessageInQueue;
 
-        public long BufferDelayMs { get { return _poller.BufferDelayMs; } set { _poller.BufferDelayMs = value; } }
+        public long BufferDelayMs { get { return _listener.BufferDelayMs; } set { _listener.BufferDelayMs = value; } }
+        public long PollIntervalMs { get { return _listener.PollIntervalMs; } set { _listener.PollIntervalMs = value; } }
 
         /// <summary>
         /// Subscribe to all published messages of type TSub.
@@ -41,11 +42,11 @@ namespace Bollywell.Hydra.PubSubByType
         {
             _serializer = serializer ?? new HydraDataContractSerializer<TSub>();
             if (thisParty == null) {
-                _poller = hydraService.GetPoller(new HydraByTopicMessageFetcher(typeof(TSub).FullName));
+                _listener = hydraService.GetListener(new HydraByTopicMessageFetcher(typeof(TSub).FullName));
             } else {
-                _poller = hydraService.GetPoller(new HydraByTopicByDestinationMessageFetcher(typeof (TSub).FullName, thisParty));
+                _listener = hydraService.GetListener(new HydraByTopicByDestinationMessageFetcher(typeof (TSub).FullName, thisParty));
             }
-            _messageSource = _poller.Select(hydraMessage => _serializer.Deserialize(hydraMessage.Data));
+            _messageSource = _listener.Select(hydraMessage => _serializer.Deserialize(hydraMessage.Data));
             _messageSource.Subscribe(MessageSourceOnNext);
         }
 
@@ -80,7 +81,7 @@ namespace Bollywell.Hydra.PubSubByType
         {
             if (disposing) {
                 // free managed resources
-                _poller.Dispose();
+                _listener.Dispose();
             }
             // free native resources if there are any.
         }

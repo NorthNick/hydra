@@ -1,12 +1,12 @@
+using Bollywell.Hydra.Messaging.Listeners;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Pollers;
 
 namespace Bollywell.Hydra.Messaging
 {
     public interface IHydraService
     {
-        IPoller<TMessage> GetPoller<TMessage>(IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, long bufferDelayMs = 0) where TMessage : TransportMessage;
+        IListener<TMessage> GetListener<TMessage>(IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null) where TMessage : TransportMessage;
         IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage;
         string ServerName { get; }
     }

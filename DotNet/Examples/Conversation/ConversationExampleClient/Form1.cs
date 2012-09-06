@@ -6,6 +6,7 @@ using Bollywell.Hydra.Conversations;
 using Bollywell.Hydra.ConversationExampleDto;
 using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Config;
+using Bollywell.Hydra.Messaging.Listeners;
 
 namespace Bollywell.Hydra.ConversationExampleClient
 {
@@ -22,7 +23,7 @@ namespace Bollywell.Hydra.ConversationExampleClient
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
             var servers = ConfigurationManager.AppSettings["HydraServers"].Split(',').Select(s => s.Trim());
             var port = int.Parse(ConfigurationManager.AppSettings["Port"]);
-            var hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], port, pollIntervalMs));
+            var hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], port), new ListenerOptions { PollIntervalMs = pollIntervalMs });
 
             _switchboard = new Switchboard<ConversationDto>(hydraService, MyName);
         }
