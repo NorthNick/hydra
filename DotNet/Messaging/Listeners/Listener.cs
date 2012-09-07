@@ -1,5 +1,4 @@
-﻿using Bollywell.Hydra.Messaging.Config;
-using Bollywell.Hydra.Messaging.MessageFetchers;
+﻿using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using Bollywell.Hydra.Messaging.Storage;
 
 namespace Bollywell.Hydra.Messaging.Listeners
 {
@@ -14,7 +14,7 @@ namespace Bollywell.Hydra.Messaging.Listeners
     {
         private const long DefaultPollIntervalMs = 1000;
         private const long DefaultBufferDelayMs = 0;
-        private readonly IConfigProvider _configProvider;
+        private readonly IProvider _provider;
         private readonly IMessageFetcher<TMessage> _messageFetcher;
         private readonly Subject<TMessage> _subject = new Subject<TMessage>();
         private List<TMessage> _messageBuffer = new List<TMessage>();
@@ -37,15 +37,15 @@ namespace Bollywell.Hydra.Messaging.Listeners
         /// <summary>
         /// Construct a Listener and start it polling.
         /// </summary>
-        /// <param name="configProvider"> </param>
+        /// <param name="provider"> </param>
         /// <param name="messageFetcher">IMessageFetcher with which to poll.</param>
         /// <param name="startId">Only fetch messages with higher id than startId. Defaults to the id corresponding to now.</param>
         /// <param name="listenerOptions">Default values for Listener options.</param>
         /// <param name="scheduler">Scheduler to use for polling. Defaults to TaskPoolScheduler.Default.</param>
         /// <remarks>The polling interval is taken from Service.GetConfig().PollIntervalMs and is dynamic: changes take effect after the next poll.</remarks>
-        internal Listener(IConfigProvider configProvider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null, IScheduler scheduler = null)
+        internal Listener(IProvider provider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null, IScheduler scheduler = null)
         {
-            _configProvider = configProvider;
+            _provider = provider;
             _messageFetcher = messageFetcher;
             _scheduler = scheduler ?? TaskPoolScheduler.Default;
             BufferDelayMs = listenerOptions == null ? DefaultBufferDelayMs : listenerOptions.BufferDelayMs;
@@ -67,20 +67,20 @@ namespace Bollywell.Hydra.Messaging.Listeners
                 return Poll();
             } catch (Exception) {
                 // TODO: detect what sort of error this was
-                _configProvider.ServerError(_server);
+                _provider.ServerError(_server);
                 return _noMessages;
             }
         }
 
         private IEnumerable<TMessage> Poll()
         {
-            var server = _configProvider.HydraServer;
+            var server = _provider.HydraServer;
             if (server != _server) {
                 // The server has changed, so reinitialise. As _server is initially null, this will be also be called on the very first poll.
                 // TODO: There is a slim chance of the server changing after the call above, and before the GetStore call below, which would be a problem.
-                // The solution would be to have a single IConfigProvider call that returns both the server and store (or maybe a version number and store).
+                // The solution would be to have a single IProvider call that returns both the server and store (or maybe a version number and store).
                 _server = server;
-                _store = _configProvider.GetStore();
+                _store = _provider.GetStore();
                 _startId = LastId;
                 // Populate _messageBuffer from _startId
                 _lastSeq = _store.GetLastSeq();

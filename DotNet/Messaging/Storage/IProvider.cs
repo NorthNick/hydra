@@ -1,6 +1,6 @@
-﻿namespace Bollywell.Hydra.Messaging.Config
+﻿namespace Bollywell.Hydra.Messaging.Storage
 {
-    public interface IConfigProvider
+    public interface IProvider
     {
         IStore GetStore();
         string HydraServer { get; }

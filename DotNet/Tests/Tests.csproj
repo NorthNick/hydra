@@ -85,7 +85,7 @@
   <ItemGroup>
     <Compile Include="MessageIdManagerTest.cs" />
     <Compile Include="Mocks\DocInfo.cs" />
-    <Compile Include="Mocks\MockConfigProvider.cs" />
+    <Compile Include="Mocks\MockProvider.cs" />
     <Compile Include="Mocks\MockStore.cs" />
     <Compile Include="Mocks\TestHydraMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

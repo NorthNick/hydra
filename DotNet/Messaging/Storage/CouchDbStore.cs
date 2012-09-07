@@ -1,15 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat;
 using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
 
-namespace Bollywell.Hydra.Messaging
+namespace Bollywell.Hydra.Messaging.Storage
 {
     internal class CouchDbStore : IStore
     {

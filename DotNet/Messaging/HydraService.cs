@@ -1,19 +1,19 @@
 ﻿using System;
-using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.Listeners;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
+using Bollywell.Hydra.Messaging.Storage;
 
 namespace Bollywell.Hydra.Messaging
 {
     public class HydraService : IHydraService
     {
-        private readonly IConfigProvider _configProvider;
+        private readonly IProvider _provider;
         private readonly ListenerOptions _listenerOptions;
 
-        public HydraService(IConfigProvider configProvider, ListenerOptions listenerOptions = null)
+        public HydraService(IProvider provider, ListenerOptions listenerOptions = null)
         {
-            _configProvider = configProvider;
+            _provider = provider;
             _listenerOptions = listenerOptions;
         }
 
@@ -21,24 +21,24 @@ namespace Bollywell.Hydra.Messaging
 
         public IListener<TMessage> GetListener<TMessage>(IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null) where TMessage : TransportMessage
         {
-            return new Listener<TMessage>(_configProvider, messageFetcher, startId, listenerOptions ?? _listenerOptions);
+            return new Listener<TMessage>(_provider, messageFetcher, startId, listenerOptions ?? _listenerOptions);
         }
 
         public IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage
         {
             // TODO: use the "get database and server together" call suggested in Listener
             try {
-                return _configProvider.GetStore().SaveDoc(message.ToJson());
+                return _provider.GetStore().SaveDoc(message.ToJson());
             }
             catch (Exception ex) {
-                _configProvider.ServerError(_configProvider.HydraServer);
+                _provider.ServerError(_provider.HydraServer);
                 throw new Exception("HydraService.Send: error sending message. " + ex.Message, ex);
             }
         }
         
         public string ServerName
         {
-            get { return _configProvider.HydraServer; }
+            get { return _provider.HydraServer; }
         }
 
         #endregion

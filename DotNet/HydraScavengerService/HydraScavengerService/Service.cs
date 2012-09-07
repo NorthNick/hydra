@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Timers;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat;
 using LoveSeat.Interfaces;

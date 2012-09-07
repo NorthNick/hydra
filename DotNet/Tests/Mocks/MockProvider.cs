@@ -1,21 +1,21 @@
 ﻿using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Config;
 using System;
+using Bollywell.Hydra.Messaging.Storage;
 
 namespace Bollywell.Hydra.Tests.Mocks
 {
-    class MockConfigProvider : IConfigProvider
+    class MockProvider : IProvider
     {
         private readonly IStore _store;
 
-        public MockConfigProvider(IStore store, int? pollIntervalMs = null)
+        public MockProvider(IStore store, int? pollIntervalMs = null)
         {
             _store = store;
             PollIntervalMs = pollIntervalMs;
             HydraServer = _store.Name;
         }
 
-        #region Implementation of IConfigProvider
+        #region Implementation of IProvider
 
         public IStore GetStore()
         {

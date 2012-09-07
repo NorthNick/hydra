@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.MessageIds;
+using Bollywell.Hydra.Messaging.Storage;
 using Bollywell.Hydra.Tests.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -25,12 +25,12 @@ namespace Bollywell.Hydra.Tests
         {
             // Set up stores
             _singleMessageStore = new MockStore("SingleMessageStore", "");
-            var configProvider = new RoundRobinConfigProvider(new List<IStore> { _singleMessageStore });
+            var configProvider = new RoundRobinProvider(new List<IStore> { _singleMessageStore });
             var service = new HydraService(configProvider);
             service.Send(new HydraMessage { Topic = "Test", Source = MessageSource, Data = "Test data" });
 
             _alternatingStore = new MockStore("AlternatingStore", "");
-            configProvider = new RoundRobinConfigProvider(new List<IStore> { _alternatingStore });
+            configProvider = new RoundRobinProvider(new List<IStore> { _alternatingStore });
             service = new HydraService(configProvider);
             for (int ii=0; ii < AlternatingMessageCount; ii++) {
                 service.Send(new HydraMessage { Topic = Alternating1, Source = MessageSource, Data = string.Format("{0} message {1}", Alternating1, ii) });

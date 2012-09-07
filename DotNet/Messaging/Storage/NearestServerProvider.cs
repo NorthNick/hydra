@@ -4,12 +4,12 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
-namespace Bollywell.Hydra.Messaging.Config
+namespace Bollywell.Hydra.Messaging.Storage
 {
     /// <summary>
     /// Use the Hydra server with the smallest response time. Switch if another one is more than Tolerance milliseconds faster.
     /// </summary>
-    public class NearestServerConfigProvider : PollingConfigProviderBase
+    public class NearestServerProvider : PollingProviderBase
     {
         private string _closestServer;
         private IDisposable _closestSubscription;
@@ -25,7 +25,7 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServer">Hydra server to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        public NearestServerConfigProvider(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
+        public NearestServerProvider(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
             : this(new List<string> {hydraServer}, database, port) {}
 
         /// <summary>
@@ -34,14 +34,14 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServers">Hydra servers to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        public NearestServerConfigProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
+        public NearestServerProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
             : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="stores">Hydra stores to communicate with</param>
-        public NearestServerConfigProvider(IEnumerable<IStore> stores)
+        public NearestServerProvider(IEnumerable<IStore> stores)
             : base(stores)
         {
             Start();

@@ -1,5 +1,5 @@
 ﻿
-namespace Bollywell.Hydra.Messaging.Config
+namespace Bollywell.Hydra.Messaging.Storage
 {
     public interface IServerDistanceInfo
     {

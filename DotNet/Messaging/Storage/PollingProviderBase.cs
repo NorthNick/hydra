@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bollywell.Hydra.Messaging.Config
+namespace Bollywell.Hydra.Messaging.Storage
 {
-    public abstract class PollingConfigProviderBase : IConfigProvider, IDisposable
+    public abstract class PollingProviderBase : IProvider, IDisposable
     {
         protected const string DefaultDatabase = "hydra";
         protected const int DefaultPort = 5984;
@@ -37,7 +37,7 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServer">Hydra server to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        protected PollingConfigProviderBase(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
+        protected PollingProviderBase(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
             : this(new List<string> {hydraServer}, database, port) {}
 
         /// <summary>
@@ -46,14 +46,14 @@ namespace Bollywell.Hydra.Messaging.Config
         /// <param name="hydraServers">Hydra servers to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        protected PollingConfigProviderBase(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
+        protected PollingProviderBase(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
              : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="stores">Hydra stores to communicate with</param>
-        protected PollingConfigProviderBase(IEnumerable<IStore> stores)
+        protected PollingProviderBase(IEnumerable<IStore> stores)
         {
             if (stores == null || !stores.Any()) throw new ArgumentException("At least one store must be supplied", "stores");
             _storeDict = stores.ToDictionary(store => store.Name);

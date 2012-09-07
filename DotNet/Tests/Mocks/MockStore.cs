@@ -1,6 +1,6 @@
 ﻿using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageIds;
+using Bollywell.Hydra.Messaging.Storage;
 using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
 using System;

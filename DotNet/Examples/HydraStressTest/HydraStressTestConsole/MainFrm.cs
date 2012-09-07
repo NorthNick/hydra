@@ -7,10 +7,10 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Config;
 using Bollywell.Hydra.Messaging.MessageFetchers;
 using Bollywell.Hydra.Messaging.Listeners;
 using Bollywell.Hydra.Messaging.Serializers;
+using Bollywell.Hydra.Messaging.Storage;
 using Bollywell.Hydra.PubSubByType;
 using HydraStressTestDtos;
 
@@ -39,7 +39,7 @@ namespace HydraStressTestConsole
 
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?)null : int.Parse(pollSetting);
-            var hydraService = new HydraService(new RoundRobinConfigProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
+            var hydraService = new HydraService(new RoundRobinProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
 
             _dataSubscriber = new Subscriber<StressTestData>(hydraService);
             _dataSubscription = _dataSubscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnDataRecv);

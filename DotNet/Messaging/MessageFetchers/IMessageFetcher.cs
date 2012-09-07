@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Bollywell.Hydra.Messaging.MessageIds;
+using Bollywell.Hydra.Messaging.Storage;
 
 namespace Bollywell.Hydra.Messaging.MessageFetchers
 {
