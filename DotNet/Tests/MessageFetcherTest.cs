@@ -25,13 +25,13 @@ namespace Bollywell.Hydra.Tests
         {
             // Set up stores
             _singleMessageStore = new MockStore("SingleMessageStore", "");
-            var configProvider = new RoundRobinProvider(new List<IStore> { _singleMessageStore });
-            var service = new HydraService(configProvider);
+            var provider = new RoundRobinProvider(new List<IStore> { _singleMessageStore });
+            var service = new HydraService(provider);
             service.Send(new HydraMessage { Topic = "Test", Source = MessageSource, Data = "Test data" });
 
             _alternatingStore = new MockStore("AlternatingStore", "");
-            configProvider = new RoundRobinProvider(new List<IStore> { _alternatingStore });
-            service = new HydraService(configProvider);
+            provider = new RoundRobinProvider(new List<IStore> { _alternatingStore });
+            service = new HydraService(provider);
             for (int ii=0; ii < AlternatingMessageCount; ii++) {
                 service.Send(new HydraMessage { Topic = Alternating1, Source = MessageSource, Data = string.Format("{0} message {1}", Alternating1, ii) });
                 service.Send(new HydraMessage { Topic = Alternating2, Source = MessageSource, Data = string.Format("{0} message {1}", Alternating2, ii) });
