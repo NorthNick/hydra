@@ -20,7 +20,6 @@ namespace Bollywell.Hydra.Messaging.Listeners
         private List<TMessage> _messageBuffer = new List<TMessage>();
         private long _lastSeq;
         private IMessageId _startId;
-        private string _server;
         private IStore _store;
         private bool _disposed = false;
         private readonly IDisposable _messageSub;
@@ -67,20 +66,21 @@ namespace Bollywell.Hydra.Messaging.Listeners
                 return Poll();
             } catch (Exception) {
                 // TODO: detect what sort of error this was
-                _provider.ServerError(_server);
+                _provider.ServerError(_store.Name);
                 return _noMessages;
             }
         }
 
         private IEnumerable<TMessage> Poll()
         {
-            var server = _provider.HydraServer;
-            if (server != _server) {
-                // The server has changed, so reinitialise. As _server is initially null, this will be also be called on the very first poll.
-                // TODO: There is a slim chance of the server changing after the call above, and before the GetStore call below, which would be a problem.
-                // The solution would be to have a single IProvider call that returns both the server and store (or maybe a version number and store).
-                _server = server;
-                _store = _provider.GetStore();
+            var store = _provider.GetStore(false);
+            if (store == null) {
+                // Stores are all offline, or initialisation is incomplete. Do nothing and wait until a store is available.
+                return Enumerable.Empty<TMessage>();
+            }
+            if (_store == null || store.Name != _store.Name) {
+                // The server has changed, so reinitialise. As _store is initially null, this will be also be called on the very first poll.
+                _store = store;
                 _startId = LastId;
                 // Populate _messageBuffer from _startId
                 _lastSeq = _store.GetLastSeq();

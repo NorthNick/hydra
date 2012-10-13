@@ -8,6 +8,5 @@ namespace Bollywell.Hydra.Messaging
     {
         IListener<TMessage> GetListener<TMessage>(IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null) where TMessage : TransportMessage;
         IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage;
-        string ServerName { get; }
     }
 }

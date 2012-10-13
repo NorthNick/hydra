@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace Bollywell.Hydra.Messaging.Storage
@@ -11,8 +9,6 @@ namespace Bollywell.Hydra.Messaging.Storage
     /// </summary>
     public class NearestServerProvider : PollingProviderBase
     {
-        private string _closestServer;
-        private IDisposable _closestSubscription;
 
         /// <summary>
         /// Only change servers if the distance is more than Tolerance milliseconds less than the distance to the current server.
@@ -24,7 +20,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// </summary>
         /// <param name="hydraServer">Hydra server to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
-        /// <param name="port">Port number of the messaging database. defaults to 5984</param>
+        /// <param name="port">Port number of the messaging database. Defaults to 5984</param>
         public NearestServerProvider(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
             : this(new List<string> {hydraServer}, database, port) {}
 
@@ -33,43 +29,29 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// </summary>
         /// <param name="hydraServers">Hydra servers to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
-        /// <param name="port">Port number of the messaging database. defaults to 5984</param>
+        /// <param name="port">Port number of the messaging database. Defaults to 5984</param>
         public NearestServerProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
-            : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
+            : this(hydraServers.Select(s => new CouchDbStore(string.Format("{0}:{1}:{2}", s, port, database), s, database, port))) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>
         /// <param name="stores">Hydra stores to communicate with</param>
         public NearestServerProvider(IEnumerable<IStore> stores)
-            : base(stores)
-        {
-            Start();
-        }
+            : base(stores) {}
 
-        protected override void PreStop()
+        protected override void OnDistanceInfo(ServerDistanceInfo sdi)
         {
-            if (_closestSubscription != null) {
-                _closestSubscription.Dispose();
-                _closestSubscription = null;
+            if (sdi.IsReachable && (HydraServer == null || (HydraServer != sdi.Name && sdi.Distance < Distances.ServerInfo[HydraServer].Distance - Tolerance))) {
+                // There is a better server than the current one
+                HydraServer = sdi.Name;
+            } else if (!sdi.IsReachable && HydraServer == sdi.Name) {
+                // The current server is no longer responding - replace with the nearest reachable one, or null if none are reachable
+                HydraServer = Distances.ServerInfo.Values.Where(sdi1 => sdi1.IsReachable).OrderBy(sdi1 => sdi1.Distance).Select(sdi1 => sdi1.Name).FirstOrDefault();
+            } else if (!Initialised && !sdi.IsReachable && Distances.ServerInfo.Count == StoreDict.Count) {
+                // All servers are unreachable so initialisation is done
+                FinishedInitialisation();
             }
-            _closestServer = null;
-        }
-
-        protected override void PostStart()
-        {
-            // Block until the first server response
-            HydraServer = Distances.First(IsNewClosest).Address;
-            _closestSubscription = Distances.Where(IsNewClosest).Subscribe(sdi => HydraServer = sdi.Address);
-        }
-
-        private bool IsNewClosest(ServerDistanceInfo sdi)
-        {
-            if (sdi.IsReachable && (_closestServer == null || (_closestServer != sdi.Address && sdi.Distance < Distances.ServerInfo[_closestServer].Distance - Tolerance))) {
-                _closestServer = sdi.Address;
-                return true;
-            }
-            return false;
         }
 
         #region Measure distance

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 
 namespace Bollywell.Hydra.Messaging.Storage
 {
@@ -17,6 +16,8 @@ namespace Bollywell.Hydra.Messaging.Storage
         private readonly List<IStore> _stores;
 
         public string HydraServer { get; private set; }
+
+        public bool IsOffline { get; private set; }
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
@@ -50,7 +51,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// <summary>
         /// Fetches the current store to use for polling.
         /// </summary>
-        public IStore GetStore()
+        public IStore GetStore(bool waitForInitialisation)
         {
             return _stores[_storeIndex];
         }

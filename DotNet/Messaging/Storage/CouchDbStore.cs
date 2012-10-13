@@ -81,7 +81,7 @@ namespace Bollywell.Hydra.Messaging.Storage
             catch (Exception) {
                 // Swallow errors
             }
-            return new ServerDistanceInfo { Address = Name, Distance = responseOk ? elapsed : long.MaxValue, IsReachable = responseOk };
+            return new ServerDistanceInfo { Name = Name, Distance = responseOk ? elapsed : long.MaxValue, IsReachable = responseOk };
         }
 
     }

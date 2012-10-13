@@ -1,5 +1,4 @@
-﻿using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.MessageIds;
+﻿using Bollywell.Hydra.Messaging.MessageIds;
 using Bollywell.Hydra.Messaging.Storage;
 using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
@@ -73,7 +72,7 @@ namespace Bollywell.Hydra.Tests.Mocks
 
         public ServerDistanceInfo MeasureDistance()
         {
-            return new ServerDistanceInfo { Address = Name, Distance = 10, IsReachable = true };
+            return new ServerDistanceInfo { Name = Name, Distance = 10, IsReachable = true };
         }
 
         public IEnumerable<JToken> GetDocs(string viewName, IViewOptions options)

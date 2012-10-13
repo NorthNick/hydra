@@ -2,8 +2,9 @@
 {
     public interface IProvider
     {
-        IStore GetStore();
+        IStore GetStore(bool waitForInitialisation);
         string HydraServer { get; }
+        bool IsOffline { get; }
         void ServerError(string server);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Bollywell.Hydra.Messaging.Storage
 {
@@ -9,16 +10,30 @@ namespace Bollywell.Hydra.Messaging.Storage
         protected const string DefaultDatabase = "hydra";
         protected const int DefaultPort = 5984;
 
+        private string _hydraServer;
         protected readonly ServerDistance<ServerDistanceInfo> Distances;
-        private readonly object _lock = new object();
-        private readonly Dictionary<string, IStore> _storeDict;
+        private readonly object _serverErrorLock = new object();
+        protected readonly Dictionary<string, IStore> StoreDict;
+        // Set after initialisation to save having to get _initLock every time.
+        protected bool Initialised { get; set; }
+        private readonly ManualResetEvent _initLock = new ManualResetEvent(false);
 
         #region Properties
 
         /// <summary>
         /// The currently nearest Hydra server.
         /// </summary>
-        public string HydraServer { get; protected set; }
+        public string HydraServer
+        {
+            get { return _hydraServer; } 
+            set
+            {
+                if (!Initialised) FinishedInitialisation();
+                _hydraServer = value;
+            }
+        }
+
+        public bool IsOffline { get; protected set; }
 
         /// <summary>
         /// The interval at which distance to Hydra servers is measured, in milliseonds.
@@ -56,16 +71,26 @@ namespace Bollywell.Hydra.Messaging.Storage
         protected PollingProviderBase(IEnumerable<IStore> stores)
         {
             if (stores == null || !stores.Any()) throw new ArgumentException("At least one store must be supplied", "stores");
-            _storeDict = stores.ToDictionary(store => store.Name);
-            Distances = new ServerDistance<ServerDistanceInfo>(stores.Select(store => store.Name), MeasureDistance, InitDistance);
+            StoreDict = stores.ToDictionary(store => store.Name);
+            Distances = new ServerDistance<ServerDistanceInfo>(StoreDict.Keys, MeasureDistance, InitDistance);
+            // TODO: this won't work because the FinishedInitialisation event may be raised before this handler is bound
+            Distances.FinishedInitialisation += serverDistance => FinishedInitialisation();
+            Distances.Subscribe(OnDistanceInfo);
         }
 
         /// <summary>
         /// Fetches the current store to use for polling.
         /// </summary>
-        public IStore GetStore()
+        /// <param name="waitForInitialisation">Whether to block until the IProvider is fully initialised</param>
+        /// <returns></returns>
+        public IStore GetStore(bool waitForInitialisation)
         {
-            return _storeDict[HydraServer];
+            if (waitForInitialisation && !Initialised) {
+                // Pause until _initLock is set by LockedInitDistance
+                // TODO: set timeout here and set _initialised afterwards regardless
+                _initLock.WaitOne();
+            }
+            return HydraServer == null ? null : StoreDict[HydraServer];
         }
 
         /// <summary>
@@ -76,32 +101,32 @@ namespace Bollywell.Hydra.Messaging.Storage
         {
             // The lock ensures that multiple threads do not attempt to reset at the same time.
             // We could use double-checked locking, but even Jon Skeet is doubtful about it, and there would not be much performance gain.
-            lock (_lock) {
+            lock (_serverErrorLock) {
                 if (server == HydraServer) {
-                    // The current server has gone offline. Restart _distances to force a repoll.
-                    PreStop();
-                    Distances.Stop();
-                    Start();
+                    // The current server has gone offline. Inform Distances.
+                    Distances.OnDistanceInfo(new ServerDistanceInfo { Name = server, Distance = long.MaxValue, IsReachable = false });
                 }
             }
         }
 
-        protected void Start()
-        {
-            Distances.Start();
-            PostStart();
-        }
-
-        protected virtual void PreStop() { }
-        protected virtual void PostStart() { }
+        protected virtual void OnDistanceInfo(ServerDistanceInfo sdi) { }
 
         #region Measure distance
 
         protected ServerDistanceInfo MeasureDistance(string server)
         {
-            return _storeDict[server].MeasureDistance();
+            return StoreDict[server].MeasureDistance();
         }
 
+        protected void FinishedInitialisation()
+        {
+            if (!Initialised) {
+                Initialised = true;
+                _initLock.Set();
+            }
+        }
+
+        // InitDistance will be run asynchronously by ServerDistance but should itself be synchronous.
         protected virtual void InitDistance(IEnumerable<string> servers) {}
 
         #endregion
@@ -119,6 +144,7 @@ namespace Bollywell.Hydra.Messaging.Storage
             if (disposing) {
                 // free managed resources
                 Distances.Dispose();
+                _initLock.Dispose();
             }
             // free native resources if there are any.
         }

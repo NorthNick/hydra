@@ -1,6 +1,5 @@
-﻿using Bollywell.Hydra.Messaging;
+﻿using Bollywell.Hydra.Messaging.Storage;
 using System;
-using Bollywell.Hydra.Messaging.Storage;
 
 namespace Bollywell.Hydra.Tests.Mocks
 {
@@ -13,16 +12,19 @@ namespace Bollywell.Hydra.Tests.Mocks
             _store = store;
             PollIntervalMs = pollIntervalMs;
             HydraServer = _store.Name;
+            IsOffline = false;
         }
 
         #region Implementation of IProvider
 
-        public IStore GetStore()
+        public IStore GetStore(bool waitForInitialisation)
         {
             return _store;
         }
 
         public string HydraServer { get; private set; }
+
+        public bool IsOffline { get; private set; }
 
         public int? PollIntervalMs { get; private set; }
 

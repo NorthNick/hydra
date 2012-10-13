@@ -27,21 +27,23 @@ namespace Bollywell.Hydra.Messaging
 
         public IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage
         {
-            // TODO: use the "get database and server together" call suggested in Listener
-            try {
-                return _provider.GetStore().SaveDoc(message.ToJson());
+            bool failed = false;
+            while (!failed && !_provider.IsOffline) {
+                var store = _provider.GetStore(true);
+                if (store == null) {
+                    failed = true;
+                } else {
+                    try {
+                        return store.SaveDoc(message.ToJson());
+                    }
+                    catch (Exception) {
+                        _provider.ServerError(store.Name);
+                    }
+                }
             }
-            catch (Exception ex) {
-                _provider.ServerError(_provider.HydraServer);
-                throw new Exception("HydraService.Send: error sending message. " + ex.Message, ex);
-            }
+            throw new Exception("HydraService.Send: Error sending message - all servers offline.");
         }
         
-        public string ServerName
-        {
-            get { return _provider.HydraServer; }
-        }
-
         #endregion
 
     }
