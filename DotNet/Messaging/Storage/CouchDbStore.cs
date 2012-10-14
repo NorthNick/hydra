@@ -12,6 +12,8 @@ namespace Bollywell.Hydra.Messaging.Storage
 {
     internal class CouchDbStore : IStore
     {
+        private const string DefaultDatabase = "hydra";
+        private const int DefaultPort = 5984;
         private const string DesignDoc = "hydra";
         private readonly string _database;
         private readonly int _port;
@@ -19,12 +21,17 @@ namespace Bollywell.Hydra.Messaging.Storage
 
         public string Name { get; private set; }
 
-        public CouchDbStore(string name, string server, string database, int port)
+        public CouchDbStore(string server, string database = null, int? port = null) : this("", server, database, port)
         {
-            _database = database;
-            _port = port;
+            Name = NameFromServerDetails(server, _database, _port);
+        }
+
+        public CouchDbStore(string name, string server, string database = null, int? port = null)
+        {
+            _database = database ?? DefaultDatabase;
+            _port = port.HasValue ? port.Value : DefaultPort;
             Name = name;
-            _db = new CouchClient(server, port, null, null, false, AuthenticationType.Basic).GetDatabase(database);
+            _db = new CouchClient(server, _port, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
         }
 
         public IEnumerable<IMessageId> GetChanges(IMessageId startId, long sinceSeq, out long lastSeq)
@@ -84,5 +91,9 @@ namespace Bollywell.Hydra.Messaging.Storage
             return new ServerDistanceInfo { Name = Name, Distance = responseOk ? elapsed : long.MaxValue, IsReachable = responseOk };
         }
 
+        public static string NameFromServerDetails(string server, string database, int port)
+        {
+            return string.Format("{0}:{1}:{2}", server, port, database);
+        }
     }
 }

@@ -7,9 +7,6 @@ namespace Bollywell.Hydra.Messaging.Storage
 {
     public abstract class PollingProviderBase : IProvider, IDisposable
     {
-        protected const string DefaultDatabase = "hydra";
-        protected const int DefaultPort = 5984;
-
         private string _hydraServer;
         protected readonly ServerDistance<ServerDistanceInfo> Distances;
         private readonly object _serverErrorLock = new object();
@@ -51,8 +48,8 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// </summary>
         /// <param name="hydraServer">Hydra server to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
-        /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        protected PollingProviderBase(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
+        /// <param name="port">Port number of the messaging database. Defaults to 5984</param>
+        protected PollingProviderBase(string hydraServer, string database = null, int? port = null) 
             : this(new List<string> {hydraServer}, database, port) {}
 
         /// <summary>
@@ -60,8 +57,8 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// </summary>
         /// <param name="hydraServers">Hydra servers to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
-        /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        protected PollingProviderBase(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
+        /// <param name="port">Port number of the messaging database. Defaults to 5984</param>
+        protected PollingProviderBase(IEnumerable<string> hydraServers, string database = null, int? port = null)
              : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
 
         /// <summary>
