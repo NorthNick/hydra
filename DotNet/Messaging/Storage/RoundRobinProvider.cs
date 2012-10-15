@@ -14,8 +14,6 @@ namespace Bollywell.Hydra.Messaging.Storage
 
         public string HydraServer { get; private set; }
 
-        public bool IsOffline { get; private set; }
-
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
         /// </summary>

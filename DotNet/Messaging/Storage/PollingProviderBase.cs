@@ -31,8 +31,6 @@ namespace Bollywell.Hydra.Messaging.Storage
             }
         }
 
-        public bool IsOffline { get; protected set; }
-
         /// <summary>
         /// The interval at which distance to Hydra servers is measured, in milliseonds.
         /// </summary>

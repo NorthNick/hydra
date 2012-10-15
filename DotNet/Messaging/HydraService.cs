@@ -27,19 +27,14 @@ namespace Bollywell.Hydra.Messaging
 
         public IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage
         {
-            bool failed = false;
-            while (!failed && !_provider.IsOffline) {
-                var store = _provider.GetStore(true);
-                if (store == null) {
-                    failed = true;
-                } else {
-                    try {
-                        return store.SaveDoc(message.ToJson());
-                    }
-                    catch (Exception) {
-                        _provider.ServerError(store.Name);
-                    }
+            var store = _provider.GetStore(true);
+            while (store != null) {
+                try {
+                    return store.SaveDoc(message.ToJson());
+                } catch (Exception) {
+                    _provider.ServerError(store.Name);
                 }
+                store = _provider.GetStore(true);
             }
             throw new Exception("HydraService.Send: Error sending message - all servers offline.");
         }

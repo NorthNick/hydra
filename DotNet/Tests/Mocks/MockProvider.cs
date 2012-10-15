@@ -12,7 +12,6 @@ namespace Bollywell.Hydra.Tests.Mocks
             _store = store;
             PollIntervalMs = pollIntervalMs;
             HydraServer = _store.Name;
-            IsOffline = false;
         }
 
         #region Implementation of IProvider
@@ -23,8 +22,6 @@ namespace Bollywell.Hydra.Tests.Mocks
         }
 
         public string HydraServer { get; private set; }
-
-        public bool IsOffline { get; private set; }
 
         public int? PollIntervalMs { get; private set; }
 
