@@ -15,6 +15,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         private const string DefaultDatabase = "hydra";
         private const int DefaultPort = 5984;
         private const string DesignDoc = "hydra";
+        private readonly string _server;
         private readonly string _database;
         private readonly int _port;
         private readonly IDocumentDatabase _db;
@@ -28,6 +29,7 @@ namespace Bollywell.Hydra.Messaging.Storage
 
         public CouchDbStore(string name, string server, string database = null, int? port = null)
         {
+            _server = server;
             _database = database ?? DefaultDatabase;
             _port = port.HasValue ? port.Value : DefaultPort;
             Name = name;
@@ -78,7 +80,7 @@ namespace Bollywell.Hydra.Messaging.Storage
             long elapsed = 0;
             try {
                 // This URL checks both that the server is up, and that the view index is up to date
-                string url = string.Format("http://{0}:{1}/{2}/_design/hydra/_view/broadcastMessages?limit=0", Name, _port, _database);
+                string url = string.Format("http://{0}:{1}/{2}/_design/hydra/_view/broadcastMessages?limit=0", _server, _port, _database);
                 var timer = Stopwatch.StartNew();
                 using (HttpWebResponse response = (HttpWebResponse) WebRequest.Create(url).GetResponse()) {
                     elapsed = timer.ElapsedMilliseconds;
