@@ -43,7 +43,9 @@ namespace Bollywell.Hydra.Messaging
             }
             throw new Exception("HydraService.Send: Error sending message - all servers offline.");
         }
-        
+
+        public string ServerName { get { return _provider.HydraServer; } }
+
         #endregion
 
     }
