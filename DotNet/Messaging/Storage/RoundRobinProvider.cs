@@ -9,9 +9,6 @@ namespace Bollywell.Hydra.Messaging.Storage
     /// </summary>
     public class RoundRobinProvider : IProvider
     {
-        private const string DefaultDatabase = "hydra";
-        private const int DefaultPort = 5984;
-
         private static int _storeIndex;
         private readonly List<IStore> _stores;
 
@@ -25,7 +22,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// <param name="hydraServer">Hydra server to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        public RoundRobinProvider(string hydraServer, string database = DefaultDatabase, int port = DefaultPort) 
+        public RoundRobinProvider(string hydraServer, string database = null, int? port = null) 
             : this(new List<string> {hydraServer}, database, port) {}
 
         /// <summary>
@@ -34,8 +31,8 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// <param name="hydraServers">Hydra servers to communicate with</param>
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. defaults to 5984</param>
-        public RoundRobinProvider(IEnumerable<string> hydraServers, string database = DefaultDatabase, int port = DefaultPort)
-            : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
+        public RoundRobinProvider(IEnumerable<string> hydraServers, string database = null, int? port = null)
+            : this(hydraServers.Select(s => new CouchDbStore(s, database, port))) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.

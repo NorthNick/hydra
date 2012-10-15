@@ -7,6 +7,7 @@ namespace Bollywell.Hydra.Messaging.Storage
 {
     public abstract class PollingProviderBase : IProvider, IDisposable
     {
+        private const int InitialisationTimeoutMs = 5000;
         private string _hydraServer;
         protected readonly ServerDistance<ServerDistanceInfo> Distances;
         private readonly object _serverErrorLock = new object();
@@ -69,9 +70,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         {
             if (stores == null || !stores.Any()) throw new ArgumentException("At least one store must be supplied", "stores");
             StoreDict = stores.ToDictionary(store => store.Name);
-            Distances = new ServerDistance<ServerDistanceInfo>(StoreDict.Keys, MeasureDistance, InitDistance);
-            // TODO: this won't work because the FinishedInitialisation event may be raised before this handler is bound
-            Distances.FinishedInitialisation += serverDistance => FinishedInitialisation();
+            Distances = new ServerDistance<ServerDistanceInfo>(StoreDict.Keys, MeasureDistance, InitDistance, serverDistance => FinishedInitialisation());
             Distances.Subscribe(OnDistanceInfo);
         }
 
@@ -83,9 +82,9 @@ namespace Bollywell.Hydra.Messaging.Storage
         public IStore GetStore(bool waitForInitialisation)
         {
             if (waitForInitialisation && !Initialised) {
-                // Pause until _initLock is set by LockedInitDistance
-                // TODO: set timeout here and set _initialised afterwards regardless
-                _initLock.WaitOne();
+                // Pause until _initLock is signalled, or the timeout fires.
+                // If there is a timeout, call FinishedInitialisation to prevent future waits.
+                if (!_initLock.WaitOne(InitialisationTimeoutMs)) FinishedInitialisation();
             }
             return HydraServer == null ? null : StoreDict[HydraServer];
         }

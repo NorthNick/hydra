@@ -42,12 +42,14 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// <param name="servers">Names or string representation of IP addresses of the servers to monitor</param>
         /// <param name="measureDistance">Optional function to measure distance to a server</param>
         /// <param name="init">Optional initialisation function, to be run asynchronously before polling starts.</param>
-        public ServerDistance(IEnumerable<string> servers, Func<string, TServerDistanceInfo> measureDistance = null, Action<IEnumerable<string>> init = null)
+        /// <param name="finishedInitialisationHandler">Optional FinishedInitialisation event handler. Supplying this ensures the event handler is definitely attached before the event is raised.</param>
+        public ServerDistance(IEnumerable<string> servers, Func<string, TServerDistanceInfo> measureDistance = null, Action<IEnumerable<string>> init = null, Action<object> finishedInitialisationHandler = null)
         {
             Interval = TimerInterval;
             _servers = servers.ToList();
             _measureDistance = measureDistance ?? MeasureDistance;
             ServerInfo = new Dictionary<string, TServerDistanceInfo>();
+            if (finishedInitialisationHandler != null) FinishedInitialisation += finishedInitialisationHandler;
             Task.Factory.StartNew(() => { (init ?? Init)(_servers); Start(); });
         }
 

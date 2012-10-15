@@ -45,6 +45,9 @@ namespace Bollywell.Hydra.Messaging.Storage
                 var candidate = _servers.SkipWhile(s => Distances.ServerInfo.ContainsKey(s) && !Distances.ServerInfo[s].IsReachable).FirstOrDefault();
                 HydraServer = candidate != null && Distances.ServerInfo.ContainsKey(candidate) ? candidate : null;
                 _preferredIndex = HydraServer == null ? _servers.Count : _serverIndices[HydraServer];
+            } else if (!Initialised && !sdi.IsReachable && Distances.ServerInfo.Count == StoreDict.Count) {
+                // All servers are unreachable so initialisation is done
+                FinishedInitialisation();
             }
         }
 
