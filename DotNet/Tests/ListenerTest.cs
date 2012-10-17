@@ -31,7 +31,7 @@ namespace Bollywell.Hydra.Tests
         {
             _scheduler = new TestScheduler();
             _store = new MockStore("ListenerStore", "", _scheduler);
-            _provider = new RoundRobinProvider(new List<IStore> { _store });
+            _provider = new NearestServerProvider(new List<IStore> { _store });
             _service = new HydraService(_provider);
             _fetcher = new HydraByTopicMessageFetcher("Test");
             // Any time after 1/1/1970 will do for startDate. CouchIds go wrong before that date as they are microseconds since 1/1/1970.

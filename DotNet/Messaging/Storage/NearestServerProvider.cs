@@ -60,6 +60,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         {
             // Do a one-off poll of everything and discard the results, but only wait 1.5 seconds in case of very slow responses. For some reason the first connection to
             // a CouchDb server on localhost takes one second for the TCP connect phase, so this gets over that initial slow poll.
+            // TODO: convert to Rx - see http://cm-bloggers.blogspot.co.uk/2011/02/reactive-extensions.html
             Task.WaitAll(servers.Select(server => Task.Factory.StartNew(() => { MeasureDistance(server); })).ToArray(), 1500);
         }
 

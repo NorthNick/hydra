@@ -17,6 +17,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         private readonly Subject<TServerDistanceInfo> _subject = new Subject<TServerDistanceInfo>();
         private IDisposable _poller;
         private readonly Func<string, TServerDistanceInfo> _measureDistance;
+        private readonly Action<IEnumerable<string>> _init;
         private readonly object _lock = new object();
         private bool _initialisedRaised;
 
@@ -42,15 +43,13 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// <param name="servers">Names or string representation of IP addresses of the servers to monitor</param>
         /// <param name="measureDistance">Optional function to measure distance to a server</param>
         /// <param name="init">Optional initialisation function, to be run asynchronously before polling starts.</param>
-        /// <param name="finishedInitialisationHandler">Optional FinishedInitialisation event handler. Supplying this ensures the event handler is definitely attached before the event is raised.</param>
-        public ServerDistance(IEnumerable<string> servers, Func<string, TServerDistanceInfo> measureDistance = null, Action<IEnumerable<string>> init = null, Action<object> finishedInitialisationHandler = null)
+        public ServerDistance(IEnumerable<string> servers, Func<string, TServerDistanceInfo> measureDistance = null, Action<IEnumerable<string>> init = null)
         {
             Interval = TimerInterval;
             _servers = servers.ToList();
             _measureDistance = measureDistance ?? MeasureDistance;
+            _init = init ?? Init;
             ServerInfo = new Dictionary<string, TServerDistanceInfo>();
-            if (finishedInitialisationHandler != null) FinishedInitialisation += finishedInitialisationHandler;
-            Task.Factory.StartNew(() => { (init ?? Init)(_servers); Start(); });
         }
 
         #endregion
@@ -59,6 +58,12 @@ namespace Bollywell.Hydra.Messaging.Storage
 
         public void Start()
         {
+            Task.Factory.StartNew(StartAsync);
+        }
+
+        private void StartAsync()
+        {
+            _init(_servers);
             lock (_lock) {
                 ServerInfo = new Dictionary<string, TServerDistanceInfo>();
             }
@@ -71,25 +76,17 @@ namespace Bollywell.Hydra.Messaging.Storage
                               .Merge().Subscribe(OnDistanceInfo);
         }
 
-        public void Stop()
-        {
-            if (_poller != null) {
-                _poller.Dispose();
-                _poller = null;
-            }
-        }
-
         public void OnDistanceInfo(TServerDistanceInfo sdi)
         {
             // Ensure that multiple threads do not attempt to update ServerInfo at the same time.
             lock (_lock) {
                 ServerInfo[sdi.Name] = sdi;
+                _subject.OnNext(sdi);
                 // Raise the FinishedInitialisation event just once, when all servers have been polled
                 if (!_initialisedRaised && ServerInfo.Count == _servers.Count && FinishedInitialisation != null) {
                     FinishedInitialisation(this);
                     _initialisedRaised = true;
                 }
-                _subject.OnNext(sdi);
             }
         }
 
@@ -124,7 +121,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         {
             if (disposing) {
                 // free managed resources
-                Stop();
+                _poller.Dispose();
             }
             // free native resources if there are any.
         }

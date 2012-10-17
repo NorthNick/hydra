@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 
 namespace Bollywell.Hydra.Messaging.Storage
@@ -12,9 +16,12 @@ namespace Bollywell.Hydra.Messaging.Storage
         protected readonly ServerDistance<ServerDistanceInfo> Distances;
         private readonly object _serverErrorLock = new object();
         protected readonly Dictionary<string, IStore> StoreDict;
-        // Set after initialisation to save having to get _initLock every time.
-        protected bool Initialised { get; set; }
-        private readonly ManualResetEvent _initLock = new ManualResetEvent(false);
+        // Set after initialisation to save having to check _initialisedSubject every time.
+        protected bool Initialised { get; private set; }
+        // TODO: make this setable in tests.
+        private readonly IScheduler _scheduler;
+        // Observable indicating when initialisation is complete. The first value is true if there was a timeout, false otherwise.
+        private readonly ReplaySubject<bool> _initialisedSubject = new ReplaySubject<bool>(1);
 
         #region Properties
 
@@ -58,7 +65,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         /// <param name="database">Name of the messaging database. Defaults to "hydra"</param>
         /// <param name="port">Port number of the messaging database. Defaults to 5984</param>
         protected PollingProviderBase(IEnumerable<string> hydraServers, string database = null, int? port = null)
-             : this(hydraServers.Select(s => new CouchDbStore(s, s, database, port))) {}
+             : this(hydraServers.Select(s => new CouchDbStore(s, database, port))) {}
 
         /// <summary>
         /// Initialise messaging. Must be called before any attempt to send or listen.
@@ -68,8 +75,11 @@ namespace Bollywell.Hydra.Messaging.Storage
         {
             if (stores == null || !stores.Any()) throw new ArgumentException("At least one store must be supplied", "stores");
             StoreDict = stores.ToDictionary(store => store.Name);
-            Distances = new ServerDistance<ServerDistanceInfo>(StoreDict.Keys, MeasureDistance, InitDistance, serverDistance => FinishedInitialisation());
+            _scheduler = TaskPoolScheduler.Default;
+            Distances = new ServerDistance<ServerDistanceInfo>(StoreDict.Keys, MeasureDistance, InitDistance);
+            Distances.FinishedInitialisation += serverDistance => FinishedInitialisation();
             Distances.Subscribe(OnDistanceInfo);
+            Distances.Start();
         }
 
         /// <summary>
@@ -80,15 +90,17 @@ namespace Bollywell.Hydra.Messaging.Storage
         public IStore GetStore(bool waitForInitialisation)
         {
             if (waitForInitialisation && !Initialised) {
-                // Pause until _initLock is signalled, or the timeout fires.
+                // Pause until initialisation completes, or the timeout fires.
                 // If there is a timeout, call FinishedInitialisation to prevent future waits.
-                if (!_initLock.WaitOne(InitialisationTimeoutMs)) FinishedInitialisation();
+                bool initialisationTimeout = _initialisedSubject.Timeout(TimeSpan.FromMilliseconds(InitialisationTimeoutMs), Observable.Return(true), _scheduler).First();
+                if (initialisationTimeout) 
+                    FinishedInitialisation();
             }
             return HydraServer == null ? null : StoreDict[HydraServer];
         }
 
         /// <summary>
-        /// Called by listener when it cannot contact a server.
+        /// Called by listener or sender when they cannot contact a server.
         /// </summary>
         /// <param name="server">The server that could not be contacted</param>
         public void ServerError(string server)
@@ -116,7 +128,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         {
             if (!Initialised) {
                 Initialised = true;
-                _initLock.Set();
+                _initialisedSubject.OnNext(false);
             }
         }
 
@@ -138,7 +150,7 @@ namespace Bollywell.Hydra.Messaging.Storage
             if (disposing) {
                 // free managed resources
                 Distances.Dispose();
-                _initLock.Dispose();
+                _initialisedSubject.Dispose();
             }
             // free native resources if there are any.
         }

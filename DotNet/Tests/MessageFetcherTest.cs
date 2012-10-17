@@ -17,20 +17,20 @@ namespace Bollywell.Hydra.Tests
         private const string Alternating1 = "Alternating1";
         private const string Alternating2 = "Alternating2";
         private const int AlternatingMessageCount = 5;
-        private IStore _singleMessageStore;
-        private IStore _alternatingStore;
+        private static IStore _singleMessageStore;
+        private static IStore _alternatingStore;
 
-        [TestInitialize]
-        public void Initialize()
+        [ClassInitialize]
+        static public void Initialize(TestContext context)
         {
             // Set up stores
             _singleMessageStore = new MockStore("SingleMessageStore", "");
-            var provider = new RoundRobinProvider(new List<IStore> { _singleMessageStore });
+            var provider = new NearestServerProvider(new List<IStore> { _singleMessageStore });
             var service = new HydraService(provider);
             service.Send(new HydraMessage { Topic = "Test", Source = MessageSource, Data = "Test data" });
 
             _alternatingStore = new MockStore("AlternatingStore", "");
-            provider = new RoundRobinProvider(new List<IStore> { _alternatingStore });
+            provider = new NearestServerProvider(new List<IStore> { _alternatingStore });
             service = new HydraService(provider);
             for (int ii=0; ii < AlternatingMessageCount; ii++) {
                 service.Send(new HydraMessage { Topic = Alternating1, Source = MessageSource, Data = string.Format("{0} message {1}", Alternating1, ii) });

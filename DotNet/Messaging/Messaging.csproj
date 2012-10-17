@@ -71,7 +71,6 @@
     <Compile Include="Storage\NearestServerProvider.cs" />
     <Compile Include="Storage\PollingProviderBase.cs" />
     <Compile Include="Storage\PreferenceOrderProvider.cs" />
-    <Compile Include="Storage\RoundRobinProvider.cs" />
     <Compile Include="Storage\IProvider.cs" />
     <Compile Include="Storage\ServerDistance.cs" />
     <Compile Include="Storage\ServerDistanceInfo.cs" />
