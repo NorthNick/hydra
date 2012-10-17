@@ -1,4 +1,4 @@
-7 Sep 2012 Not yet released
+17 Oct 2012 Not yet released
 
 Breaking changes from Version 0.4
 ---------------------------------
@@ -7,6 +7,8 @@ Bollywell.Messaging.Config renamed to Bollywell.Messaging.Storage.
 XXXConfigProvider classes renamed to XXXProvider. (I toyed with XXXCloud, but that will date quickly.)
 Poller renamed to Listener and IHydraService.GetPoller to IHydraService.GetListener.
 The various bufferDelayMs and pollIntervalMs method parameters are now properties on a new ListenerOptions class, which can optionally be provided to the HydraService constructor, to apply to all Listeners on that service, or to the GetListener method, to apply to just that Listener.
+The HydraService.Send method now retries all available servers and only raises an error if none are available.
+The RoundRobin provider has been removed as it does not know if servers are online, so it does not work with the new Send semantics.
 
 
 Other changes
@@ -16,6 +18,7 @@ Improved MessageId management to allow any suffix, rather than just two-byte hex
 Added PreferenceOrderProvider.
 Created IStore interface and Provider constructors, and replaced timers with Schedulers, to help with testing. Created some tests.
 Upgraded to Rx 2.0.
+Made Provider initialisation asynchronous, so application startup is quick.
 
 ------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------

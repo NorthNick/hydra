@@ -39,7 +39,7 @@ namespace HydraStressTestConsole
 
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?)null : int.Parse(pollSetting);
-            var hydraService = new HydraService(new RoundRobinProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
+            var hydraService = new HydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
 
             _dataSubscriber = new Subscriber<StressTestData>(hydraService);
             _dataSubscription = _dataSubscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnDataRecv);

@@ -64,7 +64,7 @@ namespace Bollywell.Hydra.HydraStressTestClient
 
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?)null : int.Parse(pollSetting);
-            _hydraService = new HydraService(new RoundRobinProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
+            _hydraService = new HydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
             _stressSender = new Publisher<StressTestData>(_hydraService);
             _errorSender = new Publisher<StressTestError>(_hydraService);
             _controlSubscription = new Subscriber<StressTestControl>(_hydraService, _myName).ObserveOn(SynchronizationContext.Current).Subscribe(OnControlRecv);
