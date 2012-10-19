@@ -1,6 +1,6 @@
-17 Oct 2012 Not yet released
+19 Oct 2012 Version 0.6
 
-Breaking changes from Version 0.4
+Breaking changes from Version 0.5
 ---------------------------------
 The API has been overhauled in preparation for the first official release. The breaking changes are:
 Bollywell.Messaging.Config renamed to Bollywell.Messaging.Storage.
