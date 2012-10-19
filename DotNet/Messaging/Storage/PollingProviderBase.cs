@@ -31,8 +31,8 @@ namespace Bollywell.Hydra.Messaging.Storage
             get { return _hydraServer; } 
             set
             {
-                if (!Initialised) FinishedInitialisation();
                 _hydraServer = value;
+                if (!Initialised) FinishedInitialisation();
             }
         }
 
