@@ -12,7 +12,7 @@ To find out more about Hydra, please visit the GitHub wiki at http://github.com/
 
 Releases
 
-The latest binary release is available from the CodePlex project page or from the GitHub downloads page at https://github.com/NorthNick/hydra/downloads; and the latest code release is available from the GitHub tags page at https://github.com/NorthNick/hydra/tags or the CodePlex download page at http://hydra.codeplex.com/releases.
+The latest binary release is available from the CodePlex project page; and the latest code release is available from the GitHub tags page at https://github.com/NorthNick/hydra/tags or the CodePlex download page at http://hydra.codeplex.com/releases.
 
 
 

@@ -20,33 +20,48 @@ $outputDir = $root + "\Packages"
 $dll = "Messaging"
 $package = "Hydra-" + $dll
 $libDir = $root + "\" + $package + "\lib"
-$dllDir = "$scriptDir\$dll\bin\debug"
+$srcDir = $root + "\" + $package + "\src"
+$projDir = "$scriptDir\$dll"
+$dllDir = "$projDir\bin\debug"
 Remove-Item $libDir -recurse
+Remove-Item $srcDir -recurse
 New-Item $libDir -type directory
+New-Item $srcDir -type directory
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
 Copy-Item "$dllDir\LoveSeat.dll" $libDir
 Copy-Item "$dllDir\LoveSeat.Interfaces.dll" $libDir
+Copy-Item -Recurse -Filter *.cs $projDir $srcDir
 & $nuget pack "$root\$package\$package.nuspec" -Symbols -OutputDirectory $outputDir
 
 # Hydra-Conversations
 $dll = "Conversations"
 $package = "Hydra-" + $dll
 $libDir = $root + "\" + $package + "\lib"
+$srcDir = $root + "\" + $package + "\src"
+$projDir = "$scriptDir\$dll"
 $dllDir = "$scriptDir\$dll\bin\debug"
 Remove-Item $libDir -recurse
+Remove-Item $srcDir -recurse
 New-Item $libDir -type directory
+New-Item $srcDir -type directory
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
+Copy-Item -Recurse -Filter *.cs $projDir $srcDir
 & $nuget pack "$root\$package\$package.nuspec" -Symbols -OutputDirectory $outputDir
 
 # Hydra-PubSubByType
 $dll = "PubSubByType"
 $package = "Hydra-" + $dll
 $libDir = $root + "\" + $package + "\lib"
+$srcDir = $root + "\" + $package + "\src"
+$projDir = "$scriptDir\$dll"
 $dllDir = "$scriptDir\$dll\bin\debug"
 Remove-Item $libDir -recurse
+Remove-Item $srcDir -recurse
 New-Item $libDir -type directory
+New-Item $srcDir -type directory
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
 Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
+Copy-Item -Recurse -Filter *.cs $projDir $srcDir
 & $nuget pack "$root\$package\$package.nuspec" -Symbols -OutputDirectory $outputDir

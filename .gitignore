@@ -107,3 +107,4 @@ UpgradeLog*.XML
 # NuGet
 [Pp]ackages/
 DotNet/NuGet/*/lib/
+DotNet/NuGet/*/src/

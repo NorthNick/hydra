@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Publications and subscription by type functionality for the Hydra distributed messaging system.</description>
     <releaseNotes>Beta NuGet release.</releaseNotes>
-    <copyright>Copyright 2012</copyright>
+    <copyright>Copyright 2013</copyright>
     <tags>Hydra Messaging CouchDb</tags>
     <dependencies>
       <dependency id="Hydra-Messaging" version="1.0.0" />
