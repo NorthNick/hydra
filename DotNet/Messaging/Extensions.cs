@@ -1,4 +1,4 @@
-// The code in this file is Copyright Nick North 2011, made freely available.
+// The code in this file is Copyright Nick North 2013, made freely available.
 
 using System;
 using System.Collections.Generic;

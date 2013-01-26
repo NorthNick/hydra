@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hydra-Messaging</id>
-    <version>0.6.0</version>
+    <version>1.0.0</version>
     <authors>Nick North</authors>
     <owners>Nick North</owners>
     <projectUrl>https://github.com/NorthNick/hydra/wiki</projectUrl>
