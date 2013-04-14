@@ -1,5 +1,7 @@
-﻿Modifying CouchDb for use with Hydra
-------------------------------------
+﻿Modifying CouchDb for use with Hydra version below 1.3
+------------------------------------------------------
+
+NOTE: These changes are included in versions of CouchDb from 1.3 onwards so you do not need to take any action with those versions.
 
 Hydra requires document ids that are monotonically increasing for any CouchDb instance, and globally unique across instances. The files here implement a document id
 scheme with these properties, by modifying the couch_uuids.erl file in the CouchDb source at git://git.apache.org/couchdb.git.
@@ -11,7 +13,6 @@ couch_db.hrl		- include file needed for compilation. Taken directly from the Cou
 couch_uuids.erl		- modified version of couch_uuids.erl
 couch_uuids.src.erl - original version, taken from the CouchDb source.
 
-Versions of CouchDb after 1.2.0 should include this code, so the changes described here will not be necessary.
 
 Installation
 ------------
