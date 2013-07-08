@@ -83,8 +83,8 @@ namespace Bollywell.Hydra.Messaging.Storage
                 ServerInfo[sdi.Name] = sdi;
                 _subject.OnNext(sdi);
                 // Raise the FinishedInitialisation event just once, when all servers have been polled
-                if (!_initialisedRaised && ServerInfo.Count == _servers.Count && FinishedInitialisation != null) {
-                    FinishedInitialisation(this);
+                if (!_initialisedRaised && ServerInfo.Count == _servers.Count) {
+                    if (FinishedInitialisation != null) FinishedInitialisation(this);
                     _initialisedRaised = true;
                 }
             }
