@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using Bollywell.Hydra.Messaging;
 using Bollywell.Hydra.Messaging.Listeners;
 using Bollywell.Hydra.Messaging.MessageFetchers;
@@ -27,8 +28,9 @@ namespace Bollywell.Hydra.PubSubByType
         /// </summary>
         /// <param name="hydraService">The Hydra service to use for sending messages.</param>
         /// <param name="serializer">The serializer to use for TSub objects. Defaults to HydraDataContractSerializer.</param>
+        /// <param name="topic">The topic to listen for. Defaults to the full name of TSub.</param>
         /// <remarks>The serializer must match the one used by the message publisher.</remarks>
-        public Subscriber(IHydraService hydraService, ISerializer<TSub> serializer = null) : this(hydraService, null, serializer) {}
+        public Subscriber(IHydraService hydraService, ISerializer<TSub> serializer = null, string topic = null) : this(hydraService, null, serializer, topic) {}
 
         /// <summary>
         /// Subscribe to all messages of type TSub sent to a specific destination.
@@ -36,15 +38,17 @@ namespace Bollywell.Hydra.PubSubByType
         /// <param name="hydraService">The Hydra service to use for sending messages.</param>
         /// <param name="thisParty">The message destination (i.e. this app).</param>
         /// <param name="serializer">The serializer to use for TSub objects. Defaults to HydraDataContractSerializer.</param>
+        /// <param name="topic">The topic to listen for. Defaults to the full name of TSub.</param>
         /// <remarks>The serializer must match the one used by the message publisher. If thisParty is null, then the subscription will be to all published TSub messages
         /// regardless of destination.</remarks>
-        public Subscriber(IHydraService hydraService, string thisParty, ISerializer<TSub> serializer = null)
+        public Subscriber(IHydraService hydraService, string thisParty, ISerializer<TSub> serializer = null, string topic = null)
         {
             _serializer = serializer ?? new HydraDataContractSerializer<TSub>();
+            string messageTopic = topic ?? typeof (TSub).FullName;
             if (thisParty == null) {
-                _listener = hydraService.GetListener(new HydraByTopicMessageFetcher(typeof(TSub).FullName));
+                _listener = hydraService.GetListener(new HydraByTopicMessageFetcher(messageTopic));
             } else {
-                _listener = hydraService.GetListener(new HydraByTopicByDestinationMessageFetcher(typeof (TSub).FullName, thisParty));
+                _listener = hydraService.GetListener(new HydraByTopicByDestinationMessageFetcher(messageTopic, thisParty));
             }
             _messageSource = _listener.Select(hydraMessage => _serializer.Deserialize(hydraMessage.Data));
             _messageSource.Subscribe(MessageSourceOnNext);

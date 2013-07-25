@@ -11,7 +11,7 @@ namespace Bollywell.Hydra.PubSubByType
     public class Publisher<TPub>
     {
         private readonly IHydraService _hydraService;
-        private static readonly string _topic = typeof (TPub).FullName;
+        private readonly string _topic;
         private readonly ISerializer<TPub> _serializer;
 
         /// <summary>
@@ -29,11 +29,13 @@ namespace Bollywell.Hydra.PubSubByType
         /// </summary>
         /// <param name="hydraService">The Hydra service to use for sending messages.</param>
         /// <param name="serializer">The serializer to use for TPub objects. Defaults to HydraDataContractSerializer.</param>
+        /// <param name="topic">The topic for outgoing messages. Defaults to the ful name of TPub.</param>
         /// <remarks>The serializer must match the one used by the message subscriber.</remarks>
-        public Publisher(IHydraService hydraService, ISerializer<TPub> serializer = null)
+        public Publisher(IHydraService hydraService, ISerializer<TPub> serializer = null, string topic = null)
         {
             _hydraService = hydraService;
             _serializer = serializer ?? new HydraDataContractSerializer<TPub>();
+            _topic = topic ?? typeof (TPub).FullName;
         }
 
         /// <summary>
