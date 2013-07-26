@@ -28,8 +28,7 @@ public class ConversationServer {
 		try {
 			// Read config and set up Hydra servive
 			Properties config = new Properties();
-			// TODO - sort out path
-			config.load(new FileInputStream("config.properties"));
+			config.load(getClass().getResourceAsStream("/config.properties"));
             String pollIntervalMsSetting = config.getProperty("PollIntervalMs");
             Long pollIntervalMs = pollIntervalMsSetting == null ? null : Long.parseLong(pollIntervalMsSetting);
             ArrayList<String> servers = new ArrayList<String>();
