@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>uk.co.shastra.hydra</groupId>
+  <artifactId>hydra-parent</artifactId>
+  <packaging>pom</packaging>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>Hydra parent</name>
+  	<modules>
+		<module>../hydra</module>
+		<module>../hydra-examples</module>
+  	</modules>
+  	<organization>
+  		<name>Shastra</name>
+  		<url>www.shastra.co.uk</url>
+  	</organization>
+  	<licenses>
+	    <license>
+	      <name>The MIT License</name>
+	      <url>http://www.opensource.org/licenses/mit-license.php</url>
+	      <distribution>manual</distribution>
+	    </license>
+  </licenses>
+</project>

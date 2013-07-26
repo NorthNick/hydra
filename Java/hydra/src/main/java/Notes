@@ -1,0 +1,11 @@
+Java Hydra client notes
+
+Changes from .NET
+Naming conventions for packages, interfaces, methods, variables etc
+
+
+Changes to make to .NET
+Get rid of IServerDistanceInfo - just use the concrete implementation
+
+TODO
+Separate core/PubSubByType/Conversation/Examples projects. See http://www.avajava.com/tutorials/lessons/how-do-i-create-a-multi-module-project-in-eclipse.html
