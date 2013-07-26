@@ -1,7 +1,6 @@
 package uk.co.shastra.hydra.conversationexampleserver;
 
 import java.awt.FlowLayout;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;

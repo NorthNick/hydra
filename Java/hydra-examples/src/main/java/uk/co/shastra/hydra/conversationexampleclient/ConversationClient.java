@@ -3,7 +3,6 @@ package uk.co.shastra.hydra.conversationexampleclient;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 
