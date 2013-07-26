@@ -36,7 +36,7 @@ namespace Bollywell.Hydra.Messaging.Listeners
         /// <summary>
         /// Construct a Listener and start it polling.
         /// </summary>
-        /// <param name="provider"> </param>
+        /// <param name="provider">The IProvider to use</param>
         /// <param name="messageFetcher">IMessageFetcher with which to poll.</param>
         /// <param name="startId">Only fetch messages with higher id than startId. Defaults to the id corresponding to now.</param>
         /// <param name="listenerOptions">Default values for Listener options.</param>
@@ -76,7 +76,7 @@ namespace Bollywell.Hydra.Messaging.Listeners
             var store = _provider.GetStore(false);
             if (store == null) {
                 // Stores are all offline, or initialisation is incomplete. Do nothing and wait until a store is available.
-                return Enumerable.Empty<TMessage>();
+                return _noMessages;
             }
             if (_store == null || store.Name != _store.Name) {
                 // The server has changed, so reinitialise. As _store is initially null, this will be also be called on the very first poll.

@@ -19,6 +19,7 @@ namespace Bollywell.Hydra.Messaging.Storage
         private readonly string _database;
         private readonly int _port;
         private readonly IDocumentDatabase _db;
+        private string _url;
 
         public string Name { get; private set; }
 
@@ -33,6 +34,8 @@ namespace Bollywell.Hydra.Messaging.Storage
             _database = database ?? DefaultDatabase;
             _port = port.HasValue ? port.Value : DefaultPort;
             Name = name;
+            // This URL checks both that the server is up, and that the view index is up to date
+            _url = string.Format("http://{0}:{1}/{2}/_design/{3}/_view/broadcastMessages?limit=0", _server, _port, _database, DesignDoc);
             _db = new CouchClient(server, _port, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
         }
 
@@ -79,10 +82,8 @@ namespace Bollywell.Hydra.Messaging.Storage
             bool responseOk = false;
             long elapsed = 0;
             try {
-                // This URL checks both that the server is up, and that the view index is up to date
-                string url = string.Format("http://{0}:{1}/{2}/_design/hydra/_view/broadcastMessages?limit=0", _server, _port, _database);
                 var timer = Stopwatch.StartNew();
-                using (HttpWebResponse response = (HttpWebResponse) WebRequest.Create(url).GetResponse()) {
+                using (HttpWebResponse response = (HttpWebResponse) WebRequest.Create(_url).GetResponse()) {
                     elapsed = timer.ElapsedMilliseconds;
                     responseOk = response.StatusCode == HttpStatusCode.OK;
                 }
