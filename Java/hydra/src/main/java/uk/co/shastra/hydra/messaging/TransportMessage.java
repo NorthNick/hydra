@@ -1,5 +1,7 @@
 package uk.co.shastra.hydra.messaging;
 
+import java.io.NotSerializableException;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser;
@@ -51,9 +53,13 @@ public class TransportMessage implements Comparable<TransportMessage> {
         return res;
     }
     
-    public JsonNode toJson()
-    {    	
-        return objectMapper.valueToTree(this);
+    public JsonNode toJson() throws NotSerializableException
+    {
+    	try {
+    		return objectMapper.valueToTree(this);
+    	} catch (Exception e) {
+    		throw new NotSerializableException("TransportMessage: error serialising message. " + e.getMessage());
+    	}
     }
     
 	@Override

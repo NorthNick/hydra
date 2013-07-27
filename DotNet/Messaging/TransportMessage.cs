@@ -41,7 +41,11 @@ namespace Shastra.Hydra.Messaging
         /// <remarks>The type parameter to Document&lt;T&gt; is irrelevant as it is only used for deserialisation, and here we are only serialising.</remarks>
         internal string ToJson()
         {
-            return new Document<TransportMessage>(this).ToString();
+            try {
+                return new Document<TransportMessage>(this).ToString();
+            } catch (Exception ex) {
+                throw new SerializationException("TransportMessage: Error serialising message. See inner exception for details.", ex);
+            }
         }
 
         public int CompareTo(TransportMessage other)

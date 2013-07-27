@@ -1,5 +1,7 @@
 package uk.co.shastra.hydra.messaging;
 
+import java.io.NotSerializableException;
+
 import uk.co.shastra.hydra.messaging.listeners.Listener;
 import uk.co.shastra.hydra.messaging.listeners.StdListener;
 import uk.co.shastra.hydra.messaging.listeners.ListenerOptions;
@@ -83,7 +85,11 @@ public class StdHydraService implements HydraService {
         while (store != null) {
             try {
                 return store.saveDoc(message.toJson());
+            } catch (NotSerializableException e) {
+            	// Rethrow error without invoking server error
+            	throw e;
             } catch (Exception e) {
+            	// Swallow error and mark server as offline
                 provider.serverError(store.getName());
             }
             store = provider.getStore(true);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using Shastra.Hydra.Messaging.Listeners;
 using Shastra.Hydra.Messaging.MessageFetchers;
 using Shastra.Hydra.Messaging.MessageIds;
@@ -31,7 +32,11 @@ namespace Shastra.Hydra.Messaging
             while (store != null) {
                 try {
                     return store.SaveDoc(message.ToJson());
+                } catch (SerializationException) {
+                    // Rethrow error without invoking server error
+                    throw;
                 } catch (Exception) {
+                    // Swallow error and mark server as offline
                     _provider.ServerError(store.Name);
                 }
                 store = _provider.GetStore(true);
