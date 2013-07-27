@@ -1,4 +1,4 @@
-﻿namespace Bollywell.Hydra.ConversationExampleDto
+﻿namespace Shastra.Hydra.ConversationExampleDto
 {
     public class ConversationDto
     {

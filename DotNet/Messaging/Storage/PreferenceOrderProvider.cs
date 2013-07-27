@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Bollywell.Hydra.Messaging.Storage
+namespace Shastra.Hydra.Messaging.Storage
 {
     /// <summary>
     /// Use the first server in the preference list that is responding. Switch if a earlier one in the list becomes available.

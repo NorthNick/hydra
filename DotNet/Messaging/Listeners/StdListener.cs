@@ -1,14 +1,14 @@
-﻿using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.MessageIds;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Bollywell.Hydra.Messaging.Storage;
+using Shastra.Hydra.Messaging.MessageFetchers;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
 
-namespace Bollywell.Hydra.Messaging.Listeners
+namespace Shastra.Hydra.Messaging.Listeners
 {
     public class StdListener<TMessage> : IListener<TMessage> where TMessage : TransportMessage
     {

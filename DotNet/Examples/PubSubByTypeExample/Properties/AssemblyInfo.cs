@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("PubSubByTypeExample")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Bollywell")]
+[assembly: AssemblyCompany("Shastra")]
 [assembly: AssemblyProduct("PubSubByTypeExample")]
 [assembly: AssemblyCopyright("Copyright © Nicolas North 2013")]
 [assembly: AssemblyTrademark("")]

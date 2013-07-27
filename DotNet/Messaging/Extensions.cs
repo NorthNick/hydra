@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bollywell.Hydra.Messaging
+namespace Shastra.Hydra.Messaging
 {
     public static class Extensions
     {

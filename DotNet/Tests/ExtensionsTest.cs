@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Bollywell.Hydra.Messaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shastra.Hydra.Messaging;
 
-namespace Bollywell.Hydra.Tests
+namespace Shastra.Hydra.Tests
 {
     [TestClass]
     public class ExtensionsTest

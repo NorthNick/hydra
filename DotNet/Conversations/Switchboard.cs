@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reactive.Subjects;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.Serializers;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.MessageFetchers;
+using Shastra.Hydra.Messaging.Serializers;
 
-namespace Bollywell.Hydra.Conversations
+namespace Shastra.Hydra.Conversations
 {
     public class Switchboard<TMessage> : IObservable<Conversation<TMessage>>, IDisposable
     {

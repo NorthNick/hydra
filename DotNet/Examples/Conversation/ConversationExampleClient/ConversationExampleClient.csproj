@@ -7,8 +7,8 @@
     <ProjectGuid>{3A776974-FAF7-4D48-A47C-51F96B03C5C8}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bollywell.Hydra.ConversationExampleClient</RootNamespace>
-    <AssemblyName>Bollywell.Hydra.ConversationExampleClient</AssemblyName>
+    <RootNamespace>Shastra.Hydra.ConversationExampleClient</RootNamespace>
+    <AssemblyName>Shastra.Hydra.ConversationExampleClient</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

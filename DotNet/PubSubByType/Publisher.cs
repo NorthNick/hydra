@@ -1,8 +1,8 @@
-﻿using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Serializers;
+﻿using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Serializers;
 
-namespace Bollywell.Hydra.PubSubByType
+namespace Shastra.Hydra.PubSubByType
 {
     /// <summary>
     /// Class for publishing Hydra messages of a given type. To be used in conjunction with the Subscriber class.

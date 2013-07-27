@@ -1,10 +1,10 @@
 ﻿using System;
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Storage;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.MessageFetchers;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
 
-namespace Bollywell.Hydra.Messaging
+namespace Shastra.Hydra.Messaging
 {
     public class StdHydraService : IHydraService
     {

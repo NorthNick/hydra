@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bollywell.Hydra.Messaging.MessageIds
+namespace Shastra.Hydra.Messaging.MessageIds
 {
     /// <summary>
     /// Methods for manipulating IMessageIds.

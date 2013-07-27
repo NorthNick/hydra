@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("ConversationExampleDto")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Bollywell")]
+[assembly: AssemblyCompany("Shastra")]
 [assembly: AssemblyProduct("ConversationExampleDto")]
 [assembly: AssemblyCopyright("Copyright © Nicolas North 2013")]
 [assembly: AssemblyTrademark("")]

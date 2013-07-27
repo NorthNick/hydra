@@ -7,8 +7,8 @@
     <ProjectGuid>{3B852FAF-8759-418E-AF5F-479ABE8B697F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bollywell.Hydra.ConversationExampleDto</RootNamespace>
-    <AssemblyName>Bollywell.Hydra.ConversationExampleDto</AssemblyName>
+    <RootNamespace>Shastra.Hydra.ConversationExampleDto</RootNamespace>
+    <AssemblyName>Shastra.Hydra.ConversationExampleDto</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

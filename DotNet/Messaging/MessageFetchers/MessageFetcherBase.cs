@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Storage;
 using LoveSeat;
 using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
 
-namespace Bollywell.Hydra.Messaging.MessageFetchers
+namespace Shastra.Hydra.Messaging.MessageFetchers
 {
     public abstract class MessageFetcherBase<TMessage> : IMessageFetcher<TMessage> where TMessage : TransportMessage
     {

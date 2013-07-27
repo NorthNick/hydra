@@ -2,7 +2,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Xml;
 
-namespace Bollywell.Hydra.Messaging.Serializers
+namespace Shastra.Hydra.Messaging.Serializers
 {
     public class HydraDataContractSerializer<TMessage> : ISerializer<TMessage>
     {

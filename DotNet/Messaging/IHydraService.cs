@@ -1,8 +1,8 @@
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.MessageFetchers;
+using Shastra.Hydra.Messaging.MessageIds;
 
-namespace Bollywell.Hydra.Messaging
+namespace Shastra.Hydra.Messaging
 {
     public interface IHydraService
     {

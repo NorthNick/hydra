@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Bollywell.Hydra.Messaging.MessageIds;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shastra.Hydra.Messaging.MessageIds;
 
-namespace Bollywell.Hydra.Tests
+namespace Shastra.Hydra.Tests
 {
     [TestClass]
     public class MessageIdManagerTest

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Bollywell.Hydra.ConversationExampleClient
+namespace Shastra.Hydra.ConversationExampleClient
 {
     static class Program
     {

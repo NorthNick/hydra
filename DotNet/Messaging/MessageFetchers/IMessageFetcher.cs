@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Storage;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
 
-namespace Bollywell.Hydra.Messaging.MessageFetchers
+namespace Shastra.Hydra.Messaging.MessageFetchers
 {
     public interface IMessageFetcher<out TMessage> where TMessage : TransportMessage
     {

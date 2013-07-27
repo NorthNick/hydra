@@ -1,4 +1,4 @@
-namespace Bollywell.Hydra.Messaging.Serializers
+namespace Shastra.Hydra.Messaging.Serializers
 {
     public interface ISerializer<TMessage>
     {

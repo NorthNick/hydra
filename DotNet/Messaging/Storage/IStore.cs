@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
+using Shastra.Hydra.Messaging.MessageIds;
 
-namespace Bollywell.Hydra.Messaging.Storage
+namespace Shastra.Hydra.Messaging.Storage
 {
     public interface IStore
     {

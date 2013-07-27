@@ -1,8 +1,8 @@
 ﻿using System;
-using Bollywell.Hydra.Conversations;
-using Bollywell.Hydra.ConversationExampleDto;
+using Shastra.Hydra.ConversationExampleDto;
+using Shastra.Hydra.Conversations;
 
-namespace Bollywell.Hydra.ConversationExampleServer
+namespace Shastra.Hydra.ConversationExampleServer
 {
     class AppendServer
     {

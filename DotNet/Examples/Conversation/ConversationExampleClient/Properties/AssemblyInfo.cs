@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Bollywell.Hydra.ConversationExampleClient")]
+[assembly: AssemblyTitle("ConversationExampleClient")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Bollywell")]
+[assembly: AssemblyCompany("Shastra")]
 [assembly: AssemblyProduct("ConversationExampleClient")]
 [assembly: AssemblyCopyright("Copyright © Nicolas North 2013")]
 [assembly: AssemblyTrademark("")]

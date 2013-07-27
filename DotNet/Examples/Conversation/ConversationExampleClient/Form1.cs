@@ -2,13 +2,13 @@
 using System.Configuration;
 using System.Linq;
 using System.Windows.Forms;
-using Bollywell.Hydra.Conversations;
-using Bollywell.Hydra.ConversationExampleDto;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.Storage;
+using Shastra.Hydra.ConversationExampleDto;
+using Shastra.Hydra.Conversations;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.Storage;
 
-namespace Bollywell.Hydra.ConversationExampleClient
+namespace Shastra.Hydra.ConversationExampleClient
 {
     public partial class Form1 : Form
     {

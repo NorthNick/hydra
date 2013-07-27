@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Bollywell.Messaging.PubSubByTypeExample
+namespace Shastra.Messaging.PubSubByTypeExample
 {
     [DataContract(Namespace = "")]
     class PstMessage

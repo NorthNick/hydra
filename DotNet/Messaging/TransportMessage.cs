@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Bollywell.Hydra.Messaging.MessageIds;
 using LoveSeat;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Shastra.Hydra.Messaging.MessageIds;
 
-namespace Bollywell.Hydra.Messaging
+namespace Shastra.Hydra.Messaging
 {
     [DataContract]
     public abstract class TransportMessage : IComparable<TransportMessage>

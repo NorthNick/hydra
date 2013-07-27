@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.Serializers;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.MessageFetchers;
+using Shastra.Hydra.Messaging.Serializers;
 
-namespace Bollywell.Hydra.PubSubByType
+namespace Shastra.Hydra.PubSubByType
 {
     /// <summary>
     /// Class for subscribing to Hydra messages of a given type. To be used in conjunction with the Publisher class.

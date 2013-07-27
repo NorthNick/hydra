@@ -1,4 +1,4 @@
-﻿namespace Bollywell.Hydra.ConversationExampleServer
+﻿namespace Shastra.Hydra.ConversationExampleServer
 {
     partial class Form1
     {

@@ -2,10 +2,10 @@
 using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Bollywell.Hydra.ConversationExampleDto;
-using Bollywell.Hydra.Conversations;
+using Shastra.Hydra.ConversationExampleDto;
+using Shastra.Hydra.Conversations;
 
-namespace Bollywell.Hydra.ConversationExampleClient
+namespace Shastra.Hydra.ConversationExampleClient
 {
     public partial class AppendClientUi : UserControl
     {

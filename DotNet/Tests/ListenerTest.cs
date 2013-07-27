@@ -1,18 +1,18 @@
-﻿using System.Reactive;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Storage;
-using Bollywell.Hydra.Tests.Mocks;
-using Microsoft.Reactive.Testing;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Concurrency;
+using Microsoft.Reactive.Testing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.MessageFetchers;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
+using Shastra.Hydra.Tests.Mocks;
 
-namespace Bollywell.Hydra.Tests
+namespace Shastra.Hydra.Tests
 {
     // See http://blogs.msdn.com/b/rxteam/archive/2012/06/14/testing-rx-queries-using-virtual-time-scheduling.aspx
     [TestClass]

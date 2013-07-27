@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Messaging")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Bollywell")]
+[assembly: AssemblyCompany("Shastra")]
 [assembly: AssemblyProduct("Messaging")]
 [assembly: AssemblyCopyright("Copyright © Nicolas North 2013")]
 [assembly: AssemblyTrademark("")]
@@ -36,4 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 // To allow testing of internal constructors
-[assembly: InternalsVisibleTo("Bollywell.Hydra.Tests")]
+[assembly: InternalsVisibleTo("Shastra.Hydra.Tests")]

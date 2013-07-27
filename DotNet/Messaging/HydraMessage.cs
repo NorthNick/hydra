@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Bollywell.Hydra.Messaging
+namespace Shastra.Hydra.Messaging
 {
     [DataContract]
     public class HydraMessage : TransportMessage

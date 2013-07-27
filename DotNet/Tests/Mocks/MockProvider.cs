@@ -1,7 +1,7 @@
-﻿using Bollywell.Hydra.Messaging.Storage;
-using System;
+﻿using System;
+using Shastra.Hydra.Messaging.Storage;
 
-namespace Bollywell.Hydra.Tests.Mocks
+namespace Shastra.Hydra.Tests.Mocks
 {
     class MockProvider : IProvider
     {

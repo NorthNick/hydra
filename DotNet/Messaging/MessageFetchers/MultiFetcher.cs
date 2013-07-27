@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Storage;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
 
-namespace Bollywell.Hydra.Messaging.MessageFetchers
+namespace Shastra.Hydra.Messaging.MessageFetchers
 {
     public class MultiFetcher<TMessage> : IMessageFetcher<TMessage> where TMessage : TransportMessage
     {

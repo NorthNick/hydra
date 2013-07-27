@@ -1,4 +1,4 @@
-﻿namespace Bollywell.Hydra.ConversationExampleClient
+﻿namespace Shastra.Hydra.ConversationExampleClient
 {
     partial class AppendClientUi
     {

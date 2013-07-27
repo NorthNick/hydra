@@ -8,8 +8,8 @@
     <ProjectGuid>{43BFA34D-4D3E-4A6B-B49D-8C327DFF918C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bollywell.Hydra.Messaging</RootNamespace>
-    <AssemblyName>Bollywell.Hydra.Messaging</AssemblyName>
+    <RootNamespace>Shastra.Hydra.Messaging</RootNamespace>
+    <AssemblyName>Shastra.Hydra.Messaging</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>

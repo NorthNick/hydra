@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Storage;
-using Bollywell.Hydra.Tests.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.MessageFetchers;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
+using Shastra.Hydra.Tests.Mocks;
 
-namespace Bollywell.Hydra.Tests
+namespace Shastra.Hydra.Tests
 {
     [TestClass]
     public class MessageFetcherTest

@@ -5,13 +5,13 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.Serializers;
-using Bollywell.Hydra.Messaging.Storage;
-using Bollywell.Hydra.PubSubByType;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.Serializers;
+using Shastra.Hydra.Messaging.Storage;
+using Shastra.Hydra.PubSubByType;
 
-namespace Bollywell.Messaging.PubSubByTypeExample
+namespace Shastra.Messaging.PubSubByTypeExample
 {
     public partial class Form1 : Form
     {

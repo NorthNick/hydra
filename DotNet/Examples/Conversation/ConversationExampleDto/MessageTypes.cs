@@ -1,5 +1,5 @@
 ﻿
-namespace Bollywell.Hydra.ConversationExampleDto
+namespace Shastra.Hydra.ConversationExampleDto
 {
     public enum MessageTypes
     {

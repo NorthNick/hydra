@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Bollywell.Hydra.Messaging.Listeners
+namespace Shastra.Hydra.Messaging.Listeners
 {
     public interface IListener<out TMessage> : IObservable<TMessage>, IDisposable where TMessage : TransportMessage
     {

@@ -1,14 +1,14 @@
-﻿using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Storage;
-using LoveSeat.Interfaces;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Web;
+using LoveSeat.Interfaces;
+using Newtonsoft.Json.Linq;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
 
-namespace Bollywell.Hydra.Tests.Mocks
+namespace Shastra.Hydra.Tests.Mocks
 {
     internal class MockStore : IStore
     {

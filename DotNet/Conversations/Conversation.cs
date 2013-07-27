@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Reactive.Subjects;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.MessageIds;
-using Bollywell.Hydra.Messaging.Serializers;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Serializers;
 
-namespace Bollywell.Hydra.Conversations
+namespace Shastra.Hydra.Conversations
 {
     public class Conversation<TMessage> : IObservable<TMessage>, IDisposable
     {

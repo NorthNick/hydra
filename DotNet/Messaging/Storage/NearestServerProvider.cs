@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bollywell.Hydra.Messaging.Storage
+namespace Shastra.Hydra.Messaging.Storage
 {
     /// <summary>
     /// Use the Hydra server with the smallest response time. Switch if another one is more than Tolerance milliseconds faster.

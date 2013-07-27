@@ -5,7 +5,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace Bollywell.Hydra.Messaging.Storage
+namespace Shastra.Hydra.Messaging.Storage
 {
     public abstract class PollingProviderBase : IProvider, IDisposable
     {

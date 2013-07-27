@@ -1,8 +1,8 @@
-﻿using System.Runtime.Serialization;
-using Bollywell.Hydra.Messaging;
-using System;
+﻿using System;
+using System.Runtime.Serialization;
+using Shastra.Hydra.Messaging;
 
-namespace Bollywell.Hydra.Tests.Mocks
+namespace Shastra.Hydra.Tests.Mocks
 {
     /// <summary>
     /// Extension of HydraMessage with testing-specific fields

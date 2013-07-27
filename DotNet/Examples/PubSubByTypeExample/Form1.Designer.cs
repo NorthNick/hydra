@@ -1,4 +1,4 @@
-﻿namespace Bollywell.Messaging.PubSubByTypeExample
+﻿namespace Shastra.Messaging.PubSubByTypeExample
 {
     partial class Form1
     {

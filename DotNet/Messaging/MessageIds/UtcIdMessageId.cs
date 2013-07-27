@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Bollywell.Hydra.Messaging.MessageIds
+namespace Shastra.Hydra.Messaging.MessageIds
 {
     public static partial class MessageIdManager
     {

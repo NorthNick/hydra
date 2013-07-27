@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Bollywell.Messaging.PubSubByTypeExample
+namespace Shastra.Messaging.PubSubByTypeExample
 {
     static class Program
     {

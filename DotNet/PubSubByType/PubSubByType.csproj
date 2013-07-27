@@ -8,8 +8,8 @@
     <ProjectGuid>{81EF3F08-744A-401F-860E-3C46DE724F29}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bollywell.Hydra.PubSubByType</RootNamespace>
-    <AssemblyName>Bollywell.Hydra.PubSubByType</AssemblyName>
+    <RootNamespace>Shastra.Hydra.PubSubByType</RootNamespace>
+    <AssemblyName>Shastra.Hydra.PubSubByType</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>

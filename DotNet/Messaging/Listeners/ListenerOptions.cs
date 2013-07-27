@@ -1,5 +1,5 @@
 ﻿
-namespace Bollywell.Hydra.Messaging.Listeners
+namespace Shastra.Hydra.Messaging.Listeners
 {
     public class ListenerOptions
     {

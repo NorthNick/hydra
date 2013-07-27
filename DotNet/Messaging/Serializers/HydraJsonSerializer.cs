@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
-namespace Bollywell.Hydra.Messaging.Serializers
+namespace Shastra.Hydra.Messaging.Serializers
 {
     public class HydraJsonSerializer<TMessage> : ISerializer<TMessage>
     {
