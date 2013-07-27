@@ -75,7 +75,7 @@
     <Compile Include="Storage\ServerDistance.cs" />
     <Compile Include="Storage\ServerDistanceInfo.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="HydraService.cs" />
+    <Compile Include="StdHydraService.cs" />
     <Compile Include="IHydraService.cs" />
     <Compile Include="Listeners\ListenerOptions.cs" />
     <Compile Include="MessageFetchers\HydraByTopicByDestinationMessageFetcher.cs" />
@@ -84,7 +84,7 @@
     <Compile Include="MessageIds\IMessageId.cs" />
     <Compile Include="MessageIds\MessageIdManager.cs" />
     <Compile Include="MessageIds\UtcIdMessageId.cs" />
-    <Compile Include="Listeners\Listener.cs" />
+    <Compile Include="Listeners\StdListener.cs" />
     <Compile Include="Serializers\HydraDataContractSerializer.cs" />
     <Compile Include="Serializers\HydraJsonSerializer.cs" />
     <Compile Include="Serializers\ISerializer.cs" />

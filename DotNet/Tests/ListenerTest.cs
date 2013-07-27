@@ -24,7 +24,7 @@ namespace Bollywell.Hydra.Tests
         private IMessageFetcher<HydraMessage> _fetcher;
         private IStore _store;
         private DateTime _startDate;
-        private Listener<HydraMessage> _listener;
+        private StdListener<HydraMessage> _listener;
 
         [TestInitialize]
         public void Initialize()
@@ -32,7 +32,7 @@ namespace Bollywell.Hydra.Tests
             _scheduler = new TestScheduler();
             _store = new MockStore("ListenerStore", "", _scheduler);
             _provider = new NearestServerProvider(new List<IStore> { _store });
-            _service = new HydraService(_provider);
+            _service = new StdHydraService(_provider);
             _fetcher = new HydraByTopicMessageFetcher("Test");
             // Any time after 1/1/1970 will do for startDate. CouchIds go wrong before that date as they are microseconds since 1/1/1970.
             _startDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -48,7 +48,7 @@ namespace Bollywell.Hydra.Tests
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestSingleMessage" }));
             var res = _scheduler.Start(() =>
                 {
-                    _listener = new Listener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), null, _scheduler);
+                    _listener = new StdListener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), null, _scheduler);
                     return _listener;
                 },
                 _startDate.Ticks, _startDate.Ticks, _startDate.AddSeconds(30).Ticks);
@@ -64,7 +64,7 @@ namespace Bollywell.Hydra.Tests
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(23)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMultipleMessages 3" }));
 
             var res = _scheduler.Start(() => {
-                    _listener = new Listener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), null, _scheduler);
+                    _listener = new StdListener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), null, _scheduler);
                     return _listener;
                 },
                 _startDate.Ticks, _startDate.Ticks, _startDate.AddSeconds(30).Ticks);
@@ -80,7 +80,7 @@ namespace Bollywell.Hydra.Tests
             // Start listening 10 seconds after the message was sent, so we should not receive it.
             var listenerStartDate = _startDate.AddSeconds(30);
             var res = _scheduler.Start(() => {
-                    _listener = new Listener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), null, _scheduler);
+                    _listener = new StdListener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), null, _scheduler);
                     return _listener;
                 },
                 listenerStartDate.Ticks, listenerStartDate.Ticks, _startDate.AddSeconds(50).Ticks);
@@ -92,7 +92,7 @@ namespace Bollywell.Hydra.Tests
         {
             // Set disposal time after the poller has shut down, so we should get OnCompleted
             var res = _scheduler.Start(() => {
-                    _listener = new Listener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), null, _scheduler);
+                    _listener = new StdListener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), null, _scheduler);
                     return _listener;
                 },
                _startDate.Ticks, _startDate.Ticks, _startDate.AddMinutes(20).Ticks);
@@ -111,7 +111,7 @@ namespace Bollywell.Hydra.Tests
 
             // Set buffer window of 1500ms
             var res = _scheduler.Start(() => {
-                    _listener = new Listener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), new ListenerOptions {BufferDelayMs = 1500}, _scheduler);
+                    _listener = new StdListener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), new ListenerOptions {BufferDelayMs = 1500}, _scheduler);
                     return _listener;
                 },
                _startDate.Ticks, _startDate.Ticks, _startDate.AddMinutes(9).Ticks);
@@ -130,7 +130,7 @@ namespace Bollywell.Hydra.Tests
 
             // Set buffer window of 500ms
             var res = _scheduler.Start(() => {
-                    _listener = new Listener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), new ListenerOptions {BufferDelayMs = 500}, _scheduler);
+                    _listener = new StdListener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_scheduler.Now.UtcDateTime), new ListenerOptions {BufferDelayMs = 500}, _scheduler);
                     return _listener;
                 },
                _startDate.Ticks, _startDate.Ticks, _startDate.AddMinutes(9).Ticks);

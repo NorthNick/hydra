@@ -1,0 +1,47 @@
+﻿using System;
+using Bollywell.Hydra.Messaging.Listeners;
+using Bollywell.Hydra.Messaging.MessageFetchers;
+using Bollywell.Hydra.Messaging.MessageIds;
+using Bollywell.Hydra.Messaging.Storage;
+
+namespace Bollywell.Hydra.Messaging
+{
+    public class StdHydraService : IHydraService
+    {
+        private readonly IProvider _provider;
+
+        public ListenerOptions DefaultListenerOptions { get; set; }
+
+        public StdHydraService(IProvider provider, ListenerOptions defaultListenerOptions = null)
+        {
+            _provider = provider;
+            DefaultListenerOptions = defaultListenerOptions;
+        }
+
+        #region Implementation of IHydraService
+
+        public IListener<TMessage> GetListener<TMessage>(IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null) where TMessage : TransportMessage
+        {
+            return new StdListener<TMessage>(_provider, messageFetcher, startId, listenerOptions ?? DefaultListenerOptions);
+        }
+
+        public IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage
+        {
+            var store = _provider.GetStore(true);
+            while (store != null) {
+                try {
+                    return store.SaveDoc(message.ToJson());
+                } catch (Exception) {
+                    _provider.ServerError(store.Name);
+                }
+                store = _provider.GetStore(true);
+            }
+            throw new Exception("StdHydraService.Send: Error sending message - all servers offline.");
+        }
+
+        public string ServerName { get { return _provider.HydraServer; } }
+
+        #endregion
+
+    }
+}

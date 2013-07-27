@@ -17,7 +17,7 @@ namespace Bollywell.Messaging.PubSubByTypeExample
     {
         private Publisher<PstMessage> _publisher;
         private Subscriber<PstMessage> _subscriber;
-        private readonly HydraService _hydraService;
+        private readonly StdHydraService _hydraService;
 
         public Form1()
         {
@@ -28,7 +28,7 @@ namespace Bollywell.Messaging.PubSubByTypeExample
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
             var servers = ConfigurationManager.AppSettings["HydraServers"].Split(',').Select(s => s.Trim());
             var port = int.Parse(ConfigurationManager.AppSettings["Port"]);
-            _hydraService = new HydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], port), new ListenerOptions {PollIntervalMs = pollIntervalMs});
+            _hydraService = new StdHydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], port), new ListenerOptions {PollIntervalMs = pollIntervalMs});
 
             SerialiseComboBox.SelectedIndexChanged += SerialiseComboBox_SelectedIndexChanged;
             SerialiseComboBox.SelectedIndex = 0;
