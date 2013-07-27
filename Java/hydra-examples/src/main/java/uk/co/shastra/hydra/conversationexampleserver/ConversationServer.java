@@ -13,7 +13,7 @@ import rx.util.functions.Action1;
 import uk.co.shastra.hydra.conversationexampledto.ConversationDto;
 import uk.co.shastra.hydra.conversations.Conversation;
 import uk.co.shastra.hydra.conversations.Switchboard;
-import uk.co.shastra.hydra.messaging.HydraService;
+import uk.co.shastra.hydra.messaging.StdHydraService;
 import uk.co.shastra.hydra.messaging.listeners.ListenerOptions;
 import uk.co.shastra.hydra.messaging.storage.NearestServerProvider;
 
@@ -37,7 +37,7 @@ public class ConversationServer {
             String portSetting = config.getProperty("Port");
             Integer port = portSetting == null ? null : Integer.parseInt(portSetting);
 
-            HydraService hydraService = new HydraService(new NearestServerProvider(servers, config.getProperty("Database"), port), new ListenerOptions(0L, pollIntervalMs));
+            StdHydraService hydraService = new StdHydraService(new NearestServerProvider(servers, config.getProperty("Database"), port), new ListenerOptions(0L, pollIntervalMs));
             
     		// Set up switchboard
     		new Switchboard<ConversationDto>(hydraService, ConversationDto.class, MyName).

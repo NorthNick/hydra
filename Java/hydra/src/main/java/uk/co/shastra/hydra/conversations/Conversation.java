@@ -4,16 +4,24 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
 import uk.co.shastra.hydra.messaging.HydraMessage;
-import uk.co.shastra.hydra.messaging.IHydraService;
+import uk.co.shastra.hydra.messaging.HydraService;
 import uk.co.shastra.hydra.messaging.messageids.MessageId;
 import uk.co.shastra.hydra.messaging.serializers.Serializer;
 import uk.co.shastra.hydra.messaging.utils.EventHandlerNoData;
 import uk.co.shastra.hydra.messaging.utils.EventNoData;
 
+/**
+ * A Conversation is an exchange of messages between one sender and one recipient. Clients can engage in multiple simultaneous conversations
+ * and messages on each are separate.
+ *  
+ * @author Nick North
+ *
+ * @param <TMessage> Type of messages comprising the Conversation.
+ */
 public class Conversation<TMessage> {
 
 	private Serializer<TMessage> serializer;
-	private IHydraService hydraService;
+	private HydraService hydraService;
     private Subject<TMessage, TMessage> subject = PublishSubject.create();
     private boolean done = false;
     
@@ -26,18 +34,53 @@ public class Conversation<TMessage> {
 	private boolean checkSeq;
 	
 	private EventNoData doneEvent = new EventNoData();
+    /**
+     * Add a handler for the Done event, raised when a Conversation ends.
+     * 
+     * @param handler Object invoked when the Conversation ends.
+     */
     public void addDoneHandler(EventHandlerNoData handler) { doneEvent.addHandler(handler); }
+    /**
+     * Remove a handler for the Done event.
+     * 
+     * @param handler Handler to be removed.
+     */
     public void removeDoneHandler(EventHandlerNoData handler) { doneEvent.removeHandler(handler); }
 
+	/**
+	 * @return Identifier of this end of the Conversation.
+	 */
 	public String getThisParty() { return thisParty; }
+	/**
+	 * @return Identifier of the other end of the Conversation.
+	 */
 	public String getRemoteParty() { return remoteParty; }
+	/**
+	 * @return The Conversation topic. Defaults to the canonical name of the Conversation message type.
+	 */
 	public String getTopic() { return topic; }
+	/**
+	 * @return The Conversation handle. A GUID.
+	 */
 	public String getHandle() { return handle; }
+	/**
+	 * @return The sequence number of the last message sent. The first message has sequence number 1.
+	 */
 	public long getLastSendSeq() { return lastSendSeq; }
+	/**
+	 * @return The sequence number of the last message received.
+	 */
 	public long getLastRecvSeq() { return lastRecvSeq; }
+	/**
+	 * @return Whether out-of-sequence messages cause an error.
+	 */
 	public boolean isCheckSeq() { return checkSeq; }
-
-	void baseInit(IHydraService hydraService, String thisParty, String remoteParty, String topic, String handle, Serializer<TMessage> serializer)
+	/**
+	 * @param checkSeq Whether to check message sequence numbers.
+	 */
+	public void setCheckSeq(boolean checkSeq) { this.checkSeq = checkSeq; }
+	
+	void baseInit(HydraService hydraService, String thisParty, String remoteParty, String topic, String handle, Serializer<TMessage> serializer)
     {
         this.hydraService = hydraService;
         this.thisParty = thisParty;
@@ -82,8 +125,14 @@ public class Conversation<TMessage> {
         return res;
     }
     
+    /**
+     * @return The Observable giving messages in this Conversation.
+     */
     public Observable<TMessage> getObservable() { return subject; }
     
+    /**
+     * Dispose of resources used by this Conversation.
+     */
     public void close()
     {
         done = true;

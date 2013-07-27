@@ -15,7 +15,7 @@ import rx.concurrency.TestScheduler;
 import rx.util.functions.Action0;
 import rx.util.functions.Action1;
 import uk.co.shastra.hydra.messaging.HydraMessage;
-import uk.co.shastra.hydra.messaging.HydraService;
+import uk.co.shastra.hydra.messaging.StdHydraService;
 import uk.co.shastra.hydra.messaging.messagefetchers.HydraByTopicMessageFetcher;
 import uk.co.shastra.hydra.messaging.messagefetchers.MessageFetcher;
 import uk.co.shastra.hydra.messaging.messageids.MessageId;
@@ -32,10 +32,10 @@ public class ListenerTest {
 	private TestScheduler scheduler;
 	private Store store;
 	private Provider provider;
-	private HydraService service;
+	private StdHydraService service;
 	private MessageFetcher<HydraMessage> fetcher;
 	private Calendar startDate, sendDate;
-	private Listener<HydraMessage> listener;
+	private StdListener<HydraMessage> listener;
 	private MessageId startId;
 	private ArrayList<HydraMessage> messageList;
 
@@ -50,7 +50,7 @@ public class ListenerTest {
         //scheduler.advanceTimeTo(startDate.getTimeInMillis(), TimeUnit.MILLISECONDS);
         store = new MockStore("ListenerStore", "", scheduler);
         provider = new NearestServerProvider(new ArrayList<Store>(Arrays.asList(store)));
-        service = new HydraService(provider);
+        service = new StdHydraService(provider);
         fetcher = new HydraByTopicMessageFetcher("Test");
         
         // startId is 1 minute before startDate
@@ -78,7 +78,7 @@ public class ListenerTest {
 		// Start a Listener at 1 second and count the messages received
 		scheduler.schedule(new Action0(){
 			@Override public void call() {
-				listener = new Listener<HydraMessage>(provider, fetcher, startId, null, scheduler);
+				listener = new StdListener<HydraMessage>(provider, fetcher, startId, null, scheduler);
 				listener.getObservable().subscribe(new Action1<HydraMessage>() {
 					@Override public void call(HydraMessage hydraMessage) { messageList.add(hydraMessage); }
 				});
@@ -115,7 +115,7 @@ public class ListenerTest {
 		// Start a Listener at 1 second and count the messages received
 		scheduler.schedule(new Action0(){
 			@Override public void call() {
-				listener = new Listener<HydraMessage>(provider, fetcher, startId, null, scheduler);
+				listener = new StdListener<HydraMessage>(provider, fetcher, startId, null, scheduler);
 				listener.getObservable().subscribe(new Action1<HydraMessage>() {
 					@Override public void call(HydraMessage hydraMessage) { messageList.add(hydraMessage); }
 				});
@@ -141,7 +141,7 @@ public class ListenerTest {
 		scheduler.schedule(new Action0(){
 			@Override public void call() {
 				MessageId nowId = MessageIdManager.create(new Date(scheduler.now()));
-				listener = new Listener<HydraMessage>(provider, fetcher, nowId, null, scheduler);
+				listener = new StdListener<HydraMessage>(provider, fetcher, nowId, null, scheduler);
 				listener.getObservable().subscribe(new Action1<HydraMessage>() {
 					@Override public void call(HydraMessage hydraMessage) { messageList.add(hydraMessage); }
 				});
@@ -176,7 +176,7 @@ public class ListenerTest {
         // Set buffer window of 1500ms
 		scheduler.schedule(new Action0(){
 			@Override public void call() {
-				listener = new Listener<HydraMessage>(provider, fetcher, startId, new ListenerOptions(1500, null), scheduler);
+				listener = new StdListener<HydraMessage>(provider, fetcher, startId, new ListenerOptions(1500, null), scheduler);
 				listener.getObservable().subscribe(new Action1<HydraMessage>() {
 					@Override public void call(HydraMessage hydraMessage) { messageList.add(hydraMessage); }
 				});
@@ -212,7 +212,7 @@ public class ListenerTest {
         // Set buffer window of 500ms
 		scheduler.schedule(new Action0(){
 			@Override public void call() {
-				listener = new Listener<HydraMessage>(provider, fetcher, startId, new ListenerOptions(500, null), scheduler);
+				listener = new StdListener<HydraMessage>(provider, fetcher, startId, new ListenerOptions(500, null), scheduler);
 				listener.getObservable().subscribe(new Action1<HydraMessage>() {
 					@Override public void call(HydraMessage hydraMessage) { messageList.add(hydraMessage); }
 				});

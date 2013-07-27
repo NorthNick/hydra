@@ -4,8 +4,8 @@ import rx.Observable;
 import rx.util.functions.Action1;
 import rx.util.functions.Func1;
 import uk.co.shastra.hydra.messaging.HydraMessage;
-import uk.co.shastra.hydra.messaging.IHydraService;
-import uk.co.shastra.hydra.messaging.listeners.IListener;
+import uk.co.shastra.hydra.messaging.HydraService;
+import uk.co.shastra.hydra.messaging.listeners.Listener;
 import uk.co.shastra.hydra.messaging.messagefetchers.HydraByTopicByDestinationMessageFetcher;
 import uk.co.shastra.hydra.messaging.messagefetchers.HydraByTopicMessageFetcher;
 import uk.co.shastra.hydra.messaging.serializers.HydraJsonSerializer;
@@ -15,7 +15,7 @@ import uk.co.shastra.hydra.messaging.utils.EventHandler;
 
 public class Subscriber<TSub> {
 
-    private IListener<HydraMessage> listener;
+    private Listener<HydraMessage> listener;
     private Observable<TSub> messageSource;
     private Serializer<TSub> serializer;
 	
@@ -27,7 +27,7 @@ public class Subscriber<TSub> {
     public long getPollIntervalMs() { return listener.getPollIntervalMs(); }
     public void setPollIntervalMs(long pollIntervalMs) { listener.setPollIntervalMs(pollIntervalMs); }
     
-    public Subscriber(IHydraService hydraService, Class<TSub> valueType) { this(hydraService, valueType, null, null, null); }
+    public Subscriber(HydraService hydraService, Class<TSub> valueType) { this(hydraService, valueType, null, null, null); }
     /**
      * Subscribe to all published messages of type TSub
      * 
@@ -36,9 +36,9 @@ public class Subscriber<TSub> {
      * @param hydraService The Hydra service to use for sending messages
      * @param serializer The serializer to use for TSub objects. Defaults to HydraJsonSerializer
      */
-    public Subscriber(IHydraService hydraService, Class<TSub> valueType, Serializer<TSub> serializer) { this(hydraService, valueType, null, serializer, null); }
+    public Subscriber(HydraService hydraService, Class<TSub> valueType, Serializer<TSub> serializer) { this(hydraService, valueType, null, serializer, null); }
 
-    public Subscriber(IHydraService hydraService, Class<TSub> valueType, String thisParty) { this(hydraService, valueType, thisParty, null, null); }
+    public Subscriber(HydraService hydraService, Class<TSub> valueType, String thisParty) { this(hydraService, valueType, thisParty, null, null); }
     /**
      * Subscribe to all messages of type TSub sent to a specific destination
      * 
@@ -51,7 +51,7 @@ public class Subscriber<TSub> {
      * @param serializer The serializer to use for TSub objects. Defaults to HydraJsonSerializer
      * @param topic The topic to listen for. Defaults to the canonical name of valueType
      */
-    public Subscriber(IHydraService hydraService, Class<TSub> valueType, String thisParty, Serializer<TSub> serializer, String topic)
+    public Subscriber(HydraService hydraService, Class<TSub> valueType, String thisParty, Serializer<TSub> serializer, String topic)
     {
         this.serializer = serializer == null ? new HydraJsonSerializer<TSub>(valueType) : serializer;
         String messageTopic = topic == null ? valueType.getCanonicalName() : topic;

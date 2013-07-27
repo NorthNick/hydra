@@ -11,8 +11,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.co.shastra.hydra.messaging.HydraMessage;
+import uk.co.shastra.hydra.messaging.StdHydraService;
 import uk.co.shastra.hydra.messaging.HydraService;
-import uk.co.shastra.hydra.messaging.IHydraService;
 import uk.co.shastra.hydra.messaging.messageids.MessageId;
 import uk.co.shastra.hydra.messaging.messageids.MessageIdManager;
 import uk.co.shastra.hydra.messaging.mocks.MockStore;
@@ -34,13 +34,13 @@ public class MessageFetcherTest {
         // Set up stores
         singleMessageStore = new MockStore("SingleMessageStore", "");
         Provider provider = new NearestServerProvider(new ArrayList<Store>(Arrays.asList(singleMessageStore)));
-        IHydraService service = new HydraService(provider);
+        HydraService service = new StdHydraService(provider);
         HydraMessage message = makeMessage("Test", "Test data");
         service.send(message);
 
         alternatingStore = new MockStore("AlternatingStore", "");
         provider = new NearestServerProvider(new ArrayList<Store>(Arrays.asList(alternatingStore)));
-        service = new HydraService(provider);
+        service = new StdHydraService(provider);
         for (int ii=0; ii < AlternatingMessageCount; ii++) {
             service.send(makeMessage(Alternating1, String.format("%1$ss message %2$s", Alternating1, ii)));
             service.send(makeMessage(Alternating2, String.format("%1$ss message %2$s", Alternating2, ii)));

@@ -10,7 +10,7 @@ import java.util.Properties;
 import javax.swing.*;
 
 import rx.util.functions.Action1;
-import uk.co.shastra.hydra.messaging.HydraService;
+import uk.co.shastra.hydra.messaging.StdHydraService;
 import uk.co.shastra.hydra.messaging.listeners.ListenerOptions;
 import uk.co.shastra.hydra.messaging.storage.NearestServerProvider;
 import uk.co.shastra.hydra.pubsubbytype.Publisher;
@@ -21,7 +21,7 @@ public class PstExample {
 	private final String dateFormat = "yyyy-MM-dd HH:mm";
     private Publisher<PstMessage> publisher;
     private Subscriber<PstMessage> subscriber;
-    private HydraService hydraService;
+    private StdHydraService hydraService;
 	private JTextField stringBox;
 	private JTextField longBox;
 	private JTextField dateBox;
@@ -42,7 +42,7 @@ public class PstExample {
             String portSetting = config.getProperty("Port");
             Integer port = portSetting == null ? null : Integer.parseInt(portSetting);
 
-            hydraService = new HydraService(new NearestServerProvider(servers, config.getProperty("Database"), port), new ListenerOptions(0L, pollIntervalMs));
+            hydraService = new StdHydraService(new NearestServerProvider(servers, config.getProperty("Database"), port), new ListenerOptions(0L, pollIntervalMs));
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Error initialising: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
 			return;

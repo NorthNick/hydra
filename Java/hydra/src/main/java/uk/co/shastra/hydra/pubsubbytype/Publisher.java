@@ -1,7 +1,7 @@
 package uk.co.shastra.hydra.pubsubbytype;
 
 import uk.co.shastra.hydra.messaging.HydraMessage;
-import uk.co.shastra.hydra.messaging.IHydraService;
+import uk.co.shastra.hydra.messaging.HydraService;
 import uk.co.shastra.hydra.messaging.messageids.MessageId;
 import uk.co.shastra.hydra.messaging.serializers.HydraJsonSerializer;
 import uk.co.shastra.hydra.messaging.serializers.Serializer;
@@ -13,7 +13,7 @@ import uk.co.shastra.hydra.messaging.serializers.Serializer;
  */
 public class Publisher<TPub> {
 	
-    private IHydraService hydraService;
+    private HydraService hydraService;
     private Serializer<TPub> serializer;
 	private String topic;
 
@@ -32,7 +32,7 @@ public class Publisher<TPub> {
 	public String getRemoteParty() { return remoteParty; }
 	public void setRemoteParty(String remoteParty) { this.remoteParty = remoteParty; }
 
-    public Publisher(IHydraService hydraService) { this(hydraService, null, null); }
+    public Publisher(HydraService hydraService) { this(hydraService, null, null); }
     /**
      * Create a new Publisher to send TPub messages
      * 
@@ -42,7 +42,7 @@ public class Publisher<TPub> {
      * @param serializer The serializer to use for TPub objects. Defaults to HydraJsonSerializer
      * @param topic The topic for outgoing messages. Defaults to the canonical name of TPub
      */
-    public Publisher(IHydraService hydraService, Serializer<TPub> serializer, String topic)
+    public Publisher(HydraService hydraService, Serializer<TPub> serializer, String topic)
     {
         this.hydraService = hydraService;
         this.serializer = serializer == null ? new HydraJsonSerializer<TPub>() : serializer;

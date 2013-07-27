@@ -9,8 +9,8 @@ import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
 import rx.util.functions.Action1;
 import uk.co.shastra.hydra.messaging.HydraMessage;
-import uk.co.shastra.hydra.messaging.IHydraService;
-import uk.co.shastra.hydra.messaging.listeners.IListener;
+import uk.co.shastra.hydra.messaging.HydraService;
+import uk.co.shastra.hydra.messaging.listeners.Listener;
 import uk.co.shastra.hydra.messaging.messagefetchers.HydraByTopicByDestinationMessageFetcher;
 import uk.co.shastra.hydra.messaging.serializers.HydraJsonSerializer;
 import uk.co.shastra.hydra.messaging.serializers.Serializer;
@@ -22,18 +22,24 @@ public class Switchboard<TMessage> {
     private HashMap<String, Conversation<TMessage>> conversations = new HashMap<String, Conversation<TMessage>>();
     private HashSet<String> deadConversations = new HashSet<String>();
     private HashMap<String, EventHandlerNoData> handlers = new HashMap<String, EventHandlerNoData>();
-    private IListener<HydraMessage> listener;
+    private Listener<HydraMessage> listener;
     private Subject<Conversation<TMessage>, Conversation<TMessage>> subject = PublishSubject.create();
     private Serializer<TMessage> serializer;
-    private IHydraService hydraService;
+    private HydraService hydraService;
     private String thisParty;
     private String topic;
     
+    /**
+     * @return The time in milliseconds to delay delivery so that out-of-sequence messages can be delivered in the right order.
+     */
     public long getBufferDelayMs() { return listener.getBufferDelayMs(); }
+    /**
+     * @param bufferDelayMs The time in milliseconds to delay delivery so that out-of-sequence messages can be delivered in the right order.
+     */
     public void setBufferDelayMs(long bufferDelayMs) { listener.setBufferDelayMs(bufferDelayMs); }
     
-    public Switchboard(IHydraService hydraService, Class<TMessage> valueType, String thisParty) { this(hydraService, valueType, thisParty, null, null); }
-    public Switchboard(IHydraService hydraService, Class<TMessage> valueType, String thisParty, String topic) { this(hydraService, valueType, thisParty, topic, null); }
+    public Switchboard(HydraService hydraService, Class<TMessage> valueType, String thisParty) { this(hydraService, valueType, thisParty, null, null); }
+    public Switchboard(HydraService hydraService, Class<TMessage> valueType, String thisParty, String topic) { this(hydraService, valueType, thisParty, topic, null); }
     /**
      * Create a new Switchboard to listen for incoming conversations and initiate outgoing ones.
      * 
@@ -43,7 +49,7 @@ public class Switchboard<TMessage> {
      * @param topic Topic of the conversation
      * @param serializer Optional serialiser for messages. Defaults to HydraJsonSerializer
      */
-    public Switchboard(IHydraService hydraService, Class<TMessage> valueType, String thisParty, String topic, Serializer<TMessage> serializer)
+    public Switchboard(HydraService hydraService, Class<TMessage> valueType, String thisParty, String topic, Serializer<TMessage> serializer)
     {
         this.hydraService = hydraService;
         this.thisParty = thisParty;
@@ -105,8 +111,14 @@ public class Switchboard<TMessage> {
         deadConversations.add(handle);
     }
     
+    /**
+     * @return The Observable giving new Conversations on this Switchboard.
+     */
     public Observable<Conversation<TMessage>> getObservable() { return subject; }
     
+    /**
+     * Dispose of resources used by this Switchboard.
+     */
     public void close()
     {
     	listener.close();
