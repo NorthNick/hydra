@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
@@ -38,8 +40,35 @@ public class Switchboard<TMessage> {
      */
     public void setBufferDelayMs(long bufferDelayMs) { listener.setBufferDelayMs(bufferDelayMs); }
     
+    /**
+     * Create a new Switchboard to listen for incoming conversations and initiate outgoing ones.
+     * 
+     * @param hydraService The HydraService with which this Switchboard communicates
+     * @param valueType The type into which incoming messages are deserialised. Usually TMessage.class where TMessage is the concrete value of this class's generic parameter
+     * @param thisParty Name of this end of the conversation. This will be the RemoteParty for anyone initiating a conversation with this app
+     */
     public Switchboard(HydraService hydraService, Class<TMessage> valueType, String thisParty) { this(hydraService, valueType, thisParty, null, null); }
+    /**
+     * Create a new Switchboard to listen for incoming conversations and initiate outgoing ones.
+     * 
+     * @param hydraService The HydraService with which this Switchboard communicates
+     * @param valueType The type into which incoming messages are deserialised. Usually TMessage.class where TMessage is the concrete value of this class's generic parameter
+     * @param thisParty Name of this end of the conversation. This will be the RemoteParty for anyone initiating a conversation with this app
+     * @param topic Topic of the conversation
+     */
     public Switchboard(HydraService hydraService, Class<TMessage> valueType, String thisParty, String topic) { this(hydraService, valueType, thisParty, topic, null); }
+    /**
+     * Create a new Switchboard to listen for incoming conversations and initiate outgoing ones.
+     * 
+     * @param hydraService The HydraService with which this Switchboard communicates
+	 * @param valueTypeRef The type into which incoming messages are deserialised. Usually new TypeReference<TSub>() {} and used when TSub is itself a
+     * type with a generic parameter so that TSub.class cannot be used
+     * @param thisParty Name of this end of the conversation. This will be the RemoteParty for anyone initiating a conversation with this app
+     * @param topic Topic of the conversation
+     */
+    public Switchboard(HydraService hydraService, TypeReference<?> valueTypeRef, String thisParty, String topic) {
+    	this(hydraService, null, thisParty, topic, new HydraJsonSerializer<TMessage>(valueTypeRef));
+    }
     /**
      * Create a new Switchboard to listen for incoming conversations and initiate outgoing ones.
      * 

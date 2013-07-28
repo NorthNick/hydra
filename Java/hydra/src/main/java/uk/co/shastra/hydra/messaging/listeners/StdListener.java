@@ -43,10 +43,21 @@ public class StdListener<TMessage extends TransportMessage> implements Listener<
 	private long pollIntervalMs;
 	private MessageId lastId;
 
-	
+    /**
+     * @return The time in milliseconds to delay delivery so that out-of-sequence messages can be delivered in the right order.
+     */	
     public long getBufferDelayMs() { return bufferDelayMs; }
+    /**
+     * @param bufferDelayMs The time in milliseconds to delay delivery so that out-of-sequence messages can be delivered in the right order.
+     */
 	public void setBufferDelayMs(long bufferDelayMs) { this.bufferDelayMs = bufferDelayMs; }
+    /**
+     * @return Time between polls for messages, in milliseconds
+     */
 	public long getPollIntervalMs() { return pollIntervalMs; }
+    /**
+     * @param pollIntervalMs Time between polls for messages, in milliseconds
+     */
 	public void setPollIntervalMs(long pollIntervalMs) { this.pollIntervalMs = pollIntervalMs; }
 	/**
 	 * @return The last Id raised to clients. While processing a message, this will be the Id of that message.

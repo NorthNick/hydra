@@ -24,15 +24,35 @@ public class Publisher<TPub> {
      * @return An identifier for the sender of the messages
      */
     public String getThisParty() { return thisParty; }
+	/**
+	 * @param thisParty An identifier for the sender of the messages
+	 */
 	public void setThisParty(String thisParty) { this.thisParty = thisParty; }
 	
 	/**
-	 * @return Send messages to a specific destination
+	 * @return Default destination for future messages. null means broadcast.
 	 */
 	public String getRemoteParty() { return remoteParty; }
+	/**
+	 * @param remoteParty The default destination for future messages. Set to null to broadcast.
+	 */
 	public void setRemoteParty(String remoteParty) { this.remoteParty = remoteParty; }
 
+    /**
+     * Create a new Publisher to send TPub messages
+     * 
+     * @param hydraService The Hydra service to use for sending messages
+     */
     public Publisher(HydraService hydraService) { this(hydraService, null, null); }
+    /**
+     * Create a new Publisher to send TPub messages
+     * 
+     * This overload is useful when sending generic types, as they have no canonical name, so topic must be supplied.
+     * 
+     * @param hydraService The Hydra service to use for sending messages
+     * @param topic The topic for outgoing messages. Defaults to the canonical name of TPub
+     */
+    public Publisher(HydraService hydraService, String topic) { this(hydraService, new HydraJsonSerializer<TPub>(), topic); }
     /**
      * Create a new Publisher to send TPub messages
      * 
@@ -49,10 +69,16 @@ public class Publisher<TPub> {
         this.topic = topic;
     }
 
+    /**
+     * Broadcast a message (or send to getRemoteParty if that is non-null)
+     * 
+     * @param message The message to send
+     * @return The id of the message sent
+     * @throws Exception 
+     */
     public MessageId send(TPub message) throws Exception { return send(message, null); }
     /**
-     * 
-     * Send a message
+     * Send a message to a specific remote party
      * 
      * @param message The message to send
      * @param remoteParty Optional RemoteParty override
