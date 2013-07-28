@@ -41,10 +41,7 @@ public class TransportMessage implements Comparable<TransportMessage> {
     	JsonParser parser =	objectMapper.treeAsTokens((TreeNode) json);
     	TMessage res = null;
 		try {
-			// TODO - make this work with generics
-			// See http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/ for alternative methods with generics:
-			//	T value = om.readValue(parser, JavaType);
-			//	T value = om.readvalue(parser, TypeReference)
+			// Use the valueType version of readValue on the assumption that TMessage will be non-generic. It's usually HydraMessage.   
 			res = objectMapper.readValue(parser, valueType);
 	        res.setFromCouchId(json.get("_id").textValue());
 	    } catch (Exception e) {
