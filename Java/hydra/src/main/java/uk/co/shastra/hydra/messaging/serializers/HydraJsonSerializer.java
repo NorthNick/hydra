@@ -1,7 +1,6 @@
 package uk.co.shastra.hydra.messaging.serializers;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,13 +42,8 @@ public class HydraJsonSerializer<TMessage> implements Serializer<TMessage> {
 	}
 
 	@Override
-	public String serialize(TMessage obj) {
-		try {
-			return objectMapper.writeValueAsString(obj);
-		} catch (JsonProcessingException e) {
-			// TODO handle error
-		}
-		return null;
+	public String serialize(TMessage obj) throws Exception {
+		return objectMapper.writeValueAsString(obj);
 	}
 
 	@Override

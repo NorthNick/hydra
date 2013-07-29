@@ -102,11 +102,11 @@ public class SerializerNonGenericTest {
 	public void testNullFields() {
 		ComplexMessage message = new ComplexMessage();
 		HydraJsonSerializer<ComplexMessage> serialiser = new HydraJsonSerializer<ComplexMessage>(ComplexMessage.class);
-		String json = serialiser.serialize(message);
+		String json = trySerialize(serialiser, message);
 		assertEquals("ComplexMessage with null fields should serialise to empty JSON", "{}", json);
 		checkRoundtrip(message, serialiser);
 		message.setStringMessageField(new StringMessage());
-		json = serialiser.serialize(message);
+		json = trySerialize(serialiser, message);
 		// Strip spaces from JSON as they are optional
 		assertEquals("Should ignore valueTypesMessageField and serialise stringMessageField to the empty object",
 				"{\"stringMessageField\":{}}", json.replace(" ", ""));
@@ -130,11 +130,11 @@ public class SerializerNonGenericTest {
 	public void testNullFieldsWithTyperef() {
 		ComplexMessage message = new ComplexMessage();
 		HydraJsonSerializer<ComplexMessage> serialiser = new HydraJsonSerializer<ComplexMessage>(new TypeReference<ComplexMessage>() {});
-		String json = serialiser.serialize(message);
+		String json = trySerialize(serialiser, message);
 		assertEquals("ComplexMessage with null fields should serialise to empty JSON", "{}", json);
 		checkRoundtrip(message, serialiser);
 		message.setStringMessageField(new StringMessage());
-		json = serialiser.serialize(message);
+		json = trySerialize(serialiser, message);
 		// Strip spaces from JSON as they are optional
 		assertEquals("Should ignore valueTypesMessageField and serialise stringMessageField to the empty object",
 				"{\"stringMessageField\":{}}", json.replace(" ", ""));
@@ -143,7 +143,7 @@ public class SerializerNonGenericTest {
 	
 	public static <TMessage> void checkRoundtrip(TMessage message, Serializer<TMessage> serialiser)
 	{
-		String json = serialiser.serialize(message);
+		String json = trySerialize(serialiser, message);
 		assertNotNull("Serialisation should succeed", json);
 		TMessage newMessage = null;
 		try {
@@ -151,5 +151,20 @@ public class SerializerNonGenericTest {
 		} catch (Exception e) {}
 		assertNotNull("Deserialisation should succeed", newMessage);
 		assertEquals("Deserialised object should be the same as the original", message, newMessage);
+	}
+	
+	/**
+	 * Attempt to serialise a message and return null on failure
+	 * 
+	 * @param serialiser The serialiser to use.
+	 * @param message The message to serialise.
+	 * @return The serialised String, or null on error
+	 */
+	private static <T> String trySerialize(Serializer<T> serialiser, T message) {
+		try {
+			return serialiser.serialize(message);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
