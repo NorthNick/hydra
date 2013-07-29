@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("HydraStressTestConsole")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Bollywell")]
+[assembly: AssemblyCompany("Shastra")]
 [assembly: AssemblyProduct("HydraStressTestConsole")]
 [assembly: AssemblyCopyright("Copyright © Nicolas North 2012")]
 [assembly: AssemblyTrademark("")]

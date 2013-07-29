@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Bollywell.Hydra.HydraStressTestClient {
+namespace Shastra.Hydra.HydraStressTestClient {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Bollywell.Hydra.HydraStressTestClient {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bollywell.Hydra.HydraStressTestClient.MessageData", typeof(MessageData).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shastra.Hydra.HydraStressTestClient.MessageData", typeof(MessageData).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

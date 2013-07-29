@@ -6,12 +6,12 @@ using System.Net;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.MessageFetchers;
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.Serializers;
-using Bollywell.Hydra.Messaging.Storage;
-using Bollywell.Hydra.PubSubByType;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.MessageFetchers;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.Serializers;
+using Shastra.Hydra.Messaging.Storage;
+using Shastra.Hydra.PubSubByType;
 using HydraStressTestDtos;
 
 namespace HydraStressTestConsole
@@ -39,12 +39,12 @@ namespace HydraStressTestConsole
 
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?)null : int.Parse(pollSetting);
-            var hydraService = new HydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
+            var hydraService = new StdHydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
 
             _dataSubscriber = new Subscriber<StressTestData>(hydraService);
-            _dataSubscription = _dataSubscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnDataRecv);
+            _dataSubscription = _dataSubscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnDataRecv);
             _errorSubscriber = new Subscriber<StressTestError>(hydraService);
-            _errorSubscription = _errorSubscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnErrorRecv);
+            _errorSubscription = _errorSubscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnErrorRecv);
             _listener = hydraService.GetListener(new HydraByTopicByDestinationMessageFetcher(typeof(StressTestControl).FullName, "StressTestConsole"));
             _controlSubscription = _listener.ObserveOn(SynchronizationContext.Current).Subscribe(OnControlRecv);
             _controlPublisher = new Publisher<StressTestControl>(hydraService) {ThisParty = "StressTestConsole"};

@@ -1,4 +1,4 @@
-﻿namespace Bollywell.Hydra.HydraStressTestClient
+﻿namespace Shastra.Hydra.HydraStressTestClient
 {
     partial class MainFrm
     {

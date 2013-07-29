@@ -1,4 +1,43 @@
+29 Jul 2013 version 2.0
+
+Breaking changes from version 1.0
+---------------------------------
+Changed namespace from Bollywell.Hydra... to Shastra.Hydra...
+Changed HydraService and Listener types to StdHydraService and StdListener respectively, in line with the Java equivalents.
+Changed the Observables in PubSubByType.Subscriber and Conversations.Conversation to be Notification<TMessage> rather than TMessage. This allows htem to propagate errors to clients without breaking the semantics of Reactive Extension Observables (which should terminate on error). See below for notes on upgrading.
+
+Other changes
+-------------
+Created a Java client. See the Java subdirectory for code, the README for instructions on downloading the Maven package, and the documentation for use.
+Added overloads to allow setting the topic in PubSubByType messages.
+Minor code tweaks.
+
+Upgrading from version 1.0
+--------------------------
+* Get the latest code or NuGet packages.
+* Do global search and replaces to update the namespace and HydraService and Listener class names. (If you have been declaring variables as IHydraService and IListener, this should be a small job. If not, consider doing so now.)
+* If you want to keep the original behaviour of Subscriber and Conversation, which was to ignore errors on message deserialisation then use the SkipErrors extension method in Shastra.Hydra.Messaging.Extensions. For example code like
+
+    sub.Subscribe(...)
+
+where sub is a Subscriber becomes
+
+    sub.SkipErrors().Subscribe(...)
+
+SkipErrors converts the Observable<Notification<TMessage>> to an Observable<TMessage> by throwing away errors and dematerialising the stream.
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+26 Jan 2013 version 1.0
+
+No changes from version 0.6.
+
 19 Oct 2012 Version 0.6
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
 
 Breaking changes from Version 0.5
 ---------------------------------

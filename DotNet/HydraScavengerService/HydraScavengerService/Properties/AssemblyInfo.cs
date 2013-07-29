@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("HydraScavengerService")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Bollywell")]
+[assembly: AssemblyCompany("Shastra")]
 [assembly: AssemblyProduct("HydraScavengerService")]
 [assembly: AssemblyCopyright("Copyright © Nicolas North 2012")]
 [assembly: AssemblyTrademark("")]

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Timers;
-using Bollywell.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.MessageIds;
 using LoveSeat;
 using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;

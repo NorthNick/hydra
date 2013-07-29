@@ -1,8 +1,8 @@
-﻿using Bollywell.Hydra.Messaging;
-using Bollywell.Hydra.Messaging.Listeners;
-using Bollywell.Hydra.Messaging.Serializers;
-using Bollywell.Hydra.Messaging.Storage;
-using Bollywell.Hydra.PubSubByType;
+﻿using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Listeners;
+using Shastra.Hydra.Messaging.Serializers;
+using Shastra.Hydra.Messaging.Storage;
+using Shastra.Hydra.PubSubByType;
 using HydraStressTestDtos;
 using System;
 using System.Collections;
@@ -19,7 +19,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace Bollywell.Hydra.HydraStressTestClient
+namespace Shastra.Hydra.HydraStressTestClient
 {
     public partial class MainFrm : Form
     {
@@ -35,7 +35,7 @@ namespace Bollywell.Hydra.HydraStressTestClient
         private long _recvCount;
         private readonly Dictionary<string, long> _clientSeq = new Dictionary<string, long>();
 
-        private readonly HydraService _hydraService;
+        private readonly IHydraService _hydraService;
         private IObservable<long> _sendObservable;
         private IDisposable _sendSubscription;
         private long _sendCount;
@@ -64,10 +64,10 @@ namespace Bollywell.Hydra.HydraStressTestClient
 
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?)null : int.Parse(pollSetting);
-            _hydraService = new HydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
+            _hydraService = new StdHydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
             _stressSender = new Publisher<StressTestData>(_hydraService);
             _errorSender = new Publisher<StressTestError>(_hydraService);
-            _controlSubscription = new Subscriber<StressTestControl>(_hydraService, _myName).ObserveOn(SynchronizationContext.Current).Subscribe(OnControlRecv);
+            _controlSubscription = new Subscriber<StressTestControl>(_hydraService, _myName).ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnControlRecv);
             _controlPublisher = new Publisher<StressTestControl>(_hydraService) {RemoteParty = "StressTestConsole", ThisParty = _myName};
             _heartbeatIntervalMs = int.Parse(ConfigurationManager.AppSettings["HeartbeatIntervalMs"]);
             _heartbeatObservable = Observable.Interval(TimeSpan.FromMilliseconds(_heartbeatIntervalMs), ThreadPoolScheduler.Instance);
@@ -81,7 +81,7 @@ namespace Bollywell.Hydra.HydraStressTestClient
             if (newState == _listening) return;
             if (newState) {
                 _subscriber = new Subscriber<StressTestData>(_hydraService);
-                _recvSubscription = _subscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnRecv);
+                _recvSubscription = _subscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnRecv);
                 ListenBtn.Text = "Stop listening";
             } else {
                 _recvSubscription.Dispose();

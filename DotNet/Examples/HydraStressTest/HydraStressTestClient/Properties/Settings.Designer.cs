@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Bollywell.Hydra.HydraStressTestClient.Properties {
+namespace Shastra.Hydra.HydraStressTestClient.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

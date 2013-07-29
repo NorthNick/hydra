@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Bollywell.Hydra.HydraStressTestClient
+namespace Shastra.Hydra.HydraStressTestClient
 {
     static class Program
     {
