@@ -2,6 +2,7 @@ package uk.co.shastra.hydra.pubsubbytype;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import rx.Notification;
 import rx.Observable;
 import rx.util.functions.Action1;
 import rx.util.functions.Func1;
@@ -18,10 +19,10 @@ import uk.co.shastra.hydra.messaging.utils.EventHandler;
 public class Subscriber<TSub> {
 
     private Listener<HydraMessage> listener;
-    private Observable<TSub> messageSource;
+    private Observable<Notification<TSub>> messageSource;
     private Serializer<TSub> serializer;
 	
-    private Event<TSub> messageInQueue = new Event<TSub>();
+    private Event<Notification<TSub>> messageInQueue = new Event<Notification<TSub>>();
 
     /**
      * @return The time in milliseconds to delay delivery so that out-of-sequence messages can be delivered in the right order.
@@ -134,21 +135,29 @@ public class Subscriber<TSub> {
         } else {
             listener = hydraService.getListener(new HydraByTopicByDestinationMessageFetcher(topic, thisParty));
         }
-        messageSource = listener.getObservable().map(new Func1<HydraMessage, TSub>() {
-			@Override public TSub call(HydraMessage message) {
-				return Subscriber.this.serializer.deserialize(message.getData());
+        messageSource = listener.getObservable().map(new Func1<HydraMessage, Notification<TSub>>() {
+			@Override public Notification<TSub> call(HydraMessage message) {
+				return MessageNotification(message.getData());
 			}
 		});
-        messageSource.subscribe(new Action1<TSub>() {
-			@Override public void call(TSub message) { messageInQueue.raise(this, message);	}
+        messageSource.subscribe(new Action1<Notification<TSub>>() {
+			@Override public void call(Notification<TSub> message) { messageInQueue.raise(this, message);	}
 		});
 	}
 
+    private Notification<TSub> MessageNotification(String data)
+    {
+        try {
+            return new Notification<TSub>(serializer.deserialize(data));
+        } catch (Exception ex) {
+            return new Notification<TSub>(ex);
+        }
+    }
     
-    public void addMessageInQueueHandler(EventHandler<TSub> handler) { messageInQueue.addHandler(handler); }
-    public void removeMessageInQueueHandler(EventHandler<TSub> handler) { messageInQueue.removeHandler(handler); }
+    public void addMessageInQueueHandler(EventHandler<Notification<TSub>> handler) { messageInQueue.addHandler(handler); }
+    public void removeMessageInQueueHandler(EventHandler<Notification<TSub>> handler) { messageInQueue.removeHandler(handler); }
     
-    public Observable<TSub> getObservable() { return messageSource; }
+    public Observable<Notification<TSub>> getObservable() { return messageSource; }
     
     public void close()
     {

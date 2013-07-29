@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using System.Reactive.Subjects;
 using Shastra.Hydra.Messaging;
 using Shastra.Hydra.Messaging.MessageIds;
@@ -6,10 +7,10 @@ using Shastra.Hydra.Messaging.Serializers;
 
 namespace Shastra.Hydra.Conversations
 {
-    public class Conversation<TMessage> : IObservable<TMessage>, IDisposable
+    public class Conversation<TMessage> : IObservable<Notification<TMessage>>, IDisposable
     {
         private ISerializer<TMessage> _serializer;
-        private readonly Subject<TMessage> _subject = new Subject<TMessage>();
+        private readonly Subject<Notification<TMessage>> _subject = new Subject<Notification<TMessage>>();
         private bool _done;
         private IHydraService _hydraService;
 
@@ -33,7 +34,7 @@ namespace Shastra.Hydra.Conversations
             _serializer = serializer;
         }
 
-        internal void OnNext(long seq, TMessage message)
+        internal void OnNext(long seq, Notification<TMessage> message)
         {
             if (CheckSeq && seq != LastRecvSeq + 1) {
                 // Tell the client, but carry on and process the message.
@@ -60,9 +61,9 @@ namespace Shastra.Hydra.Conversations
             return res;
         }
 
-        #region Implementation of IObservable<out TMessage>
+        #region Implementation of IObservable<out Notification<TMessage>>
 
-        public IDisposable Subscribe(IObserver<TMessage> observer)
+        public IDisposable Subscribe(IObserver<Notification<TMessage>> observer)
         {
             return _subject.Subscribe(observer);
         }

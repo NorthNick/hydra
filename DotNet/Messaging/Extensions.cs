@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 
 namespace Shastra.Hydra.Messaging
 {
@@ -49,6 +51,17 @@ namespace Shastra.Hydra.Messaging
                     } while (dropDuplicates && val != null && comparer.Compare(val.Item1, res) == 0);
                 } while (val != null);
             }
+        }
+
+        /// <summary>
+        /// Dematerialise an IObservable of Notifications, discarding errors.
+        /// </summary>
+        /// <typeparam name="T">The type parameter of the Notifications.</typeparam>
+        /// <param name="source">IObservable to dematerialise.</param>
+        /// <returns>An IObservable of the notification type, with errors removed.</returns>
+        public static IObservable<T> SkipErrors<T>(this IObservable<Notification<T>> source)
+        {
+            return source.Where(n => n.Kind != NotificationKind.OnError).Dematerialize();
         }
 
         private class Remainder<T> : IDisposable

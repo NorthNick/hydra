@@ -16,6 +16,7 @@ import rx.util.functions.Action1;
 import uk.co.shastra.hydra.conversationexampledto.ConversationDto;
 import uk.co.shastra.hydra.conversationexampledto.MessageTypes;
 import uk.co.shastra.hydra.conversations.Conversation;
+import uk.co.shastra.hydra.messaging.utils.ObservableUtils;
 
 public class AppendClientUi extends JPanel {
 
@@ -38,7 +39,7 @@ public class AppendClientUi extends JPanel {
 		suffixLbl.setText(suffixLbl.getText() + " " + suffix);
 
         this.conversation = conversation;
-        subscription = conversation.getObservable().subscribe(new Action1<ConversationDto>() {
+        subscription = ObservableUtils.skipErrors(conversation.getObservable()).subscribe(new Action1<ConversationDto>() {
 			@Override public void call(ConversationDto dto) { onNext(dto); }
 		});
         

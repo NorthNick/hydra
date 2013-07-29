@@ -46,7 +46,7 @@ namespace Shastra.Messaging.PubSubByTypeExample
             }
             _publisher = new Publisher<PstMessage>(_hydraService, serializer);
             _subscriber = new Subscriber<PstMessage>(_hydraService, serializer);
-            _subscriber.ObserveOn(SynchronizationContext.Current).Subscribe(OnMessage, _ => { });
+            _subscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnMessage, _ => { });
         }
 
         private void OnMessage(PstMessage message)

@@ -13,6 +13,7 @@ import rx.util.functions.Action1;
 import uk.co.shastra.hydra.messaging.StdHydraService;
 import uk.co.shastra.hydra.messaging.listeners.ListenerOptions;
 import uk.co.shastra.hydra.messaging.storage.NearestServerProvider;
+import uk.co.shastra.hydra.messaging.utils.ObservableUtils;
 import uk.co.shastra.hydra.pubsubbytype.Publisher;
 import uk.co.shastra.hydra.pubsubbytype.Subscriber;
 
@@ -51,7 +52,7 @@ public class PstExample {
 		// Set up publisher and subscriber
         publisher = new Publisher<PstMessage>(hydraService);
         subscriber = new Subscriber<PstMessage>(hydraService, PstMessage.class);
-        subscriber.getObservable().subscribe(new Action1<PstMessage>() {
+        ObservableUtils.skipErrors(subscriber.getObservable()).subscribe(new Action1<PstMessage>() {
 			@Override public void call(PstMessage message) { onMessage(message); }
 		});
         

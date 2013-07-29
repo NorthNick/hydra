@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Shastra.Hydra.ConversationExampleDto;
 using Shastra.Hydra.Conversations;
+using Shastra.Hydra.Messaging;
 
 namespace Shastra.Hydra.ConversationExampleClient
 {
@@ -23,7 +24,7 @@ namespace Shastra.Hydra.ConversationExampleClient
             SuffixLbl.Text += " " + suffix;
 
             _conversation = conversation;
-            _subscription = _conversation.ObserveOn(SynchronizationContext.Current).Subscribe(OnNext);
+            _subscription = _conversation.SkipErrors().ObserveOn(SynchronizationContext.Current).Subscribe(OnNext);
             _conversation.Send(new ConversationDto { MessageType = MessageTypes.Init, Data = suffix });
         }
 

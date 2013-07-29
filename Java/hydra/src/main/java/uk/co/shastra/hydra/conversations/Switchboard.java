@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import rx.Notification;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
@@ -112,7 +113,7 @@ public class Switchboard<TMessage> {
         if (!conversations.containsKey(handle)) {
             createNewConversation(message.getSource(), handle);
         }
-        conversations.get(handle).onNext(message.getSeq(), serializer.deserialize(message.getData()));
+        conversations.get(handle).onNext(message.getSeq(), MessageNotification(message.getData()));
     }
     
     private Conversation<TMessage> createNewConversation(String remoteParty, String handle)
@@ -138,6 +139,15 @@ public class Switchboard<TMessage> {
         String handle = conversation.getHandle();
         conversations.remove(handle);
         deadConversations.add(handle);
+    }
+    
+    private Notification<TMessage> MessageNotification(String data)
+    {
+        try {
+            return new Notification<TMessage>(serializer.deserialize(data));
+        } catch (Exception ex) {
+            return new Notification<TMessage>(ex);
+        }
     }
     
     /**

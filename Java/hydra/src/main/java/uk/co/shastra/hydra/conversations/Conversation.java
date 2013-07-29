@@ -1,5 +1,6 @@
 package uk.co.shastra.hydra.conversations;
 
+import rx.Notification;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
@@ -22,7 +23,7 @@ public class Conversation<TMessage> {
 
 	private Serializer<TMessage> serializer;
 	private HydraService hydraService;
-    private Subject<TMessage, TMessage> subject = PublishSubject.create();
+    private Subject<Notification<TMessage>, Notification<TMessage>> subject = PublishSubject.create();
     private boolean done = false;
     
 	private String thisParty;
@@ -90,7 +91,7 @@ public class Conversation<TMessage> {
         this.serializer = serializer;
     }
     
-    void onNext(long seq, TMessage message)
+    void onNext(long seq, Notification<TMessage> message)
     {
         if (checkSeq && seq != lastRecvSeq + 1) {
             // Tell the client, but carry on and process the message.
@@ -128,7 +129,7 @@ public class Conversation<TMessage> {
     /**
      * @return The Observable giving messages in this Conversation.
      */
-    public Observable<TMessage> getObservable() { return subject; }
+    public Observable<Notification<TMessage>> getObservable() { return subject; }
     
     /**
      * Dispose of resources used by this Conversation.

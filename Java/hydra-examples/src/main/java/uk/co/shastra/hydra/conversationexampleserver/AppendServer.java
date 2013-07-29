@@ -4,6 +4,7 @@ import rx.Subscription;
 import rx.util.functions.Action1;
 import uk.co.shastra.hydra.conversationexampledto.*;
 import uk.co.shastra.hydra.conversations.Conversation;
+import uk.co.shastra.hydra.messaging.utils.ObservableUtils;
 
 public class AppendServer {
     private final Conversation<ConversationDto> conversation;
@@ -13,7 +14,7 @@ public class AppendServer {
     public AppendServer(Conversation<ConversationDto> conversation)
     {
         this.conversation = conversation;
-        subscription = conversation.getObservable().subscribe(new Action1<ConversationDto>() {
+        subscription = ObservableUtils.skipErrors(conversation.getObservable()).subscribe(new Action1<ConversationDto>() {
 			@Override public void call(ConversationDto message) { onNext(message); }
 		});
     }

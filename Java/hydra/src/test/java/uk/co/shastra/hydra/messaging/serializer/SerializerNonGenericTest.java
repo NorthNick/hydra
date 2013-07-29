@@ -145,7 +145,10 @@ public class SerializerNonGenericTest {
 	{
 		String json = serialiser.serialize(message);
 		assertNotNull("Serialisation should succeed", json);
-		TMessage newMessage = serialiser.deserialize(json);
+		TMessage newMessage = null;
+		try {
+			newMessage = serialiser.deserialize(json);
+		} catch (Exception e) {}
 		assertNotNull("Deserialisation should succeed", newMessage);
 		assertEquals("Deserialised object should be the same as the original", message, newMessage);
 	}

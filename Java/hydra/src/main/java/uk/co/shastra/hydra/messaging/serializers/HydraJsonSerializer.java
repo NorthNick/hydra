@@ -53,16 +53,12 @@ public class HydraJsonSerializer<TMessage> implements Serializer<TMessage> {
 	}
 
 	@Override
-	public TMessage deserialize(String str) {
+	public TMessage deserialize(String str) throws Exception  {
     	TMessage res = null;
-		try {
-			if (valueType != null) {
-				res = objectMapper.readValue(str, valueType);
-			} else {
-				res = objectMapper.readValue(str, valueTypeRef);
-			}
-	    } catch (Exception e) {
-			// TODO Handle error
+		if (valueType != null) {
+			res = objectMapper.readValue(str, valueType);
+		} else {
+			res = objectMapper.readValue(str, valueTypeRef);
 		}
         return res;
 	}

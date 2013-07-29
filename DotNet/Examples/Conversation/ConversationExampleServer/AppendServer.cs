@@ -1,6 +1,7 @@
 ﻿using System;
 using Shastra.Hydra.ConversationExampleDto;
 using Shastra.Hydra.Conversations;
+using Shastra.Hydra.Messaging;
 
 namespace Shastra.Hydra.ConversationExampleServer
 {
@@ -13,7 +14,7 @@ namespace Shastra.Hydra.ConversationExampleServer
         public AppendServer(Conversation<ConversationDto> conversation)
         {
             _conversation = conversation;
-            _subscription = conversation.Subscribe(OnNext);
+            _subscription = conversation.SkipErrors().Subscribe(OnNext);
         }
 
         private void OnNext(ConversationDto message)

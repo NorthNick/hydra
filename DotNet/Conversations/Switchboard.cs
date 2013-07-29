@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive;
 using System.Reactive.Subjects;
 using Shastra.Hydra.Messaging;
 using Shastra.Hydra.Messaging.Listeners;
@@ -59,7 +60,7 @@ namespace Shastra.Hydra.Conversations
             if (!_conversations.ContainsKey(handle)) {
                 CreateNewConversation(message.Source, handle);
             }
-            _conversations[handle].OnNext(message.Seq, _serializer.Deserialize(message.Data));
+            _conversations[handle].OnNext(message.Seq, MessageNotification(message.Data));
         }
 
         private Conversation<TMessage> CreateNewConversation(string remoteParty, string handle)
@@ -78,6 +79,18 @@ namespace Shastra.Hydra.Conversations
             conversation.DoneEvent -= ConversationDoneEvent;
             if (_conversations.ContainsKey(conversation.Handle)) _conversations.Remove(conversation.Handle);
             _deadConversations.Add(conversation.Handle);
+        }
+
+        private Notification<TMessage> MessageNotification(string data)
+        {
+            try
+            {
+                return Notification.CreateOnNext(_serializer.Deserialize(data));
+            }
+            catch (Exception ex)
+            {
+                return Notification.CreateOnError<TMessage>(ex);
+            }
         }
 
         #region Implementation of IObservable<out TConversation>
