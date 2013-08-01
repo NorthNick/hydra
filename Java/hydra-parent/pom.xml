@@ -3,7 +3,7 @@
   <groupId>uk.co.shastra.hydra</groupId>
   <artifactId>hydra-parent</artifactId>
   <packaging>pom</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>2.0.0</version>
   <name>Hydra parent</name>
   	<modules>
 		<module>../hydra</module>
