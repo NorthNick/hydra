@@ -15,11 +15,10 @@ namespace Shastra.Hydra.Messaging.Storage
         private const string DefaultDatabase = "hydra";
         private const int DefaultPort = 5984;
         private const string DesignDoc = "hydra";
-        private readonly string _server;
         private readonly string _database;
         private readonly int _port;
         private readonly IDocumentDatabase _db;
-        private string _url;
+        private readonly string _url;
 
         public string Name { get; private set; }
 
@@ -30,12 +29,11 @@ namespace Shastra.Hydra.Messaging.Storage
 
         public CouchDbStore(string name, string server, string database = null, int? port = null)
         {
-            _server = server;
             _database = database ?? DefaultDatabase;
             _port = port.HasValue ? port.Value : DefaultPort;
             Name = name;
             // This URL checks both that the server is up, and that the view index is up to date
-            _url = string.Format("http://{0}:{1}/{2}/_design/{3}/_view/broadcastMessages?limit=0", _server, _port, _database, DesignDoc);
+            _url = string.Format("http://{0}:{1}/{2}/_design/{3}/_view/broadcastMessages?limit=0", server, _port, _database, DesignDoc);
             _db = new CouchClient(server, _port, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
         }
 
