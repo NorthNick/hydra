@@ -35,7 +35,7 @@ public class HydraJsonSerializer<TMessage> implements Serializer<TMessage> {
 	/**
 	 * Constructor that can serialise, and deserialise generic types.
 	 * 
-	 * @param valueType Type into which messages are deserialised usually new com.fasterxml.jackson.core.type.TypeReference<SomeGenericType>(){}
+	 * @param valueTypeRef Type into which messages are deserialised usually new com.fasterxml.jackson.core.type.TypeReference<SomeGenericType>(){}
 	 */
 	public HydraJsonSerializer(TypeReference<?> valueTypeRef) {
 		this.valueTypeRef = valueTypeRef;
