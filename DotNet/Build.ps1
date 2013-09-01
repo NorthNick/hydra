@@ -17,4 +17,4 @@ $scriptDir = (Get-ScriptDirectory)
 & $msBuild "$scriptDir\Examples\HydraStressTest\HydraStressTest.sln"
 
 # If you have VS2012, change to VS110COMNTOOLS
-& "$Env:VS100COMNTOOLS..\IDE\mstest.exe" /TestContainer:"$scriptDir\Tests\bin\Debug\Bollywell.Hydra.Tests.dll"
+& "$Env:VS100COMNTOOLS..\IDE\mstest.exe" /TestContainer:"$scriptDir\Tests\bin\Debug\Shastra.Hydra.Tests.dll"
