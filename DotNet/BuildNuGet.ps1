@@ -1,5 +1,5 @@
 # Create the NuGet packages
-# You need to build the DLLs using Built.bat before running this
+# You need to build the DLLs using Build.ps1 before running this
 # Adjust variables as per the comments, then open a CMD prompt, CD to this directory and run this file
 # Packages are placed in the NuGet\Packages directory
 
@@ -27,8 +27,8 @@ Remove-Item $libDir -recurse
 Remove-Item $srcDir -recurse
 New-Item $libDir -type directory
 New-Item $srcDir -type directory
-Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
-Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
+Copy-Item "$dllDir\Shastra.Hydra.$dll.dll" $libDir
+Copy-Item "$dllDir\Shastra.Hydra.$dll.pdb" $libDir
 Copy-Item "$dllDir\LoveSeat.dll" $libDir
 Copy-Item "$dllDir\LoveSeat.Interfaces.dll" $libDir
 Copy-Item -Recurse -Filter *.cs $projDir $srcDir
@@ -45,8 +45,8 @@ Remove-Item $libDir -recurse
 Remove-Item $srcDir -recurse
 New-Item $libDir -type directory
 New-Item $srcDir -type directory
-Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
-Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
+Copy-Item "$dllDir\Shastra.Hydra.$dll.dll" $libDir
+Copy-Item "$dllDir\Shastra.Hydra.$dll.pdb" $libDir
 Copy-Item -Recurse -Filter *.cs $projDir $srcDir
 & $nuget pack "$root\$package\$package.nuspec" -Symbols -OutputDirectory $outputDir
 
@@ -61,7 +61,7 @@ Remove-Item $libDir -recurse
 Remove-Item $srcDir -recurse
 New-Item $libDir -type directory
 New-Item $srcDir -type directory
-Copy-Item "$dllDir\Bollywell.Hydra.$dll.dll" $libDir
-Copy-Item "$dllDir\Bollywell.Hydra.$dll.pdb" $libDir
+Copy-Item "$dllDir\Shastra.Hydra.$dll.dll" $libDir
+Copy-Item "$dllDir\Shastra.Hydra.$dll.pdb" $libDir
 Copy-Item -Recurse -Filter *.cs $projDir $srcDir
 & $nuget pack "$root\$package\$package.nuspec" -Symbols -OutputDirectory $outputDir

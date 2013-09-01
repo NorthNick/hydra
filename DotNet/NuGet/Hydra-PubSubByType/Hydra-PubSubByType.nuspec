@@ -13,7 +13,7 @@
     <copyright>Copyright 2013</copyright>
     <tags>Hydra Messaging CouchDb</tags>
     <dependencies>
-      <dependency id="Hydra-Messaging" version="2.0.0" \/>
+      <dependency id="Hydra-Messaging" version="2.0.0" />
     </dependencies>
   </metadata>
 </package>
