@@ -1,6 +1,5 @@
-﻿using LoveSeat;
-using LoveSeat.Interfaces;
-using Shastra.Hydra.Messaging.MessageIds;
+﻿using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
 
 namespace Shastra.Hydra.Messaging.MessageFetchers
 {
@@ -12,7 +11,7 @@ namespace Shastra.Hydra.Messaging.MessageFetchers
         public HydraByTopicMessageFetcher(string topic)
         {
             _topic = topic;
-            _endKey = new KeyOptions(_topic, CouchValue.MaxValue);
+            _endKey = new KeyOptions(_topic, KeyOptions.MaxValue);
         }
 
         protected override string ViewName { get { return "broadcastMessages"; } }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
 using Shastra.Hydra.Messaging.MessageIds;
 

@@ -1,6 +1,5 @@
-﻿using LoveSeat;
-using LoveSeat.Interfaces;
-using Shastra.Hydra.Messaging.MessageIds;
+﻿using Shastra.Hydra.Messaging.MessageIds;
+using Shastra.Hydra.Messaging.Storage;
 
 namespace Shastra.Hydra.Messaging.MessageFetchers
 {
@@ -19,7 +18,7 @@ namespace Shastra.Hydra.Messaging.MessageFetchers
         {
             _topic = topic;
             _destination = destination;
-            _endKey = new KeyOptions(_topic, _destination, CouchValue.MaxValue);
+            _endKey = new KeyOptions(_topic, _destination, KeyOptions.MaxValue);
         }
 
         protected override string ViewName { get { return "directedMessages"; } }

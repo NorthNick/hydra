@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using LoveSeat;
-using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
 using Shastra.Hydra.Messaging.MessageIds;
 
@@ -17,7 +15,6 @@ namespace Shastra.Hydra.Messaging.Storage
         private const string DesignDoc = "hydra";
         private readonly string _database;
         private readonly int _port;
-        private readonly IDocumentDatabase _db;
         private readonly CouchDbClient _client;
         private readonly string _url;
 
@@ -35,7 +32,6 @@ namespace Shastra.Hydra.Messaging.Storage
             Name = name;
             // This URL checks both that the server is up, and that the view index is up to date
             _url = string.Format("http://{0}:{1}/{2}/_design/{3}/_view/broadcastMessages?limit=0", server, _port, _database, DesignDoc);
-            _db = new CouchClient(server, _port, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
             _client = new CouchDbClient(server, _port, _database);
         }
 
@@ -43,8 +39,7 @@ namespace Shastra.Hydra.Messaging.Storage
         {
             // Get changes after sinceSeq, throw out non-messages e.g. design doc updates, and drop messages at or before _startId
 
-            // Loveseat doesn't have a _changes call, so it has to be done like this.
-            var changes = _db.GetDocument(string.Format("_changes?since={0}", sinceSeq));
+            var changes = _client.GetDoc(string.Format("_changes?since={0}", sinceSeq));
             // Changes are returned as 
             // {"results":[{"seq":28312,"id":"04b8dbf49b5d2603","changes":[{"rev":"1-ea426b58321d93c39a3486cc4d55abe2"}]},
             //             ...
@@ -61,7 +56,7 @@ namespace Shastra.Hydra.Messaging.Storage
             // Getting the empty document returns database info as:
             // {"db_name":"hydra","doc_count":499245,"doc_del_count":273331,"update_seq":1045940,"purge_seq":0,"compact_running":false,"disk_size":604704891,"data_size":372365869,
             //  "instance_start_time":"1332323453803000","disk_format_version":6,"committed_update_seq":1045940}
-            return (long) _db.GetDocument("")["update_seq"];
+            return (long)_client.GetDoc("")["update_seq"];
         }
 
         public IMessageId SaveDoc(JObject json, IEnumerable<Attachment> attachments = null)
@@ -73,8 +68,7 @@ namespace Shastra.Hydra.Messaging.Storage
 
         public IEnumerable<JToken> GetDocs(string viewName, IViewOptions options)
         {
-            // TODO: check out whether LoveSeat can be improved to use IViewOptions for the second parameter type
-            return _db.View(viewName, (ViewOptions) options, DesignDoc).Rows;
+            return _client.View(viewName, options, DesignDoc);
         }
 
         public ServerDistanceInfo MeasureDistance()

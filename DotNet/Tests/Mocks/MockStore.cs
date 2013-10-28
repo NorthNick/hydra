@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Web;
-using LoveSeat.Interfaces;
 using Newtonsoft.Json.Linq;
 using Shastra.Hydra.Messaging.MessageIds;
 using Shastra.Hydra.Messaging.Storage;
@@ -86,7 +85,7 @@ namespace Shastra.Hydra.Tests.Mocks
             JArray filterArray;
             string startId = null;
             HashSet<string> keySet = null;
-            if (options.StartKey.HasValues) {
+            if (options.StartKey != null) {
                 filterArray = JArray.Parse(HttpUtility.UrlDecode(options.StartKey.ToString()));
                 startId = (string) filterArray.Last;
             } else {

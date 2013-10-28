@@ -35,12 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LoveSeat">
-      <HintPath>..\Libraries\LoveSeat.dll</HintPath>
-    </Reference>
-    <Reference Include="LoveSeat.Interfaces">
-      <HintPath>..\Libraries\LoveSeat.Interfaces.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\Libraries\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -64,13 +58,16 @@
       <HintPath>..\Libraries\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Storage\Attachment.cs" />
+    <Compile Include="Storage\ByteArrayAttachment.cs" />
     <Compile Include="Storage\CouchDbClient.cs" />
     <Compile Include="Storage\CouchDbStore.cs" />
     <Compile Include="Storage\IStore.cs" />
+    <Compile Include="Storage\IViewOptions.cs" />
     <Compile Include="Storage\NearestServerProvider.cs" />
     <Compile Include="Storage\PollingProviderBase.cs" />
     <Compile Include="Storage\PreferenceOrderProvider.cs" />
@@ -93,6 +90,7 @@
     <Compile Include="Serializers\ISerializer.cs" />
     <Compile Include="Storage\StreamAttachment.cs" />
     <Compile Include="Storage\StringAttachment.cs" />
+    <Compile Include="Storage\ViewOptions.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="HydraMessage.cs" />
     <Compile Include="MessageFetchers\IMessageFetcher.cs" />

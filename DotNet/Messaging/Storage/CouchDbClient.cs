@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -17,6 +18,16 @@ namespace Shastra.Hydra.Messaging.Storage
         public CouchDbClient(string server, int port, string database)
         {
             _dbUrl = string.Format("http://{0}:{1}/{2}/", server, port, database);
+        }
+
+        public JObject GetDoc(string id)
+        {
+            using (var client = new HttpClient()) {
+                var response = client.GetAsync(_dbUrl + id).Result;
+                var stream = response.Content.ReadAsStreamAsync().Result;
+                string doc = new StreamReader(stream).ReadToEnd();
+                return JObject.Parse(doc);
+            }
         }
 
         public JObject SaveDoc(JObject json, IEnumerable<Attachment> attachments)
@@ -37,6 +48,11 @@ namespace Shastra.Hydra.Messaging.Storage
             }
         }
 
+        public IEnumerable<JToken> View(string viewName, IViewOptions options, string designDoc)
+        {
+            return GetDoc(string.Format("_design/{0}/_view/{1}?{2}", designDoc, viewName, options))["rows"];
+        }
+
         private MultipartContent CreateMultipartContent(JObject json, IEnumerable<Attachment> attachments)
         {
             // The attachments are turned into an _attachments property on the JSON. The value is an object having one property
@@ -55,6 +71,10 @@ namespace Shastra.Hydra.Messaging.Storage
                 } else if (attachment is StreamAttachment) {
                     var att = attachment as StreamAttachment;
                     parts.Add(new StreamContent(att.Data));
+                    jsonParts.Add(new JProperty(att.Name, JsonAttachment(att.ContentType, att.Data.Length)));
+                } else if (attachment is ByteArrayAttachment) {
+                    var att = attachment as ByteArrayAttachment;
+                    parts.Add(new ByteArrayContent(att.Data));
                     jsonParts.Add(new JProperty(att.Name, JsonAttachment(att.ContentType, att.Data.Length)));
                 } else {
                     throw new Exception(string.Format("Error saving document. Unknown attachment type: {0}", attachment.GetType().FullName));

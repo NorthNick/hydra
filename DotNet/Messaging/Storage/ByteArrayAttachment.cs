@@ -1,18 +1,17 @@
-﻿using System.IO;
-
+﻿
 namespace Shastra.Hydra.Messaging.Storage
 {
-    public class StreamAttachment : Attachment
+    public class ByteArrayAttachment : Attachment
     {
         private const string DefaultContentType = "application/octet-stream";
 
-        public Stream Data { get; private set; }
+        public byte[] Data { get; private set; }
         public string ContentType { get; private set; }
 
-        public StreamAttachment(string name, Stream data, string contentType = DefaultContentType) : base(name)
+        public ByteArrayAttachment(string name, byte[] data, string contentType = DefaultContentType) : base(name)
         {
             Data = data;
             ContentType = contentType;
-        }
+        }    
     }
 }
