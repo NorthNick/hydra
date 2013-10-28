@@ -46,6 +46,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Reactive.Core, Version=2.0.20814.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libraries\System.Reactive.Core.dll</HintPath>
@@ -66,6 +67,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Storage\Attachment.cs" />
+    <Compile Include="Storage\CouchDbClient.cs" />
     <Compile Include="Storage\CouchDbStore.cs" />
     <Compile Include="Storage\IStore.cs" />
     <Compile Include="Storage\NearestServerProvider.cs" />
@@ -88,6 +91,8 @@
     <Compile Include="Serializers\HydraDataContractSerializer.cs" />
     <Compile Include="Serializers\HydraJsonSerializer.cs" />
     <Compile Include="Serializers\ISerializer.cs" />
+    <Compile Include="Storage\StreamAttachment.cs" />
+    <Compile Include="Storage\StringAttachment.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="HydraMessage.cs" />
     <Compile Include="MessageFetchers\IMessageFetcher.cs" />

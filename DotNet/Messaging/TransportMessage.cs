@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
-using LoveSeat;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using Shastra.Hydra.Messaging.MessageIds;
 
 namespace Shastra.Hydra.Messaging
@@ -10,6 +12,13 @@ namespace Shastra.Hydra.Messaging
     [DataContract]
     public abstract class TransportMessage : IComparable<TransportMessage>
     {
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings {
+            Converters = new List<JsonConverter> { new IsoDateTimeConverter() },
+            ContractResolver = new CamelCasePropertyNamesContractResolver(), 
+            NullValueHandling = NullValueHandling.Ignore,
+        };
+        private static readonly JsonSerializer Serializer = JsonSerializer.Create(SerializerSettings);
+
         public IMessageId MessageId { get; set; }
         [DataMember] public string Type
         {
@@ -29,7 +38,7 @@ namespace Shastra.Hydra.Messaging
         /// <returns></returns>
         public static TMessage Hydrate<TMessage>(JToken row) where TMessage : TransportMessage
         {
-            var res = JsonConvert.DeserializeObject<TMessage>(row["doc"].ToString());
+            var res = row["doc"].ToObject<TMessage>();
             res.SetFromCouchId((string)row["id"]);
             return res;
         }
@@ -37,12 +46,11 @@ namespace Shastra.Hydra.Messaging
         /// <summary>
         /// Serialise the message for sending to a Store.
         /// </summary>
-        /// <returns>The message serialised to a JSON string</returns>
-        /// <remarks>The type parameter to Document&lt;T&gt; is irrelevant as it is only used for deserialisation, and here we are only serialising.</remarks>
-        internal string ToJson()
+        /// <returns>The message serialised to a JSON object</returns>
+        internal JObject ToJson()
         {
             try {
-                return new Document<TransportMessage>(this).ToString();
+                return JObject.FromObject(this, Serializer);
             } catch (Exception ex) {
                 throw new SerializationException("TransportMessage: Error serialising message. See inner exception for details.", ex);
             }

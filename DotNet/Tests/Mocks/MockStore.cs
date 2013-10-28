@@ -43,24 +43,24 @@ namespace Shastra.Hydra.Tests.Mocks
             return _docs.Count - 1;
         }
 
-        public IMessageId SaveDoc(string json)
+        // Attachments are currently ignored
+        public IMessageId SaveDoc(JObject json, IEnumerable<Attachment> attachments = null)
         {
             Replicate();
 
-            JToken doc = JToken.Parse(json);
             DateTime idDate;
             string docId;
             // Allow the default DocId to be overridden in a TestHydraMessage
-            if (doc["idDate"] != null) {
-                idDate = DateTime.Parse((string) doc["idDate"]);
+            if (json["idDate"] != null) {
+                idDate = DateTime.Parse((string) json["idDate"]);
                 // This bypasses the uniqueness check, so don't specify the same date twice.
                 docId = ((long) (idDate.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds) * 1000).ToString("x14") + _suffix;
             } else {
                 idDate = _scheduler.Now.UtcDateTime;
                 docId = CreateDocId(idDate);
             }
-            JToken stored = new JObject(new JProperty("id", docId), new JProperty("doc", doc));
-            var docInfo = new DocInfo(docId, (string) doc["topic"], (string) doc["destination"], idDate);
+            JToken stored = new JObject(new JProperty("id", docId), new JProperty("doc", json));
+            var docInfo = new DocInfo(docId, (string) json["topic"], (string) json["destination"], idDate);
             // Lock out other SaveDoc calls so that we definitely get the right list length
             lock (_lock) {
                 stored["value"] = _docInfos.Count;

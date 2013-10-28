@@ -18,6 +18,7 @@ namespace Shastra.Hydra.Messaging.Storage
         private readonly string _database;
         private readonly int _port;
         private readonly IDocumentDatabase _db;
+        private readonly CouchDbClient _client;
         private readonly string _url;
 
         public string Name { get; private set; }
@@ -35,6 +36,7 @@ namespace Shastra.Hydra.Messaging.Storage
             // This URL checks both that the server is up, and that the view index is up to date
             _url = string.Format("http://{0}:{1}/{2}/_design/{3}/_view/broadcastMessages?limit=0", server, _port, _database, DesignDoc);
             _db = new CouchClient(server, _port, null, null, false, AuthenticationType.Basic).GetDatabase(_database);
+            _client = new CouchDbClient(server, _port, _database);
         }
 
         public IEnumerable<IMessageId> GetChanges(IMessageId startId, long sinceSeq, out long lastSeq)
@@ -62,11 +64,11 @@ namespace Shastra.Hydra.Messaging.Storage
             return (long) _db.GetDocument("")["update_seq"];
         }
 
-        public IMessageId SaveDoc(string json)
+        public IMessageId SaveDoc(JObject json, IEnumerable<Attachment> attachments = null)
         {
             // TODO: deal with the case where posting fails but raises a CouchDb {error:xxx, reason:xxx} object and not an exception.
-            var jobj = _db.CreateDocument(json);
-            return MessageIdManager.Create((string) jobj["id"]);
+            var jobj = _client.SaveDoc(json, attachments);
+            return MessageIdManager.Create((string)jobj["id"]);
         }
 
         public IEnumerable<JToken> GetDocs(string viewName, IViewOptions options)
