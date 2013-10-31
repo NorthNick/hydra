@@ -9,11 +9,12 @@ using Newtonsoft.Json.Linq;
 
 namespace Shastra.Hydra.Messaging.Storage
 {
-    internal class CouchDbClient
+    public class CouchDbClient
     {
-        private readonly string _dbUrl;
         const string JsonContentType = "application/json";
         private const string TextContentType = "text/plain";
+        private readonly string _dbUrl;
+        private readonly HttpClient _client = new HttpClient();
 
         public CouchDbClient(string server, int port, string database)
         {
@@ -22,30 +23,31 @@ namespace Shastra.Hydra.Messaging.Storage
 
         public JObject GetDoc(string id)
         {
-            using (var client = new HttpClient()) {
-                var response = client.GetAsync(_dbUrl + id).Result;
-                var stream = response.Content.ReadAsStreamAsync().Result;
-                string doc = new StreamReader(stream).ReadToEnd();
-                return JObject.Parse(doc);
-            }
+            var response = _client.GetAsync(_dbUrl + id).Result;
+            var stream = response.Content.ReadAsStreamAsync().Result;
+            string doc = new StreamReader(stream).ReadToEnd();
+            return JObject.Parse(doc);
+        }
+
+        public JObject GetDoc(string id, IViewOptions options)
+        {
+            return GetDoc(string.Format("{0}?{1}", id, options));
         }
 
         public JObject SaveDoc(JObject json, IEnumerable<Attachment> attachments)
         {
-            using (var client = new HttpClient()) {
-                HttpContent content;
+            HttpContent content;
 
-                if (attachments == null || !attachments.Any()) {
-                    // No attachments. Just send the JSON
-                    content = new StringContent(json.ToString(Formatting.None), new UTF8Encoding(), JsonContentType);
-                } else {
-                    // Turn the attachments into HttpContent, and add them to the document
-                    content = CreateMultipartContent(json, attachments);
-                }
-                var response = client.PostAsync(_dbUrl, content).Result;
-                string reply = response.Content.ReadAsStringAsync().Result;
-                return JObject.Parse(reply);
+            if (attachments == null || !attachments.Any()) {
+                // No attachments. Just send the JSON
+                content = new StringContent(json.ToString(Formatting.None), new UTF8Encoding(), JsonContentType);
+            } else {
+                // Turn the attachments into HttpContent, and add them to the document
+                content = CreateMultipartContent(json, attachments);
             }
+            var response = _client.PostAsync(_dbUrl, content).Result;
+            string reply = response.Content.ReadAsStringAsync().Result;
+            return JObject.Parse(reply);
         }
 
         public IEnumerable<JToken> View(string viewName, IViewOptions options, string designDoc)
@@ -86,6 +88,14 @@ namespace Shastra.Hydra.Messaging.Storage
                 mpContent.Add(httpContent);
             }
             return mpContent;
+        }
+
+        public JObject DeleteDocuments(JArray docs)
+        {
+            var content = new StringContent(new JObject(new JProperty("docs", docs)).ToString(Formatting.None), new UTF8Encoding(), "application/json");
+            var response = _client.PostAsync(_dbUrl + "_bulk_docs", content).Result;
+            string reply = response.Content.ReadAsStringAsync().Result;
+            return JObject.Parse(reply);
         }
 
         private JObject JsonAttachment(string contentType, long length)

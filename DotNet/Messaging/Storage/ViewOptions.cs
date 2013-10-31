@@ -17,6 +17,7 @@ namespace Shastra.Hydra.Messaging.Storage
         public IKeyOptions StartKey { get; set; }
         public IKeyOptions EndKey { get; set; }
         public IEnumerable<IKeyOptions> Keys { get; set; }
+        public int? Limit { get; set; }
 
         #endregion
 
@@ -26,6 +27,7 @@ namespace Shastra.Hydra.Messaging.Storage
         {
             var res = new StringBuilder();
             res.AppendFormat("&include_docs={0}", IncludeDocs.ToString().ToLower());
+            if (Limit.HasValue) res.AppendFormat("&limit={0}", Limit.Value);
             if (StartKey != null)
                 res.AppendFormat("&startkey={0}", StartKey);
             if (EndKey != null)
