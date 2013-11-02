@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Web;
 using Newtonsoft.Json.Linq;
+using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.MessageIds;
 
 namespace Shastra.Hydra.Messaging.Storage
@@ -71,6 +73,11 @@ namespace Shastra.Hydra.Messaging.Storage
             return _client.View(viewName, options, DesignDoc);
         }
 
+        public AttachmentContent GetAttachment(Attachment attachment)
+        {
+            return new AttachmentContent(_client.GetDocContents(string.Format("{0}/{1}", attachment.MessageId.ToDocId(), HttpUtility.UrlEncode(attachment.Name))));
+        }
+
         public ServerDistanceInfo MeasureDistance()
         {
             bool responseOk = false;
@@ -81,8 +88,7 @@ namespace Shastra.Hydra.Messaging.Storage
                     elapsed = timer.ElapsedMilliseconds;
                     responseOk = response.StatusCode == HttpStatusCode.OK;
                 }
-            }
-            catch (Exception) {
+            } catch (Exception) {
                 // Swallow errors
             }
             return new ServerDistanceInfo { Name = Name, Distance = responseOk ? elapsed : long.MaxValue, IsReachable = responseOk };

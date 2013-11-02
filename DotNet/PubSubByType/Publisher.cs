@@ -1,4 +1,6 @@
-﻿using Shastra.Hydra.Messaging;
+﻿using System.Collections.Generic;
+using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.MessageIds;
 using Shastra.Hydra.Messaging.Serializers;
 
@@ -46,7 +48,29 @@ namespace Shastra.Hydra.PubSubByType
         /// <returns>The id of the message sent.</returns>
         public IMessageId Send(TPub message, string remoteParty = null)
         {
-            var hydraMessage = new HydraMessage { Source = ThisParty, Destination = remoteParty ?? RemoteParty, Topic = _topic, Data = _serializer.Serialize(message) };
+            return Send(message, null, remoteParty);
+        }
+
+        /// <summary>
+        /// Send an augmented message.
+        /// </summary>
+        /// <param name="message">The augmented message to send.</param>
+        /// <param name="remoteParty">Optional RemoteParty override.</param>
+        /// <returns>The id of the message sent.</returns>
+        public IMessageId Send(AugmentedMessage<TPub> message, string remoteParty = null)
+        {
+            return Send(message.Message, message.Attachments, remoteParty);
+        }
+        /// <summary>
+        /// Send a message with attachments.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="attachments">Attachments to send with the message</param>
+        /// <param name="remoteParty">Optional RemoteParty override.</param>
+        /// <returns>The id of the message sent.</returns>
+        public IMessageId Send(TPub message, IEnumerable<Attachment> attachments, string remoteParty = null)
+        {
+            var hydraMessage = new HydraMessage { Source = ThisParty, Destination = remoteParty ?? RemoteParty, Topic = _topic, Data = _serializer.Serialize(message), Attachments = attachments};
             return _hydraService.Send(hydraMessage);
         }
     }

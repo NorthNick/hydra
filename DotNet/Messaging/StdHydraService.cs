@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.Listeners;
 using Shastra.Hydra.Messaging.MessageFetchers;
 using Shastra.Hydra.Messaging.MessageIds;
@@ -28,10 +29,24 @@ namespace Shastra.Hydra.Messaging
 
         public IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage
         {
+            return TryStoreMethod(store => store.SaveDoc(message.ToJson(), message.Attachments));
+        }
+
+        public AttachmentContent GetAttachment(Attachment attachment)
+        {
+            return TryStoreMethod(store => store.GetAttachment(attachment));
+        }
+
+        public string ServerName { get { return _provider.HydraServer; } }
+
+        #endregion
+
+        private T TryStoreMethod<T>(Func<IStore, T> method)
+        {
             var store = _provider.GetStore(true);
             while (store != null) {
                 try {
-                    return store.SaveDoc(message.ToJson());
+                    return method(store);
                 } catch (SerializationException) {
                     // Rethrow error without invoking server error
                     throw;
@@ -41,12 +56,8 @@ namespace Shastra.Hydra.Messaging
                 }
                 store = _provider.GetStore(true);
             }
-            throw new Exception("StdHydraService.Send: Error sending message - all servers offline.");
+            throw new Exception("StdHydraService.TryStoreMethod: Error - all servers offline.");
         }
-
-        public string ServerName { get { return _provider.HydraServer; } }
-
-        #endregion
 
     }
 }

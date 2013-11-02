@@ -60,7 +60,7 @@ namespace Shastra.Hydra.Conversations
             if (!_conversations.ContainsKey(handle)) {
                 CreateNewConversation(message.Source, handle);
             }
-            _conversations[handle].OnNext(message.Seq, MessageNotification(message.Data));
+            _conversations[handle].OnNext(message.Seq, MessageNotification(message));
         }
 
         private Conversation<TMessage> CreateNewConversation(string remoteParty, string handle)
@@ -81,15 +81,15 @@ namespace Shastra.Hydra.Conversations
             _deadConversations.Add(conversation.Handle);
         }
 
-        private Notification<TMessage> MessageNotification(string data)
+        private Notification<AugmentedMessage<TMessage>> MessageNotification(HydraMessage message)
         {
             try
             {
-                return Notification.CreateOnNext(_serializer.Deserialize(data));
+                return Notification.CreateOnNext(new AugmentedMessage<TMessage>(_serializer.Deserialize(message.Data), message.Attachments));
             }
             catch (Exception ex)
             {
-                return Notification.CreateOnError<TMessage>(ex);
+                return Notification.CreateOnError<AugmentedMessage<TMessage>>(ex);
             }
         }
 

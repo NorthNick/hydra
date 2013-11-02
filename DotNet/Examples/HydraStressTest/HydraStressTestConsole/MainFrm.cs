@@ -42,9 +42,9 @@ namespace HydraStressTestConsole
             var hydraService = new StdHydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
 
             _dataSubscriber = new Subscriber<StressTestData>(hydraService);
-            _dataSubscription = _dataSubscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnDataRecv);
+            _dataSubscription = _dataSubscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(message => OnDataRecv(message.Message));
             _errorSubscriber = new Subscriber<StressTestError>(hydraService);
-            _errorSubscription = _errorSubscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnErrorRecv);
+            _errorSubscription = _errorSubscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(message => OnErrorRecv(message.Message));
             _listener = hydraService.GetListener(new HydraByTopicByDestinationMessageFetcher(typeof(StressTestControl).FullName, "StressTestConsole"));
             _controlSubscription = _listener.ObserveOn(SynchronizationContext.Current).Subscribe(OnControlRecv);
             _controlPublisher = new Publisher<StressTestControl>(hydraService) {ThisParty = "StressTestConsole"};

@@ -17,16 +17,16 @@ namespace Shastra.Hydra.ConversationExampleServer
             _subscription = conversation.SkipErrors().Subscribe(OnNext);
         }
 
-        private void OnNext(ConversationDto message)
+        private void OnNext(AugmentedMessage<ConversationDto> message)
         {
             // Ignore invalid messages
-            switch (message.MessageType) {
+            switch (message.Message.MessageType) {
                     case MessageTypes.Init:
-                    _suffix = message.Data;
+                    _suffix = message.Message.Data;
                     _conversation.Send(new ConversationDto { MessageType = MessageTypes.Ack });
                     break;
                 case MessageTypes.Request:
-                    _conversation.Send(new ConversationDto { MessageType = MessageTypes.Response, Data = message.Data + _suffix });
+                    _conversation.Send(new ConversationDto { MessageType = MessageTypes.Response, Data = message.Message.Data + _suffix });
                     break;
                 case MessageTypes.End:
                     _subscription.Dispose();

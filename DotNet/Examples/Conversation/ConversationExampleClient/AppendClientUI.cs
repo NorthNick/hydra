@@ -28,9 +28,9 @@ namespace Shastra.Hydra.ConversationExampleClient
             _conversation.Send(new ConversationDto { MessageType = MessageTypes.Init, Data = suffix });
         }
 
-        private void OnNext(ConversationDto message)
+        private void OnNext(AugmentedMessage<ConversationDto> message)
         {
-            ResponseLbl.Text = string.Format("Last response: {0}, {1}", message.MessageType, message.Data);
+            ResponseLbl.Text = string.Format("Last response: {0}, {1}", message.Message.MessageType, message.Message.Data);
         }
 
         private void RequestBtn_Click(object sender, EventArgs e)

@@ -62,8 +62,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Storage\Attachment.cs" />
-    <Compile Include="Storage\ByteArrayAttachment.cs" />
+    <Compile Include="Attachments\Attachment.cs" />
+    <Compile Include="Attachments\AttachmentContent.cs" />
+    <Compile Include="Attachments\ByteArrayAttachment.cs" />
+    <Compile Include="Attachments\StreamAttachment.cs" />
+    <Compile Include="Attachments\StringAttachment.cs" />
+    <Compile Include="AugmentedMessage.cs" />
     <Compile Include="Storage\CouchDbClient.cs" />
     <Compile Include="Storage\CouchDbStore.cs" />
     <Compile Include="Storage\IStore.cs" />
@@ -88,8 +92,6 @@
     <Compile Include="Serializers\HydraDataContractSerializer.cs" />
     <Compile Include="Serializers\HydraJsonSerializer.cs" />
     <Compile Include="Serializers\ISerializer.cs" />
-    <Compile Include="Storage\StreamAttachment.cs" />
-    <Compile Include="Storage\StringAttachment.cs" />
     <Compile Include="Storage\ViewOptions.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="HydraMessage.cs" />

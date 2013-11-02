@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.MessageIds;
 
 namespace Shastra.Hydra.Messaging.Storage
@@ -11,6 +12,7 @@ namespace Shastra.Hydra.Messaging.Storage
         long GetLastSeq();
         IMessageId SaveDoc(JObject json, IEnumerable<Attachment> attachments = null);
         IEnumerable<JToken> GetDocs(string viewName, IViewOptions options);
+        AttachmentContent GetAttachment(Attachment attachment);
         ServerDistanceInfo MeasureDistance();
     }
 }

@@ -67,7 +67,7 @@ namespace Shastra.Hydra.HydraStressTestClient
             _hydraService = new StdHydraService(new NearestServerProvider(servers, ConfigurationManager.AppSettings["Database"], 5984), new ListenerOptions { PollIntervalMs = pollIntervalMs });
             _stressSender = new Publisher<StressTestData>(_hydraService);
             _errorSender = new Publisher<StressTestError>(_hydraService);
-            _controlSubscription = new Subscriber<StressTestControl>(_hydraService, _myName).ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnControlRecv);
+            _controlSubscription = new Subscriber<StressTestControl>(_hydraService, _myName).ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(message => OnControlRecv(message.Message));
             _controlPublisher = new Publisher<StressTestControl>(_hydraService) {RemoteParty = "StressTestConsole", ThisParty = _myName};
             _heartbeatIntervalMs = int.Parse(ConfigurationManager.AppSettings["HeartbeatIntervalMs"]);
             _heartbeatObservable = Observable.Interval(TimeSpan.FromMilliseconds(_heartbeatIntervalMs), ThreadPoolScheduler.Instance);
@@ -81,7 +81,7 @@ namespace Shastra.Hydra.HydraStressTestClient
             if (newState == _listening) return;
             if (newState) {
                 _subscriber = new Subscriber<StressTestData>(_hydraService);
-                _recvSubscription = _subscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnRecv);
+                _recvSubscription = _subscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(message => OnRecv(message.Message));
                 ListenBtn.Text = "Stop listening";
             } else {
                 _recvSubscription.Dispose();

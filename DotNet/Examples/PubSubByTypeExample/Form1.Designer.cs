@@ -28,20 +28,24 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.SendBtn = new System.Windows.Forms.Button();
             this.DateBox = new System.Windows.Forms.TextBox();
             this.LongBox = new System.Windows.Forms.TextBox();
             this.StringBox = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.SendBtn = new System.Windows.Forms.Button();
             this.SerialiseComboBox = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.AttachmentBox = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.AttachmentBox);
+            this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.DateBox);
             this.groupBox1.Controls.Add(this.LongBox);
             this.groupBox1.Controls.Add(this.StringBox);
@@ -54,16 +58,6 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Message";
-            // 
-            // SendBtn
-            // 
-            this.SendBtn.Location = new System.Drawing.Point(63, 201);
-            this.SendBtn.Name = "SendBtn";
-            this.SendBtn.Size = new System.Drawing.Size(75, 23);
-            this.SendBtn.TabIndex = 5;
-            this.SendBtn.Text = "Send";
-            this.SendBtn.UseVisualStyleBackColor = true;
-            this.SendBtn.Click += new System.EventHandler(this.SendBtn_Click);
             // 
             // DateBox
             // 
@@ -113,6 +107,16 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "String:";
             // 
+            // SendBtn
+            // 
+            this.SendBtn.Location = new System.Drawing.Point(63, 201);
+            this.SendBtn.Name = "SendBtn";
+            this.SendBtn.Size = new System.Drawing.Size(75, 23);
+            this.SendBtn.TabIndex = 5;
+            this.SendBtn.Text = "Send";
+            this.SendBtn.UseVisualStyleBackColor = true;
+            this.SendBtn.Click += new System.EventHandler(this.SendBtn_Click);
+            // 
             // SerialiseComboBox
             // 
             this.SerialiseComboBox.FormattingEnabled = true;
@@ -132,6 +136,22 @@
             this.label4.Size = new System.Drawing.Size(63, 13);
             this.label4.TabIndex = 8;
             this.label4.Text = "Serialise as:";
+            // 
+            // AttachmentBox
+            // 
+            this.AttachmentBox.Location = new System.Drawing.Point(50, 95);
+            this.AttachmentBox.Name = "AttachmentBox";
+            this.AttachmentBox.Size = new System.Drawing.Size(100, 20);
+            this.AttachmentBox.TabIndex = 5;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 98);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(41, 13);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Attach:";
             // 
             // Form1
             // 
@@ -163,6 +183,8 @@
         private System.Windows.Forms.Button SendBtn;
         private System.Windows.Forms.ComboBox SerialiseComboBox;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox AttachmentBox;
+        private System.Windows.Forms.Label label5;
     }
 }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Web;
 using Newtonsoft.Json.Linq;
+using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.MessageIds;
 using Shastra.Hydra.Messaging.Storage;
 
@@ -67,6 +68,11 @@ namespace Shastra.Hydra.Tests.Mocks
             }
             _docs[docId] = stored;
             return MessageIdManager.Create(docId);
+        }
+
+        public AttachmentContent GetAttachment(Attachment attachment)
+        {
+            throw new NotImplementedException();
         }
 
         public ServerDistanceInfo MeasureDistance()

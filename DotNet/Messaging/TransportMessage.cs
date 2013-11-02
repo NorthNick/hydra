@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.MessageIds;
 
 namespace Shastra.Hydra.Messaging
@@ -20,15 +22,13 @@ namespace Shastra.Hydra.Messaging
         private static readonly JsonSerializer Serializer = JsonSerializer.Create(SerializerSettings);
 
         public IMessageId MessageId { get; set; }
+
+        public IEnumerable<Attachment> Attachments { get; set; }
+
         [DataMember] public string Type
         {
             get { return "message"; }
             set { }
-        }
-
-        protected void SetFromCouchId(string couchId)
-        {
-            MessageId = MessageIdManager.Create(couchId);
         }
 
         /// <summary>
@@ -40,7 +40,21 @@ namespace Shastra.Hydra.Messaging
         {
             var res = row["doc"].ToObject<TMessage>();
             res.SetFromCouchId((string)row["id"]);
+            res.SetAttachments(row["doc"]["_attachments"]);
             return res;
+        }
+
+        protected void SetFromCouchId(string couchId)
+        {
+            MessageId = MessageIdManager.Create(couchId);
+        }
+
+        private void SetAttachments(JToken attachments)
+        {
+            // The _attachments JSON object is of the form {"attachment1name" : {"stub" : true, "content_type" : "text\/plain", "length" : 125}, "attachment2name" : {...} }
+            if (attachments == null) return;
+
+            Attachments = attachments.Select(att => (JProperty) att).Select(prop => new Attachment(prop.Name, (string)prop.Value["content_type"], MessageId)).ToList();
         }
 
         /// <summary>

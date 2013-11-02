@@ -12,13 +12,13 @@ namespace Shastra.Hydra.PubSubByType
     /// Class for subscribing to Hydra messages of a given type. To be used in conjunction with the Publisher class.
     /// </summary>
     /// <typeparam name="TSub">The type of messages to subscribe to.</typeparam>
-    public class Subscriber<TSub> : IObservable<Notification<TSub>>, IDisposable
+    public class Subscriber<TSub> : IObservable<Notification<AugmentedMessage<TSub>>>, IDisposable
     {
         private readonly IListener<HydraMessage> _listener;
-        private readonly IObservable<Notification<TSub>> _messageSource;
+        private readonly IObservable<Notification<AugmentedMessage<TSub>>> _messageSource;
         private readonly ISerializer<TSub> _serializer;
 
-        public event Action<object, Notification<TSub>> MessageInQueue;
+        public event Action<object, Notification<AugmentedMessage<TSub>>> MessageInQueue;
 
         public long BufferDelayMs { get { return _listener.BufferDelayMs; } set { _listener.BufferDelayMs = value; } }
         public long PollIntervalMs { get { return _listener.PollIntervalMs; } set { _listener.PollIntervalMs = value; } }
@@ -50,29 +50,29 @@ namespace Shastra.Hydra.PubSubByType
             } else {
                 _listener = hydraService.GetListener(new HydraByTopicByDestinationMessageFetcher(messageTopic, thisParty));
             }
-            _messageSource = _listener.Select(hydraMessage => MessageNotification(hydraMessage.Data));
+            _messageSource = _listener.Select(MessageNotification);
             _messageSource.Subscribe(MessageSourceOnNext);
         }
 
-        private Notification<TSub> MessageNotification(string data)
+        private Notification<AugmentedMessage<TSub>> MessageNotification(HydraMessage message)
         {
             try {
-                return Notification.CreateOnNext(_serializer.Deserialize(data));
+                return Notification.CreateOnNext(new AugmentedMessage<TSub>(_serializer.Deserialize(message.Data), message.Attachments));
             } catch (Exception ex) {
-                return Notification.CreateOnError<TSub>(ex);
+                return Notification.CreateOnError<AugmentedMessage<TSub>>(ex);
             }
         }
 
-        private void MessageSourceOnNext(Notification<TSub> message)
+        private void MessageSourceOnNext(Notification<AugmentedMessage<TSub>> message)
         {
             if (MessageInQueue != null) {
                 MessageInQueue(this, message);
             }
         }
 
-        #region Implementation of IObservable<out Notification<TSub>>
+        #region Implementation of IObservable<out Notification<AugmentedMessage<TSub>>>
 
-        public IDisposable Subscribe(IObserver<Notification<TSub>> observer)
+        public IDisposable Subscribe(IObserver<Notification<AugmentedMessage<TSub>>> observer)
         {
             return _messageSource.Subscribe(observer);
         }

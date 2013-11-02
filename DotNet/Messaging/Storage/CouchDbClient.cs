@@ -6,13 +6,13 @@ using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Shastra.Hydra.Messaging.Attachments;
 
 namespace Shastra.Hydra.Messaging.Storage
 {
     public class CouchDbClient
     {
         const string JsonContentType = "application/json";
-        private const string TextContentType = "text/plain";
         private readonly string _dbUrl;
         private readonly HttpClient _client = new HttpClient();
 
@@ -32,6 +32,11 @@ namespace Shastra.Hydra.Messaging.Storage
         public JObject GetDoc(string id, IViewOptions options)
         {
             return GetDoc(string.Format("{0}?{1}", id, options));
+        }
+
+        public HttpContent GetDocContents(string id)
+        {
+            return _client.GetAsync(_dbUrl + id).Result.Content;
         }
 
         public JObject SaveDoc(JObject json, IEnumerable<Attachment> attachments)
@@ -68,8 +73,8 @@ namespace Shastra.Hydra.Messaging.Storage
             foreach (var attachment in attachments) {
                 if (attachment is StringAttachment) {
                     var att = attachment as StringAttachment;
-                    parts.Add(new StringContent(att.Data, new UTF8Encoding(), TextContentType));
-                    jsonParts.Add(new JProperty(att.Name, JsonAttachment(TextContentType, att.Data.Length)));
+                    parts.Add(new StringContent(att.Data, new UTF8Encoding(), att.ContentType));
+                    jsonParts.Add(new JProperty(att.Name, JsonAttachment(att.ContentType, att.Data.Length)));
                 } else if (attachment is StreamAttachment) {
                     var att = attachment as StreamAttachment;
                     parts.Add(new StreamContent(att.Data));

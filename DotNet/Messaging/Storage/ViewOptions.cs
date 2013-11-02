@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -13,11 +12,11 @@ namespace Shastra.Hydra.Messaging.Storage
     {
         #region Implementation of IViewOptions
 
-        public bool IncludeDocs { get; set; }
+        public bool? IncludeDocs { get; set; }
+        public int? Limit { get; set; }
         public IKeyOptions StartKey { get; set; }
         public IKeyOptions EndKey { get; set; }
         public IEnumerable<IKeyOptions> Keys { get; set; }
-        public int? Limit { get; set; }
 
         #endregion
 
@@ -25,16 +24,13 @@ namespace Shastra.Hydra.Messaging.Storage
 
         public override string ToString()
         {
-            var res = new StringBuilder();
-            res.AppendFormat("&include_docs={0}", IncludeDocs.ToString().ToLower());
-            if (Limit.HasValue) res.AppendFormat("&limit={0}", Limit.Value);
-            if (StartKey != null)
-                res.AppendFormat("&startkey={0}", StartKey);
-            if (EndKey != null)
-                res.AppendFormat("&endkey={0}", EndKey);
-            if (Keys != null)
-                res.AppendFormat("&keys=[{0}]", String.Join(",", Keys.Select(k => k.ToString()).ToArray()));
-            return res.ToString();
+            var options = new List<string>();
+            if (IncludeDocs.HasValue) options.Add(string.Format("include_docs={0}", IncludeDocs.Value.ToString().ToLower()));
+            if (Limit.HasValue) options.Add(string.Format("limit={0}", Limit.Value));
+            if (StartKey != null) options.Add(string.Format("startkey={0}", StartKey));
+            if (EndKey != null) options.Add(string.Format("endkey={0}", EndKey));
+            if (Keys != null) options.Add(string.Format("keys=[{0}]", String.Join(",", Keys.Select(k => k.ToString()).ToArray())));
+            return string.Join("&", options);
         }
 
         #endregion
@@ -42,13 +38,13 @@ namespace Shastra.Hydra.Messaging.Storage
 
     public class KeyOptions : IKeyOptions
     {
-        private readonly object[] _options;
+        private readonly string[] _options;
 
         public static readonly object MaxValue = new object();
 
         public KeyOptions(params object[] options)
         {
-            _options = options;
+            _options = options.Select(option => option == MaxValue ? "{}" : HttpUtility.UrlEncode(new JValue(option).ToString(Formatting.None, new IsoDateTimeConverter()))).ToArray();
         }
 
         #region Overrides of Object
@@ -59,10 +55,9 @@ namespace Shastra.Hydra.Messaging.Storage
                 case 0:
                     return "";
                 case 1:
-                    return HttpUtility.UrlEncode(new JValue(_options[0]).ToString(Formatting.None, new IsoDateTimeConverter()));
+                    return _options[0];
                 default:
-                    return string.Format("[{0}]", string.Join(",",
-                        _options.Select(option => option == MaxValue ? "{}" : HttpUtility.UrlEncode(new JValue(option).ToString(Formatting.None, new IsoDateTimeConverter())))));
+                    return string.Format("[{0}]", string.Join(",", _options));
             }
         }
 

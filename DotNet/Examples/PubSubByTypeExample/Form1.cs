@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.Listeners;
 using Shastra.Hydra.Messaging.Serializers;
 using Shastra.Hydra.Messaging.Storage;
@@ -49,9 +51,10 @@ namespace Shastra.Messaging.PubSubByTypeExample
             _subscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnMessage, _ => { });
         }
 
-        private void OnMessage(PstMessage message)
+        private void OnMessage(AugmentedMessage<PstMessage> message)
         {
-            MessageBox.Show("Received message: " + message);
+            var attachmentText = _hydraService.GetAttachment(message.Attachments.First()).ReadAsStringAsync().Result;
+            MessageBox.Show("Received message: " + message.Message + Environment.NewLine + "Attachment: " + attachmentText);
         }
 
         private void SendBtn_Click(object sender, EventArgs e)
@@ -60,7 +63,8 @@ namespace Shastra.Messaging.PubSubByTypeExample
                 string stringField = StringBox.Text;
                 long longField = long.Parse(LongBox.Text);
                 DateTime dateField = DateTime.Parse(DateBox.Text);
-                _publisher.Send(new PstMessage { StringField = stringField, LongField = longField, DateField = dateField });
+                _publisher.Send(new PstMessage { StringField = stringField, LongField = longField, DateField = dateField },
+                                new List<Attachment> {new StringAttachment("Test Attachment", AttachmentBox.Text)});
             } catch (Exception ex) {
                 MessageBox.Show("Error sending message: " + ex.Message);
             }
