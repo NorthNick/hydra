@@ -37,7 +37,9 @@ namespace Shastra.Hydra.Messaging.Storage
 
         public HttpContent GetDocContents(string id)
         {
-            return _client.GetAsync(_dbUrl + id).Result.Content;
+            var response = _client.GetAsync(_dbUrl + id).Result;
+            response.EnsureSuccessStatusCode();
+            return response.Content;
         }
 
         public JObject SaveDoc(JObject json, IEnumerable<Attachment> attachments)
