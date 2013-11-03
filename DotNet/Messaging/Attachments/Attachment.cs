@@ -1,4 +1,4 @@
-﻿
+﻿using System.Net.Http;
 using Shastra.Hydra.Messaging.MessageIds;
 
 namespace Shastra.Hydra.Messaging.Attachments
@@ -16,5 +16,9 @@ namespace Shastra.Hydra.Messaging.Attachments
             ContentType = contentType;
             MessageId = messageId;
         }
+
+        public virtual int DataLength() { return 0; }
+
+        public virtual HttpContent ToHttpContent() { return null; }
     }
 }

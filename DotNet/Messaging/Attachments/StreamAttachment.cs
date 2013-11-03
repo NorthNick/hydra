@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Net.Http;
 
 namespace Shastra.Hydra.Messaging.Attachments
 {
@@ -12,5 +13,13 @@ namespace Shastra.Hydra.Messaging.Attachments
         {
             Data = data;
         }
+
+        #region Overrides of Attachment
+
+        public override int DataLength() { return (int)Data.Length; }
+
+        public override HttpContent ToHttpContent() { return new StreamContent(Data); }
+
+        #endregion
     }
 }

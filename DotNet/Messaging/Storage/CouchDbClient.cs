@@ -24,6 +24,7 @@ namespace Shastra.Hydra.Messaging.Storage
         public JObject GetDoc(string id)
         {
             var response = _client.GetAsync(_dbUrl + id).Result;
+            response.EnsureSuccessStatusCode();
             var stream = response.Content.ReadAsStreamAsync().Result;
             string doc = new StreamReader(stream).ReadToEnd();
             return JObject.Parse(doc);
@@ -51,6 +52,7 @@ namespace Shastra.Hydra.Messaging.Storage
                 content = CreateMultipartContent(json, attachments);
             }
             var response = _client.PostAsync(_dbUrl, content).Result;
+            response.EnsureSuccessStatusCode();
             string reply = response.Content.ReadAsStringAsync().Result;
             return JObject.Parse(reply);
         }
@@ -60,7 +62,16 @@ namespace Shastra.Hydra.Messaging.Storage
             return GetDoc(string.Format("_design/{0}/_view/{1}?{2}", designDoc, viewName, options))["rows"];
         }
 
-        private MultipartContent CreateMultipartContent(JObject json, IEnumerable<Attachment> attachments)
+        public JObject DeleteDocuments(JArray docs)
+        {
+            var content = new StringContent(new JObject(new JProperty("docs", docs)).ToString(Formatting.None), new UTF8Encoding(), "application/json");
+            var response = _client.PostAsync(_dbUrl + "_bulk_docs", content).Result;
+            response.EnsureSuccessStatusCode();
+            string reply = response.Content.ReadAsStringAsync().Result;
+            return JObject.Parse(reply);
+        }
+
+        private static MultipartContent CreateMultipartContent(JObject json, IEnumerable<Attachment> attachments)
         {
             // The attachments are turned into an _attachments property on the JSON. The value is an object having one property
             // per attachment, whose name is the attachment name and whose value is as in JsonAttachment below. The document is sent as
@@ -71,21 +82,8 @@ namespace Shastra.Hydra.Messaging.Storage
             var parts = new List<HttpContent>();
             var jsonParts = new JObject();
             foreach (var attachment in attachments) {
-                if (attachment is StringAttachment) {
-                    var att = attachment as StringAttachment;
-                    parts.Add(new StringContent(att.Data, new UTF8Encoding(), att.ContentType));
-                    jsonParts.Add(new JProperty(att.Name, JsonAttachment(att.ContentType, att.Data.Length)));
-                } else if (attachment is StreamAttachment) {
-                    var att = attachment as StreamAttachment;
-                    parts.Add(new StreamContent(att.Data));
-                    jsonParts.Add(new JProperty(att.Name, JsonAttachment(att.ContentType, att.Data.Length)));
-                } else if (attachment is ByteArrayAttachment) {
-                    var att = attachment as ByteArrayAttachment;
-                    parts.Add(new ByteArrayContent(att.Data));
-                    jsonParts.Add(new JProperty(att.Name, JsonAttachment(att.ContentType, att.Data.Length)));
-                } else {
-                    throw new Exception(string.Format("Error saving document. Unknown attachment type: {0}", attachment.GetType().FullName));
-                }
+                parts.Add(attachment.ToHttpContent());
+                jsonParts.Add(new JProperty(attachment.Name, JsonAttachment(attachment.ContentType, attachment.DataLength())));
             }
             json.Add(new JProperty("_attachments", jsonParts));
             mpContent.Add(new StringContent(json.ToString(Formatting.None), new UTF8Encoding(), JsonContentType));
@@ -95,15 +93,7 @@ namespace Shastra.Hydra.Messaging.Storage
             return mpContent;
         }
 
-        public JObject DeleteDocuments(JArray docs)
-        {
-            var content = new StringContent(new JObject(new JProperty("docs", docs)).ToString(Formatting.None), new UTF8Encoding(), "application/json");
-            var response = _client.PostAsync(_dbUrl + "_bulk_docs", content).Result;
-            string reply = response.Content.ReadAsStringAsync().Result;
-            return JObject.Parse(reply);
-        }
-
-        private JObject JsonAttachment(string contentType, long length)
+        private static JObject JsonAttachment(string contentType, long length)
         {
             return new JObject(
                 new JProperty("follows", true),

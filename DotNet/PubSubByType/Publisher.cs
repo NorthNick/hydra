@@ -61,6 +61,7 @@ namespace Shastra.Hydra.PubSubByType
         {
             return Send(message.Message, message.Attachments, remoteParty);
         }
+
         /// <summary>
         /// Send a message with attachments.
         /// </summary>

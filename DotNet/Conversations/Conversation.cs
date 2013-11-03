@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Subjects;
 using Shastra.Hydra.Messaging;
+using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.MessageIds;
 using Shastra.Hydra.Messaging.Serializers;
 
@@ -45,20 +47,31 @@ namespace Shastra.Hydra.Conversations
         }
 
         /// <summary>
-        /// Send a message to the other end of the conversation
+        /// Send a message to the other end of the conversation, with optional attachments
         /// </summary>
         /// <param name="message">The message to send</param>
+        /// <param name="attachments">Attachments to send with the message</param>
         /// <returns>The id of the message sent</returns>
-        public IMessageId Send(TMessage message)
+        public IMessageId Send(TMessage message, IEnumerable<Attachment> attachments = null)
         {
             if (_done) return null;
 
-            var hydraMessage = new HydraMessage { Source = ThisParty, Destination = RemoteParty, Topic = Topic,
+            var hydraMessage = new HydraMessage { Source = ThisParty, Destination = RemoteParty, Topic = Topic, Attachments = attachments,
                                                   Handle = Handle, Seq = LastSendSeq + 1, Data = _serializer.Serialize(message) };
             var res = _hydraService.Send(hydraMessage);
             // Increment LastSendSeq after sending in case the Send fails.
             LastSendSeq++;
             return res;
+        }
+
+        /// <summary>
+        /// Send an augmented message to the other end of the conversation
+        /// </summary>
+        /// <param name="message">The augmented message to send.</param>
+        /// <returns>The id of the message sent.</returns>
+        public IMessageId Send(AugmentedMessage<TMessage> message)
+        {
+            return Send(message.Message, message.Attachments);
         }
 
         #region Implementation of IObservable<out Notification<AugmentedMessage<TMessage>>>

@@ -28,6 +28,7 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.DateBox = new System.Windows.Forms.TextBox();
             this.LongBox = new System.Windows.Forms.TextBox();
             this.StringBox = new System.Windows.Forms.TextBox();
@@ -38,12 +39,13 @@
             this.SerialiseComboBox = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.AttachmentBox = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
+            this.FileBtn = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.FileBtn);
             this.groupBox1.Controls.Add(this.AttachmentBox);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.DateBox);
@@ -58,6 +60,15 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Message";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 98);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(41, 13);
+            this.label5.TabIndex = 4;
+            this.label5.Text = "Attach:";
             // 
             // DateBox
             // 
@@ -144,14 +155,14 @@
             this.AttachmentBox.Size = new System.Drawing.Size(100, 20);
             this.AttachmentBox.TabIndex = 5;
             // 
-            // label5
+            // FileBtn
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 98);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(41, 13);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "Attach:";
+            this.FileBtn.Location = new System.Drawing.Point(157, 95);
+            this.FileBtn.Name = "FileBtn";
+            this.FileBtn.Size = new System.Drawing.Size(19, 20);
+            this.FileBtn.TabIndex = 6;
+            this.FileBtn.UseVisualStyleBackColor = true;
+            this.FileBtn.Click += new System.EventHandler(this.FileBtn_Click);
             // 
             // Form1
             // 
@@ -183,8 +194,9 @@
         private System.Windows.Forms.Button SendBtn;
         private System.Windows.Forms.ComboBox SerialiseComboBox;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox AttachmentBox;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button FileBtn;
+        private System.Windows.Forms.TextBox AttachmentBox;
     }
 }
 

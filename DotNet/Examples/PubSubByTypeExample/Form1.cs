@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
@@ -53,8 +54,16 @@ namespace Shastra.Messaging.PubSubByTypeExample
 
         private void OnMessage(AugmentedMessage<PstMessage> message)
         {
-            var attachmentText = _hydraService.GetAttachment(message.Attachments.First()).ReadAsStringAsync().Result;
-            MessageBox.Show("Received message: " + message.Message + Environment.NewLine + "Attachment: " + attachmentText);
+            MessageBox.Show("Received message: " + message.Message);
+            if (message.Attachments != null && message.Attachments.Any()) {
+                var dialogue = new SaveFileDialog {Title = "Save attachment"};
+                if (dialogue.ShowDialog() == DialogResult.OK) {
+                    var stream = _hydraService.GetAttachment(message.Attachments.First()).ReadAsStreamAsync().Result;
+                    using (Stream file = File.OpenWrite(dialogue.FileName)) {
+                        stream.CopyTo(file);
+                    }
+                }
+            }
         }
 
         private void SendBtn_Click(object sender, EventArgs e)
@@ -63,8 +72,14 @@ namespace Shastra.Messaging.PubSubByTypeExample
                 string stringField = StringBox.Text;
                 long longField = long.Parse(LongBox.Text);
                 DateTime dateField = DateTime.Parse(DateBox.Text);
-                _publisher.Send(new PstMessage { StringField = stringField, LongField = longField, DateField = dateField },
-                                new List<Attachment> {new StringAttachment("Test Attachment", AttachmentBox.Text)});
+                List<Attachment> attachments = null;
+                string filename = AttachmentBox.Text;
+                if (!string.IsNullOrEmpty(filename)) {
+                    if (!File.Exists(filename)) throw new Exception("File attachment does not exist");
+                    var attStream = new FileStream(filename, FileMode.Open);
+                    attachments = new List<Attachment> { new StreamAttachment(Path.GetFileName(filename), attStream) };
+                }
+                _publisher.Send(new PstMessage { StringField = stringField, LongField = longField, DateField = dateField }, attachments);
             } catch (Exception ex) {
                 MessageBox.Show("Error sending message: " + ex.Message);
             }
@@ -73,6 +88,14 @@ namespace Shastra.Messaging.PubSubByTypeExample
         void Form1_Closing(object sender, CancelEventArgs e)
         {
             _subscriber.Dispose();
+        }
+
+        private void FileBtn_Click(object sender, EventArgs e)
+        {
+            var dialogue = new OpenFileDialog {Title = "Attachment file"};
+            if (dialogue.ShowDialog() == DialogResult.OK) {
+                AttachmentBox.Text = dialogue.FileName;
+            }
         }
 
     }
