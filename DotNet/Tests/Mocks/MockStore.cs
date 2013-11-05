@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Reactive.Concurrency;
 using System.Web;
 using Newtonsoft.Json.Linq;
@@ -15,6 +16,7 @@ namespace Shastra.Hydra.Tests.Mocks
         private readonly string _suffix;
         private readonly List<DocInfo> _docInfos = new List<DocInfo>();
         private readonly Dictionary<string, JToken> _docs = new Dictionary<string, JToken>();
+        private readonly Dictionary<string, Dictionary<string, AttachmentContent>> _attachments = new Dictionary<string, Dictionary<string, AttachmentContent>>();
         private readonly IScheduler _scheduler;
         private readonly object _lock = new object();
         private long _lastMicroseconds = 0;
@@ -67,12 +69,13 @@ namespace Shastra.Hydra.Tests.Mocks
                 _docInfos.Add(docInfo);
             }
             _docs[docId] = stored;
+            SaveAttachments(docId, json, attachments);
             return MessageIdManager.Create(docId);
         }
 
         public AttachmentContent GetAttachment(Attachment attachment)
         {
-            throw new NotImplementedException();
+            return _attachments[attachment.MessageId.ToDocId()][attachment.Name];
         }
 
         public ServerDistanceInfo MeasureDistance()
@@ -140,5 +143,31 @@ namespace Shastra.Hydra.Tests.Mocks
             return _lastMicroseconds.ToString("x14") + _suffix;
         }
 
+        private void SaveAttachments(string docId, JObject json, IEnumerable<Attachment> attachments)
+        {
+            if (attachments == null || !attachments.Any()) return;
+
+            AddAttachmentStubs(json, attachments);
+            _attachments[docId] = attachments.ToDictionary(att => att.Name, att => new AttachmentContent(att.ToHttpContent()));
+        }
+
+        private static void AddAttachmentStubs(JObject json, IEnumerable<Attachment> attachments)
+        {
+            // The attachments are turned into an _attachments property on the JSON. The value is an object having one property
+            // per attachment, whose name is the attachment name and whose value is as in JsonAttachment below.
+            var jsonParts = new JObject();
+            foreach (var attachment in attachments) {
+                jsonParts.Add(new JProperty(attachment.Name, JsonAttachment(attachment.ContentType, attachment.DataLength())));
+            }
+            json.Add(new JProperty("_attachments", jsonParts));
+        }
+
+        private static JObject JsonAttachment(string contentType, long length)
+        {
+            return new JObject(
+                new JProperty("follows", true),
+                new JProperty("content_type", contentType),
+                new JProperty("length", length));
+        }
     }
 }
