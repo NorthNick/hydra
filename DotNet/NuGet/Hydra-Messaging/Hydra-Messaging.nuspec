@@ -16,8 +16,8 @@
     </frameworkAssemblies>
     <tags>Hydra Messaging CouchDb</tags>
     <dependencies>
-      <dependency id="Rx-Main" version="1.0" />
-      <dependency id="Newtonsoft.Json" version="4.0.6" />
+      <dependency id="Rx-Main" version="2.1.30214.0" />
+      <dependency id="Newtonsoft.Json" version="5.0.8" />
     </dependencies>
   </metadata>
 </package>
