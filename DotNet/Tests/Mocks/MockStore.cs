@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Reactive.Concurrency;
+using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json.Linq;
 using Shastra.Hydra.Messaging.Attachments;
@@ -46,7 +46,7 @@ namespace Shastra.Hydra.Tests.Mocks
         }
 
         // Attachments are currently ignored
-        public IMessageId SaveDoc(JObject json, IEnumerable<Attachment> attachments = null)
+        public Task<IMessageId> SaveDocAsync(JObject json, IEnumerable<Attachment> attachments = null)
         {
             Replicate();
 
@@ -63,19 +63,19 @@ namespace Shastra.Hydra.Tests.Mocks
             }
             JToken stored = new JObject(new JProperty("id", docId), new JProperty("doc", json));
             var docInfo = new DocInfo(docId, (string) json["topic"], (string) json["destination"], idDate);
-            // Lock out other SaveDoc calls so that we definitely get the right list length
+            // Lock out other SaveDocAsync calls so that we definitely get the right list length
             lock (_lock) {
                 stored["value"] = _docInfos.Count;
                 _docInfos.Add(docInfo);
             }
             _docs[docId] = stored;
             SaveAttachments(docId, json, attachments);
-            return MessageIdManager.Create(docId);
+            return Task.Factory.StartNew(() => MessageIdManager.Create(docId));
         }
 
-        public AttachmentContent GetAttachment(Attachment attachment)
+        public Task<AttachmentContent> GetAttachmentAsync(Attachment attachment)
         {
-            return _attachments[attachment.MessageId.ToDocId()][attachment.Name];
+            return Task.Factory.StartNew(() => _attachments[attachment.MessageId.ToDocId()][attachment.Name]);
         }
 
         public ServerDistanceInfo MeasureDistance()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.Listeners;
 using Shastra.Hydra.Messaging.MessageFetchers;
@@ -27,26 +28,26 @@ namespace Shastra.Hydra.Messaging
             return new StdListener<TMessage>(_provider, messageFetcher, startId, listenerOptions ?? DefaultListenerOptions);
         }
 
-        public IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage
+        public Task<IMessageId> SendAsync<TMessage>(TMessage message) where TMessage : TransportMessage
         {
-            return TryStoreMethod(store => store.SaveDoc(message.ToJson(), message.Attachments));
+            return TryStoreMethod(store => store.SaveDocAsync(message.ToJson(), message.Attachments));
         }
 
-        public AttachmentContent GetAttachment(Attachment attachment)
+        public Task<AttachmentContent> GetAttachmentAsync(Attachment attachment)
         {
-            return TryStoreMethod(store => store.GetAttachment(attachment));
+            return TryStoreMethod(store => store.GetAttachmentAsync(attachment));
         }
 
         public string ServerName { get { return _provider.HydraServer; } }
 
         #endregion
 
-        private T TryStoreMethod<T>(Func<IStore, T> method)
+        private async Task<T> TryStoreMethod<T>(Func<IStore, Task<T>> method)
         {
             var store = _provider.GetStore(true);
             while (store != null) {
                 try {
-                    return method(store);
+                    return await method(store).ConfigureAwait(false);
                 } catch (SerializationException) {
                     // Rethrow error without invoking server error
                     throw;

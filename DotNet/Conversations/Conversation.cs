@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using Shastra.Hydra.Messaging;
 using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.MessageIds;
@@ -52,13 +53,25 @@ namespace Shastra.Hydra.Conversations
         /// <param name="message">The message to send</param>
         /// <param name="attachments">Attachments to send with the message</param>
         /// <returns>The id of the message sent</returns>
+        [Obsolete("Send is deprecated. Please use SendAsync instead.")]
         public IMessageId Send(TMessage message, IEnumerable<Attachment> attachments = null)
+        {
+            return SendAsync(message, attachments).Result;
+        }
+
+        /// <summary>
+        /// Send a message to the other end of the conversation asynchronously, with optional attachments
+        /// </summary>
+        /// <param name="message">The message to send</param>
+        /// <param name="attachments">Attachments to send with the message</param>
+        /// <returns>A Task returning the id of the message sent</returns>
+        public async Task<IMessageId> SendAsync(TMessage message, IEnumerable<Attachment> attachments = null)
         {
             if (_done) return null;
 
             var hydraMessage = new HydraMessage { Source = ThisParty, Destination = RemoteParty, Topic = Topic, Attachments = attachments,
                                                   Handle = Handle, Seq = LastSendSeq + 1, Data = _serializer.Serialize(message) };
-            var res = _hydraService.Send(hydraMessage);
+            var res = await _hydraService.SendAsync(hydraMessage).ConfigureAwait(false);
             // Increment LastSendSeq after sending in case the Send fails.
             LastSendSeq++;
             return res;
@@ -69,9 +82,20 @@ namespace Shastra.Hydra.Conversations
         /// </summary>
         /// <param name="message">The augmented message to send.</param>
         /// <returns>The id of the message sent.</returns>
+        [Obsolete("Send is deprecated. Please use SendAsync instead.")]
         public IMessageId Send(AugmentedMessage<TMessage> message)
         {
-            return Send(message.Message, message.Attachments);
+            return SendAsync(message.Message, message.Attachments).Result;
+        }
+
+        /// <summary>
+        /// Send an augmented message to the other end of the conversation asynchronously
+        /// </summary>
+        /// <param name="message">The augmented message to send.</param>
+        /// <returns>A Task returning the id of the message sent</returns>
+        public Task<IMessageId> SendAsync(AugmentedMessage<TMessage> message)
+        {
+            return SendAsync(message.Message, message.Attachments);
         }
 
         #region Implementation of IObservable<out Notification<AugmentedMessage<TMessage>>>

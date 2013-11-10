@@ -25,7 +25,7 @@ namespace Shastra.Hydra.ConversationExampleClient
 
             _conversation = conversation;
             _subscription = _conversation.SkipErrors().ObserveOn(SynchronizationContext.Current).Subscribe(OnNext);
-            _conversation.Send(new ConversationDto { MessageType = MessageTypes.Init, Data = suffix });
+            _conversation.SendAsync(new ConversationDto { MessageType = MessageTypes.Init, Data = suffix });
         }
 
         private void OnNext(AugmentedMessage<ConversationDto> message)
@@ -35,12 +35,12 @@ namespace Shastra.Hydra.ConversationExampleClient
 
         private void RequestBtn_Click(object sender, EventArgs e)
         {
-            _conversation.Send(new ConversationDto { MessageType = MessageTypes.Request, Data = RequestBox.Text });
+            _conversation.SendAsync(new ConversationDto { MessageType = MessageTypes.Request, Data = RequestBox.Text });
         }
 
         private void EndBtn_Click(object sender, EventArgs e)
         {
-            _conversation.Send(new ConversationDto { MessageType = MessageTypes.End });
+            _conversation.SendAsync(new ConversationDto { MessageType = MessageTypes.End });
             _subscription.Dispose();
             _conversation.Dispose();
         }

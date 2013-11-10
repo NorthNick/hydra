@@ -45,7 +45,7 @@ namespace Shastra.Hydra.Tests
         public void TestSingleMessage()
         {
             // Send a message after 20 seconds
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestSingleMessage" }));
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.SendAsync(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestSingleMessage" }).Wait());
             var res = _scheduler.Start(() =>
                 {
                     _listener = new StdListener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), null, _scheduler);
@@ -59,9 +59,9 @@ namespace Shastra.Hydra.Tests
         public void TestMultipleMessages()
         {
             // Send a few messages
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMultipleMessages 1" }));
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMultipleMessages 2" }));
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(23)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMultipleMessages 3" }));
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.SendAsync(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMultipleMessages 1" }).Wait());
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.SendAsync(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMultipleMessages 2" }).Wait());
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(23)), () => _service.SendAsync(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMultipleMessages 3" }).Wait());
 
             var res = _scheduler.Start(() => {
                     _listener = new StdListener<HydraMessage>(_provider, _fetcher, MessageIdManager.Create(_startDate.AddMinutes(-1)), null, _scheduler);
@@ -75,7 +75,7 @@ namespace Shastra.Hydra.Tests
         public void TestMissMessageSentBeforePolling()
         {
             // Send a message after 20 seconds
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMissMessageSentBeforePolling" }));
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.SendAsync(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "TestMissMessageSentBeforePolling" }).Wait());
 
             // Start listening 10 seconds after the message was sent, so we should not receive it.
             var listenerStartDate = _startDate.AddSeconds(30);
@@ -104,10 +104,10 @@ namespace Shastra.Hydra.Tests
         public void TestMessagesInBufferWindowAreOrdered()
         {
             // Ordinary message after 20 seconds
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "second" }));
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.SendAsync(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "second" }).Wait());
             // Send message after 22 seconds, predating the first by 1 second
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(22)), () => 
-                _service.Send(new TestHydraMessage { Topic = "Test", Source = "Listener test", Data = "first", IdDate = _startDate.AddSeconds(19) }));
+                _service.SendAsync(new TestHydraMessage { Topic = "Test", Source = "Listener test", Data = "first", IdDate = _startDate.AddSeconds(19) }).Wait());
 
             // Set buffer window of 1500ms
             var res = _scheduler.Start(() => {
@@ -123,10 +123,10 @@ namespace Shastra.Hydra.Tests
         public void TestMessagesOutsideBufferWindowAreNotOrdered()
         {
             // Ordinary message after 20 seconds
-            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.Send(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "second" }));
+            _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(20)), () => _service.SendAsync(new HydraMessage { Topic = "Test", Source = "Listener test", Data = "second" }).Wait());
             // Send message after 22 seconds, predating the first by 1 second
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddSeconds(22)), () =>
-                _service.Send(new TestHydraMessage { Topic = "Test", Source = "Listener test", Data = "first", IdDate = _startDate.AddSeconds(19) }));
+                _service.SendAsync(new TestHydraMessage { Topic = "Test", Source = "Listener test", Data = "first", IdDate = _startDate.AddSeconds(19) }).Wait());
 
             // Set buffer window of 500ms
             var res = _scheduler.Start(() => {

@@ -23,10 +23,10 @@ namespace Shastra.Hydra.ConversationExampleServer
             switch (message.Message.MessageType) {
                     case MessageTypes.Init:
                     _suffix = message.Message.Data;
-                    _conversation.Send(new ConversationDto { MessageType = MessageTypes.Ack });
+                    _conversation.SendAsync(new ConversationDto { MessageType = MessageTypes.Ack });
                     break;
                 case MessageTypes.Request:
-                    _conversation.Send(new ConversationDto { MessageType = MessageTypes.Response, Data = message.Message.Data + _suffix });
+                    _conversation.SendAsync(new ConversationDto { MessageType = MessageTypes.Response, Data = message.Message.Data + _suffix });
                     break;
                 case MessageTypes.End:
                     _subscription.Dispose();

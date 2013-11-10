@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Shastra.Hydra.Messaging.Attachments;
@@ -35,14 +35,14 @@ namespace Shastra.Hydra.Messaging.Storage
             return GetDoc(string.Format("{0}?{1}", id, options));
         }
 
-        public HttpContent GetDocContents(string id)
+        public async Task<HttpContent> GetDocContentsAsync(string id)
         {
-            var response = _client.GetAsync(_dbUrl + id).Result;
+            var response = await _client.GetAsync(_dbUrl + id).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
             return response.Content;
         }
 
-        public JObject SaveDoc(JObject json, IEnumerable<Attachment> attachments)
+        public async Task<JObject> SaveDocAsync(JObject json, IEnumerable<Attachment> attachments)
         {
             HttpContent content;
 
@@ -53,9 +53,9 @@ namespace Shastra.Hydra.Messaging.Storage
                 // Turn the attachments into HttpContent, and add them to the document
                 content = CreateMultipartContent(json, attachments);
             }
-            var response = _client.PostAsync(_dbUrl, content).Result;
+            var response = await _client.PostAsync(_dbUrl, content).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            string reply = response.Content.ReadAsStringAsync().Result;
+            string reply = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JObject.Parse(reply);
         }
 

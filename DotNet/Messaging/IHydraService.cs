@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.Listeners;
 using Shastra.Hydra.Messaging.MessageFetchers;
@@ -8,8 +9,8 @@ namespace Shastra.Hydra.Messaging
     public interface IHydraService
     {
         IListener<TMessage> GetListener<TMessage>(IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null) where TMessage : TransportMessage;
-        IMessageId Send<TMessage>(TMessage message) where TMessage : TransportMessage;
-        AttachmentContent GetAttachment(Attachment attachment);
+        Task<IMessageId> SendAsync<TMessage>(TMessage message) where TMessage : TransportMessage;
+        Task<AttachmentContent> GetAttachmentAsync(Attachment attachment);
         string ServerName { get; }
     }
 }

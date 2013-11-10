@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json.Linq;
 using Shastra.Hydra.Messaging.Attachments;
@@ -61,10 +62,10 @@ namespace Shastra.Hydra.Messaging.Storage
             return (long)_client.GetDoc("")["update_seq"];
         }
 
-        public IMessageId SaveDoc(JObject json, IEnumerable<Attachment> attachments = null)
+        public async Task<IMessageId> SaveDocAsync(JObject json, IEnumerable<Attachment> attachments = null)
         {
             // TODO: deal with the case where posting fails but raises a CouchDb {error:xxx, reason:xxx} object and not an exception.
-            var jobj = _client.SaveDoc(json, attachments);
+            var jobj = await _client.SaveDocAsync(json, attachments).ConfigureAwait(false);
             return MessageIdManager.Create((string)jobj["id"]);
         }
 
@@ -73,9 +74,10 @@ namespace Shastra.Hydra.Messaging.Storage
             return _client.View(viewName, options, DesignDoc);
         }
 
-        public AttachmentContent GetAttachment(Attachment attachment)
+        public async Task<AttachmentContent> GetAttachmentAsync(Attachment attachment)
         {
-            return new AttachmentContent(_client.GetDocContents(string.Format("{0}/{1}", attachment.MessageId.ToDocId(), HttpUtility.UrlEncode(attachment.Name))));
+            var content = await _client.GetDocContentsAsync(string.Format("{0}/{1}", attachment.MessageId.ToDocId(), HttpUtility.UrlEncode(attachment.Name))).ConfigureAwait(false);
+            return new AttachmentContent(content);
         }
 
         public ServerDistanceInfo MeasureDistance()

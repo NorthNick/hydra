@@ -33,7 +33,7 @@ namespace Shastra.Hydra.Tests
             const string name = "TheName";
             const string sentData = "Some data";
             var sentAttachment = new StringAttachment(name, sentData);
-            var sentId = _service.Send(new HydraMessage { Topic = topic, Data = "foo", Attachments = new List<Attachment> { sentAttachment } });
+            var sentId = _service.SendAsync(new HydraMessage { Topic = topic, Data = "foo", Attachments = new List<Attachment> { sentAttachment } }).Result;
             var fetcher = new HydraByTopicMessageFetcher(topic);
 
             var messages = fetcher.MessagesAfterIdUpToSeq(_store, MessageIdManager.Create(DateTime.UtcNow.AddHours(-1)), 100).ToList();
@@ -47,7 +47,7 @@ namespace Shastra.Hydra.Tests
             Assert.AreEqual(name, attachmentStub.Name, "Incorrect attachment name");
             Assert.AreEqual(sentId.ToDocId(), attachmentStub.MessageId.ToDocId(), "Incorrect attachment MessageId");
 
-            var receivedContent = _store.GetAttachment(attachmentStub);
+            var receivedContent = _store.GetAttachmentAsync(attachmentStub).Result;
             var receivedData = receivedContent.ReadAsStringAsync().Result;
             Assert.AreEqual(sentData, receivedData, "Incorrect attachment string data");
         }
@@ -58,7 +58,7 @@ namespace Shastra.Hydra.Tests
             const string topic = "TestMultipleAttachments";
             const int attachmentCount = 4;
             var attachments = Enumerable.Range(1, attachmentCount).Select(ii => new StringAttachment("TheName" + ii.ToString(), "Some data " + ii.ToString()));
-            _service.Send(new HydraMessage { Topic = topic, Data = "foo", Attachments = attachments });
+            _service.SendAsync(new HydraMessage { Topic = topic, Data = "foo", Attachments = attachments }).Wait();
             var fetcher = new HydraByTopicMessageFetcher(topic);
 
             var messages = fetcher.MessagesAfterIdUpToSeq(_store, MessageIdManager.Create(DateTime.UtcNow.AddHours(-1)), 100).ToList();
@@ -68,7 +68,7 @@ namespace Shastra.Hydra.Tests
             Assert.IsNotNull(message.Attachments, "Message should have non-null Attachments");
             Assert.AreEqual(attachmentCount, message.Attachments.Count(), string.Format("Message should have {0} attachments", attachmentCount));
 
-            var dataSet = new HashSet<string>(message.Attachments.Select(att => _store.GetAttachment(att).ReadAsStringAsync().Result));
+            var dataSet = new HashSet<string>(message.Attachments.Select(att => _store.GetAttachmentAsync(att).Result.ReadAsStringAsync().Result));
             Assert.AreEqual(attachmentCount, dataSet.Count, "Attachments should all have different data");
         }
     }

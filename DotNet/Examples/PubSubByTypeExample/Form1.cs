@@ -58,7 +58,7 @@ namespace Shastra.Messaging.PubSubByTypeExample
             if (message.Attachments != null && message.Attachments.Any()) {
                 var dialogue = new SaveFileDialog {Title = "Save attachment"};
                 if (dialogue.ShowDialog() == DialogResult.OK) {
-                    var stream = _hydraService.GetAttachment(message.Attachments.First()).ReadAsStreamAsync().Result;
+                    var stream = _hydraService.GetAttachmentAsync(message.Attachments.First()).Result.ReadAsStreamAsync().Result;
                     using (Stream file = File.OpenWrite(dialogue.FileName)) {
                         stream.CopyTo(file);
                     }
@@ -79,7 +79,7 @@ namespace Shastra.Messaging.PubSubByTypeExample
                     var attStream = new FileStream(filename, FileMode.Open);
                     attachments = new List<Attachment> { new StreamAttachment(Path.GetFileName(filename), attStream) };
                 }
-                _publisher.Send(new PstMessage { StringField = stringField, LongField = longField, DateField = dateField }, attachments);
+                _publisher.SendAsync(new PstMessage { StringField = stringField, LongField = longField, DateField = dateField }, attachments);
             } catch (Exception ex) {
                 MessageBox.Show("Error sending message: " + ex.Message);
             }

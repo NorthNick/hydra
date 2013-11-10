@@ -90,7 +90,7 @@ namespace Shastra.Hydra.Messaging.Storage
             if (waitForInitialisation && !Initialised) {
                 // Pause until initialisation completes, or the timeout fires.
                 // If there is a timeout, call FinishedInitialisation to prevent future waits.
-                bool initialisationTimeout = _initialisedSubject.Timeout(TimeSpan.FromMilliseconds(InitialisationTimeoutMs), Observable.Return(true), _scheduler).First();
+                bool initialisationTimeout = _initialisedSubject.Timeout(TimeSpan.FromMilliseconds(InitialisationTimeoutMs), Observable.Return(true), _scheduler).Take(1).Wait();
                 if (initialisationTimeout) 
                     FinishedInitialisation();
             }

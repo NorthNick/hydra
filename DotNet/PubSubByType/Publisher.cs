@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shastra.Hydra.Messaging;
 using Shastra.Hydra.Messaging.Attachments;
 using Shastra.Hydra.Messaging.MessageIds;
@@ -46,9 +48,21 @@ namespace Shastra.Hydra.PubSubByType
         /// <param name="message">The message to send.</param>
         /// <param name="remoteParty">Optional RemoteParty override.</param>
         /// <returns>The id of the message sent.</returns>
+        [Obsolete("Send is deprecated. Please use SendAsync instead.")]
         public IMessageId Send(TPub message, string remoteParty = null)
         {
-            return Send(message, null, remoteParty);
+            return SendAsync(message, null, remoteParty).Result;
+        }
+
+        /// <summary>
+        /// Send a message asynchronously.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="remoteParty">Optional RemoteParty override.</param>
+        /// <returns>A Task returning the id of the message sent.</returns>
+        public Task<IMessageId> SendAsync(TPub message, string remoteParty = null)
+        {
+            return SendAsync(message, null, remoteParty);
         }
 
         /// <summary>
@@ -57,9 +71,21 @@ namespace Shastra.Hydra.PubSubByType
         /// <param name="message">The augmented message to send.</param>
         /// <param name="remoteParty">Optional RemoteParty override.</param>
         /// <returns>The id of the message sent.</returns>
+        [Obsolete("Send is deprecated. Please use SendAsync instead.")]
         public IMessageId Send(AugmentedMessage<TPub> message, string remoteParty = null)
         {
-            return Send(message.Message, message.Attachments, remoteParty);
+            return SendAsync(message.Message, message.Attachments, remoteParty).Result;
+        }
+
+        /// <summary>
+        /// Send an augmented message asynchronously.
+        /// </summary>
+        /// <param name="message">The augmented message to send.</param>
+        /// <param name="remoteParty">Optional RemoteParty override.</param>
+        /// <returns>A Task returning the id of the message sent.</returns>
+        public Task<IMessageId> SendAsync(AugmentedMessage<TPub> message, string remoteParty = null)
+        {
+            return SendAsync(message.Message, message.Attachments, remoteParty);
         }
 
         /// <summary>
@@ -69,10 +95,23 @@ namespace Shastra.Hydra.PubSubByType
         /// <param name="attachments">Attachments to send with the message</param>
         /// <param name="remoteParty">Optional RemoteParty override.</param>
         /// <returns>The id of the message sent.</returns>
+        [Obsolete("Send is deprecated. Please use SendAsync instead.")]
         public IMessageId Send(TPub message, IEnumerable<Attachment> attachments, string remoteParty = null)
         {
-            var hydraMessage = new HydraMessage { Source = ThisParty, Destination = remoteParty ?? RemoteParty, Topic = _topic, Data = _serializer.Serialize(message), Attachments = attachments};
-            return _hydraService.Send(hydraMessage);
+            return SendAsync(message, attachments, remoteParty).Result;
+        }
+
+        /// <summary>
+        /// Send a message with attachments asynchronously.
+        /// </summary>
+        /// <param name="message">The message to send.</param>
+        /// <param name="attachments">Attachments to send with the message</param>
+        /// <param name="remoteParty">Optional RemoteParty override.</param>
+        /// <returns>A Task returning the id of the message sent.</returns>
+        public Task<IMessageId> SendAsync(TPub message, IEnumerable<Attachment> attachments, string remoteParty = null)
+        {
+            var hydraMessage = new HydraMessage { Source = ThisParty, Destination = remoteParty ?? RemoteParty, Topic = _topic, Data = _serializer.Serialize(message), Attachments = attachments };
+            return _hydraService.SendAsync(hydraMessage);
         }
     }
 }
