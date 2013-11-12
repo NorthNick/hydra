@@ -27,6 +27,11 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>4.3.1</version>
+		</dependency>
 	</dependencies>
 	<url>http://www.shastra.co.uk/hydra</url>
 	<description>Hydra is a simple, highly redundant pull-based messaging system. It uses CouchDb as its message store, and replication to deliver messages. It can be used by any language capable of making HTTP calls, and C# and Java client implementations are included.</description>

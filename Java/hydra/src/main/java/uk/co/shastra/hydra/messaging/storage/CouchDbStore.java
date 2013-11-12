@@ -1,9 +1,13 @@
 package uk.co.shastra.hydra.messaging.storage;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.ContentBody;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.StreamingChangesResult;
@@ -18,7 +22,10 @@ import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import uk.co.shastra.hydra.messaging.attachments.Attachment;
 import uk.co.shastra.hydra.messaging.messageids.MessageId;
 import uk.co.shastra.hydra.messaging.messageids.MessageIdManager;
 
@@ -89,19 +96,35 @@ public class CouchDbStore implements Store {
 	}
 
 	@Override
-	public MessageId saveDoc(JsonNode json) {
-		db.create(json);
-		return MessageIdManager.create(json.get("_id").textValue());
+	public MessageId saveDoc(JsonNode json) { return saveDoc(json, null); }
+	
+	@Override
+	public MessageId saveDoc(JsonNode json, Iterable<Attachment> attachments) {
+		if (attachments == null || !attachments.iterator().hasNext()) {
+			// No attachments so just send as JSON
+			db.create(json);
+			return MessageIdManager.create(json.get("_id").textValue());
+		} else {
+			// Add _attachments to the JSON and send as multipart message
+			// TODO: pass this to POST when it exists.
+			InputStream stream = createMultipartContent(json, attachments);
+			return null;
+		}
 	}
 
 	@Override
-	public Iterable<JsonNode> GetDocs(String viewName, ViewQuery options) {
+	public Iterable<JsonNode> getDocs(String viewName, ViewQuery options) {
 		ArrayList<JsonNode> res = new ArrayList<JsonNode>();
 		for (ViewResult.Row row : db.queryView(options.designDocId(DesignDoc).viewName(viewName))) {
 			// getDocAsNode gives back the CouchDb document as a JSON node i.e. a node with fields _id, _rev, topic, data etc 
 			res.add(row.getDocAsNode());
 		}
 		return res;
+	}
+	
+	@Override
+	public InputStream getAttachment(Attachment attachment) {
+		return db.getAttachment(attachment.getMessageId().toDocId(), attachment.getName());
 	}
 	
 	@Override
@@ -124,4 +147,41 @@ public class CouchDbStore implements Store {
 		return String.format("%1$s:%2$s:%3$s", server, port, database);
 	}
 
+	private static InputStream createMultipartContent(JsonNode json, Iterable<Attachment> attachments) {
+        // The attachments are turned into an _attachments property on the JSON. The value is an object having one property
+        // per attachment, whose name is the attachment name and whose value is as in JsonAttachment below. The document is sent as
+        // a multipart/related MIME HTTP message, whose first part is the JSON, and whose subsequent parts are the attachments, in the
+        // same order as the properties in the _attachments property.
+		// Jackson ObjectNodes use a LinkedHashMap for storing properties, which means that they serialise in the order they're added, which
+		// is the behaviour required by CouchDb.
+		
+		MultipartEntityBuilder mpBuilder = MultipartEntityBuilder.create();
+		ArrayList<ContentBody> parts = new ArrayList<ContentBody>();
+		JsonNodeFactory factory = JsonNodeFactory.instance;
+		ObjectNode jsonParts = factory.objectNode();
+		for (Attachment attachment : attachments) {
+			parts.add(attachment.toContentBody());
+			jsonParts.put(attachment.getName(), jsonAttachment(attachment.getContentType(), attachment.dataLength()));
+		}
+		((ObjectNode)json).put("_attachments", jsonParts);
+		mpBuilder.addTextBody("", json.toString(), ContentType.APPLICATION_JSON);
+		for (ContentBody part : parts) {
+			mpBuilder.addPart("", part);
+		}
+		try {
+			return mpBuilder.build().getContent();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+    private static ObjectNode jsonAttachment(String contentType, long length)
+    {
+        ObjectNode res = JsonNodeFactory.instance.objectNode();
+        res.put("follows", true);
+        res.put("content_type", contentType);
+        res.put("length", length);
+        return res;
+    }
 }

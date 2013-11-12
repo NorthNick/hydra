@@ -1,7 +1,9 @@
 package uk.co.shastra.hydra.messaging;
 
+import java.io.InputStream;
 import java.io.NotSerializableException;
 
+import uk.co.shastra.hydra.messaging.attachments.Attachment;
 import uk.co.shastra.hydra.messaging.listeners.Listener;
 import uk.co.shastra.hydra.messaging.listeners.StdListener;
 import uk.co.shastra.hydra.messaging.listeners.ListenerOptions;
@@ -81,10 +83,23 @@ public class StdHydraService implements HydraService {
 	 */
 	@Override
 	public <TMessage extends TransportMessage> MessageId send(TMessage message) throws Exception {
-        Store store = provider.getStore(true);
+		return send(message, null);
+	}
+
+	/**
+	 * Send a message with attachments.
+	 * 
+	 * @param message The message to send.
+	 * @param attachments Attachments to send with the message.
+	 * 	 * @return The MessageId of the sent message.
+	 * @throws Exception If there is an error sending the message.
+	 */
+	@Override
+	public <TMessage extends TransportMessage> MessageId send(TMessage message, Iterable<Attachment> attachments) throws Exception {
+		Store store = provider.getStore(true);
         while (store != null) {
             try {
-                return store.saveDoc(message.toJson());
+                return store.saveDoc(message.toJson(), attachments);
             } catch (NotSerializableException e) {
             	// Rethrow error without invoking server error
             	throw e;
@@ -94,9 +109,31 @@ public class StdHydraService implements HydraService {
             }
             store = provider.getStore(true);
         }
-        throw new Exception("HydraService.Send: Error sending message - all servers offline.");
+        throw new Exception("HydraService.send: Error sending message - all servers offline.");
 	}
-
+	
+	/**
+	 * Get a message attachment.
+	 * 
+	 * @param attachment The Attachment to fetch.
+	 * @return The attachment, as an InputStream.
+	 * @throws Exception 
+	 */
+	@Override
+	public InputStream getAttachment(Attachment attachment) throws Exception {
+		Store store = provider.getStore(true);
+        while (store != null) {
+            try {
+                return store.getAttachment(attachment);
+            } catch (Exception e) {
+            	// Swallow error and mark server as offline
+                provider.serverError(store.getName());
+            }
+            store = provider.getStore(true);
+        }
+        throw new Exception("HydraService.getAttachment: Error retrieving attachment - all servers offline.");	
+	}
+	
     /**
      * @return The name of the Hydra server currently in use.
      */

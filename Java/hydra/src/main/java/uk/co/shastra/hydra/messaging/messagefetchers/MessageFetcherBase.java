@@ -43,7 +43,7 @@ public abstract class MessageFetcherBase<TMessage extends TransportMessage> impl
 		}
     	ViewQuery options = new ViewQuery().includeDocs(true).keys(keys);
     	
-    	Iterable<JsonNode> docs = store.GetDocs(getViewName(), options);
+    	Iterable<JsonNode> docs = store.getDocs(getViewName(), options);
     	ArrayList<TMessage> res = new ArrayList<TMessage>();
     	for (JsonNode doc : docs) {
     		res.add(TransportMessage.hydrate(doc, messageType));
@@ -56,6 +56,6 @@ public abstract class MessageFetcherBase<TMessage extends TransportMessage> impl
     {
         // CouchDb startkey is inclusive, so this returns messages including fromId
     	ViewQuery options = new ViewQuery().includeDocs(true).startKey(getMessageKey(fromId)).endKey(getEndKey());
-        return store.GetDocs(getViewName(), options);
+        return store.getDocs(getViewName(), options);
     }
 }

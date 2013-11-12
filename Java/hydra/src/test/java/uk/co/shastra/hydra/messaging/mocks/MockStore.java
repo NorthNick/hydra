@@ -1,5 +1,6 @@
 package uk.co.shastra.hydra.messaging.mocks;
 
+import java.io.InputStream;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.POJONode;
 
+import uk.co.shastra.hydra.messaging.attachments.Attachment;
 import uk.co.shastra.hydra.messaging.messageids.MessageId;
 import uk.co.shastra.hydra.messaging.messageids.MessageIdManager;
 import uk.co.shastra.hydra.messaging.storage.ChangesWrapper;
@@ -68,7 +70,10 @@ public class MockStore implements Store {
 	}
 
 	@Override
-	public MessageId saveDoc(JsonNode json) {
+	public MessageId saveDoc(JsonNode json) {return saveDoc(json, null); }
+	
+	@Override
+	public MessageId saveDoc(JsonNode json, Iterable<Attachment> attachments) {
         Replicate();
 
         Date idDate;
@@ -103,7 +108,7 @@ public class MockStore implements Store {
 	}
 
 	@Override
-	public Iterable<JsonNode> GetDocs(String viewName, ViewQuery options) {
+	public Iterable<JsonNode> getDocs(String viewName, ViewQuery options) {
         // We are only interested in viewNames "broadcastMessages" and "directedMessages"
         // options always has IncludeDocs=true and either:
         //   Keys = list of keys to get, each all [topic, couchId] or all [topic, destination, couchId] respectively. Or
@@ -166,6 +171,12 @@ public class MockStore implements Store {
         return res;
 	}
 
+	@Override
+	public InputStream getAttachment(Attachment attachment) {
+		// TODO: write this
+		return null;
+	}
+	
 	@Override
 	public ServerDistanceInfo measureDistance() {
 		return new ServerDistanceInfo(getName(), true, 10);

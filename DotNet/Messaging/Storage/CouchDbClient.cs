@@ -66,7 +66,7 @@ namespace Shastra.Hydra.Messaging.Storage
 
         public JObject DeleteDocuments(JArray docs)
         {
-            var content = new StringContent(new JObject(new JProperty("docs", docs)).ToString(Formatting.None), new UTF8Encoding(), "application/json");
+            var content = new StringContent(new JObject(new JProperty("docs", docs)).ToString(Formatting.None), new UTF8Encoding(), JsonContentType);
             var response = _client.PostAsync(_dbUrl + "_bulk_docs", content).Result;
             response.EnsureSuccessStatusCode();
             string reply = response.Content.ReadAsStringAsync().Result;
@@ -77,7 +77,7 @@ namespace Shastra.Hydra.Messaging.Storage
         {
             // The attachments are turned into an _attachments property on the JSON. The value is an object having one property
             // per attachment, whose name is the attachment name and whose value is as in JsonAttachment below. The document is sent as
-            // as multipart/related MIME HTTP message, whose first part is the JSON, and whose subsequent parts are the attachments, in the
+            // a multipart/related MIME HTTP message, whose first part is the JSON, and whose subsequent parts are the attachments, in the
             // same order as the properties in the _attachments property. There is no guarantee that JSON.NET serialises properties in the order
             // they are created, but it seems to do so.
             var mpContent = new MultipartContent("related");

@@ -1,5 +1,8 @@
 package uk.co.shastra.hydra.messaging;
 
+import java.io.InputStream;
+
+import uk.co.shastra.hydra.messaging.attachments.Attachment;
 import uk.co.shastra.hydra.messaging.listeners.Listener;
 import uk.co.shastra.hydra.messaging.listeners.ListenerOptions;
 import uk.co.shastra.hydra.messaging.messagefetchers.MessageFetcher;
@@ -39,6 +42,24 @@ public interface HydraService {
 	 * @throws Exception If there is an error sending the message.
 	 */
 	<TMessage extends TransportMessage> MessageId send(TMessage message) throws Exception;
+	/**
+	 * Send a message with attachments.
+	 * 
+	 * @param message The message to send.
+	 * @param attachments Attachments to send with the message.
+	 * @return The MessageId of the sent message.
+	 * @throws Exception If there is an error sending the message.
+	 */
+	<TMessage extends TransportMessage> MessageId send(TMessage message, Iterable<Attachment> attachments) throws Exception;
+	
+	/**
+	 * Get a message attachment.
+	 * 
+	 * @param attachment The Attachment to fetch.
+	 * @return The attachment, as an InputStream.
+	 * @throws Exception 
+	 */
+	InputStream getAttachment(Attachment attachment) throws Exception;
 	
     /**
      * @return The name of the Hydra server currently in use.
