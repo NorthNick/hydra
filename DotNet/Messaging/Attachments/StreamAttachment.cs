@@ -18,7 +18,7 @@ namespace Shastra.Hydra.Messaging.Attachments
 
         public override int DataLength() { return (int)Data.Length; }
 
-        public override HttpContent ToHttpContent() { return new StreamContent(Data); }
+        internal override HttpContent ToHttpContent() { return new StreamContent(Data); }
 
         #endregion
     }

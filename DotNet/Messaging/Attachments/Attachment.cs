@@ -19,6 +19,6 @@ namespace Shastra.Hydra.Messaging.Attachments
 
         public virtual int DataLength() { return 0; }
 
-        public virtual HttpContent ToHttpContent() { return null; }
+        internal virtual HttpContent ToHttpContent() { return null; }
     }
 }
