@@ -6,6 +6,7 @@ import rx.Notification;
 import rx.Observable;
 import rx.util.functions.Action1;
 import rx.util.functions.Func1;
+import uk.co.shastra.hydra.messaging.AugmentedMessage;
 import uk.co.shastra.hydra.messaging.HydraMessage;
 import uk.co.shastra.hydra.messaging.HydraService;
 import uk.co.shastra.hydra.messaging.listeners.Listener;
@@ -19,7 +20,7 @@ import uk.co.shastra.hydra.messaging.utils.EventHandler;
 public class Subscriber<TSub> {
 
     private Listener<HydraMessage> listener;
-    private Observable<Notification<TSub>> messageSource;
+    private Observable<Notification<AugmentedMessage<TSub>>> messageSource;
     private Serializer<TSub> serializer;
 	
     private Event<Notification<TSub>> messageInQueue = new Event<Notification<TSub>>();
@@ -135,9 +136,9 @@ public class Subscriber<TSub> {
         } else {
             listener = hydraService.getListener(new HydraByTopicByDestinationMessageFetcher(topic, thisParty));
         }
-        messageSource = listener.getObservable().map(new Func1<HydraMessage, Notification<TSub>>() {
-			@Override public Notification<TSub> call(HydraMessage message) {
-				return MessageNotification(message.getData());
+        messageSource = listener.getObservable().map(new Func1<HydraMessage, Notification<AugmentedMessage<TSub>>>() {
+			@Override public Notification<AugmentedMessage<TSub>> call(HydraMessage message) {
+				return MessageNotification(message);
 			}
 		});
         messageSource.subscribe(new Action1<Notification<TSub>>() {
@@ -145,19 +146,20 @@ public class Subscriber<TSub> {
 		});
 	}
 
-    private Notification<TSub> MessageNotification(String data)
+    private Notification<AugmentedMessage<TSub>> MessageNotification(HydraMessage message)
     {
         try {
-            return new Notification<TSub>(serializer.deserialize(data));
+            return new Notification<AugmentedMessage<TSub>>(
+            		new AugmentedMessage<TSub>(serializer.deserialize(message.getData()), message.getAttachments()));
         } catch (Exception ex) {
-            return new Notification<TSub>(ex);
+            return new Notification<AugmentedMessage<TSub>>(ex);
         }
     }
     
     public void addMessageInQueueHandler(EventHandler<Notification<TSub>> handler) { messageInQueue.addHandler(handler); }
     public void removeMessageInQueueHandler(EventHandler<Notification<TSub>> handler) { messageInQueue.removeHandler(handler); }
     
-    public Observable<Notification<TSub>> getObservable() { return messageSource; }
+    public Observable<Notification<AugmentedMessage<TSub>>> getObservable() { return messageSource; }
     
     public void close()
     {

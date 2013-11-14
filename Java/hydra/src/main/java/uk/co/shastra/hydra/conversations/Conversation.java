@@ -4,8 +4,10 @@ import rx.Notification;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
+import uk.co.shastra.hydra.messaging.AugmentedMessage;
 import uk.co.shastra.hydra.messaging.HydraMessage;
 import uk.co.shastra.hydra.messaging.HydraService;
+import uk.co.shastra.hydra.messaging.attachments.Attachment;
 import uk.co.shastra.hydra.messaging.messageids.MessageId;
 import uk.co.shastra.hydra.messaging.serializers.Serializer;
 import uk.co.shastra.hydra.messaging.utils.EventHandlerNoData;
@@ -23,7 +25,7 @@ public class Conversation<TMessage> {
 
 	private Serializer<TMessage> serializer;
 	private HydraService hydraService;
-    private Subject<Notification<TMessage>, Notification<TMessage>> subject = PublishSubject.create();
+    private Subject<Notification<AugmentedMessage<TMessage>>, Notification<AugmentedMessage<TMessage>>> subject = PublishSubject.create();
     private boolean done = false;
     
 	private String thisParty;
@@ -91,7 +93,7 @@ public class Conversation<TMessage> {
         this.serializer = serializer;
     }
     
-    void onNext(long seq, Notification<TMessage> message)
+    void onNext(long seq, Notification<AugmentedMessage<TMessage>> message)
     {
         if (checkSeq && seq != lastRecvSeq + 1) {
             // Tell the client, but carry on and process the message.
@@ -100,7 +102,7 @@ public class Conversation<TMessage> {
         lastRecvSeq = seq;
         subject.onNext(message);
     }
-    
+
     /**
      * Send a message to the other end of the conversation
      * 
@@ -108,7 +110,24 @@ public class Conversation<TMessage> {
      * @return The id of the message sent
      * @throws Exception 
      */
-    public MessageId send(TMessage message) throws Exception
+    public MessageId send(TMessage message) throws Exception { return send(message, null); }
+    /**
+     * Send an augmented message to the other end of the conversation
+     * 
+     * @param message The augmented message to send
+     * @return The id of the message sent
+     * @throws Exception 
+     */
+    public MessageId send(AugmentedMessage<TMessage> message) throws Exception { return send(message.getMessage(), message.getAttachments()); }
+    /**
+     * Send a message with attachments to the other end of the conversation
+     * 
+     * @param message The message to send
+     * @param attachments Attachments to send with the message
+     * @return The id of the message sent
+     * @throws Exception 
+     */
+    public MessageId send(TMessage message, Iterable<Attachment> attachments) throws Exception
     {
         if (done) return null;
 
@@ -120,7 +139,7 @@ public class Conversation<TMessage> {
         hydraMessage.setSeq(lastSendSeq + 1);
         hydraMessage.setData(serializer.serialize(message));
         
-        MessageId res = hydraService.send(hydraMessage);
+        MessageId res = hydraService.send(hydraMessage, attachments);
         // Increment LastSendSeq after sending in case the Send fails.
         lastSendSeq++;
         return res;
@@ -129,7 +148,7 @@ public class Conversation<TMessage> {
     /**
      * @return The Observable giving messages in this Conversation.
      */
-    public Observable<Notification<TMessage>> getObservable() { return subject; }
+    public Observable<Notification<AugmentedMessage<TMessage>>> getObservable() { return subject; }
     
     /**
      * Dispose of resources used by this Conversation.

@@ -2,6 +2,10 @@ package uk.co.shastra.hydra.pubsubbytypeexample;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,8 +13,13 @@ import java.util.Properties;
 
 import javax.swing.*;
 
+import org.apache.commons.io.FileUtils;
+
 import rx.util.functions.Action1;
+import uk.co.shastra.hydra.messaging.AugmentedMessage;
 import uk.co.shastra.hydra.messaging.StdHydraService;
+import uk.co.shastra.hydra.messaging.attachments.Attachment;
+import uk.co.shastra.hydra.messaging.attachments.InputStreamAttachment;
 import uk.co.shastra.hydra.messaging.listeners.ListenerOptions;
 import uk.co.shastra.hydra.messaging.storage.NearestServerProvider;
 import uk.co.shastra.hydra.messaging.utils.ObservableUtils;
@@ -23,10 +32,12 @@ public class PstExample {
     private Publisher<PstMessage> publisher;
     private Subscriber<PstMessage> subscriber;
     private StdHydraService hydraService;
+    private JFrame frame;
 	private JTextField stringBox;
 	private JTextField longBox;
 	private JTextField dateBox;
 	private SimpleDateFormat dateFormatter;
+	private String attachmentPath = null;
     
 	public PstExample()
 	{
@@ -52,8 +63,8 @@ public class PstExample {
 		// Set up publisher and subscriber
         publisher = new Publisher<PstMessage>(hydraService);
         subscriber = new Subscriber<PstMessage>(hydraService, PstMessage.class);
-        ObservableUtils.skipErrors(subscriber.getObservable()).subscribe(new Action1<PstMessage>() {
-			@Override public void call(PstMessage message) { onMessage(message); }
+        ObservableUtils.skipErrors(subscriber.getObservable()).subscribe(new Action1<AugmentedMessage<PstMessage>>() {
+			@Override public void call(AugmentedMessage<PstMessage> message) { onMessage(message); }
 		});
         
 		createUi();
@@ -64,20 +75,52 @@ public class PstExample {
             String stringField = stringBox.getText();
             long longField = Long.parseLong(longBox.getText());
             Date dateField = dateFormatter.parse(dateBox.getText(), new java.text.ParsePosition(0));
-            publisher.send(new PstMessage(stringField, longField, dateField));
+            ArrayList<Attachment> attachments = null;
+            if (attachmentPath != null) {
+            	String fileName = new File(attachmentPath).getName();
+            	InputStream stream = new FileInputStream(attachmentPath);
+            	attachments = new ArrayList<Attachment>();
+            	attachments.add(new InputStreamAttachment(fileName, stream));
+            }
+            publisher.send(new PstMessage(stringField, longField, dateField), attachments);
         } catch (Exception ex) {
         	JOptionPane.showMessageDialog(null, "Error sending message: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
         }
 	}
+	
+	private void attach() {
+        try {
+        	FileDialog fileDialog = new FileDialog(frame, "Attach file");
+        	fileDialog.setVisible(true);
+        	if (fileDialog.getFile() != null) {
+        		attachmentPath = fileDialog.getDirectory() + fileDialog.getFile();
+        	}
+        } catch (Exception ex) {
+        	JOptionPane.showMessageDialog(null, "Error getting file attachment: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+        }		
+	}
 
-    private void onMessage(PstMessage message)
+    private void onMessage(AugmentedMessage<PstMessage> message)
     {
-    	JOptionPane.showMessageDialog(null, "Received message:\n" + message, "Received message", JOptionPane.INFORMATION_MESSAGE);
+    	JOptionPane.showMessageDialog(null, "Received message:\n" + message.getMessage(), "Received message", JOptionPane.INFORMATION_MESSAGE);
+
+    	if (message.getAttachments() != null && message.getAttachments().iterator().hasNext()) {
+        	FileDialog fileDialog = new FileDialog(frame, "Save attachment", FileDialog.SAVE);
+        	fileDialog.setVisible(true);
+        	if (fileDialog.getFile() != null) {
+        		try {
+					InputStream stream = hydraService.getAttachment(message.getAttachments().iterator().next());
+					FileUtils.copyInputStreamToFile(stream, new File(fileDialog.getDirectory() + fileDialog.getFile()));
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(null, "Error saving file attachment: " + ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+				}
+        	}
+    	}
     }
     
 	private void createUi() {
 		// Set up frame
-		JFrame frame = new JFrame("PubSubByType Example");
+		frame = new JFrame("PubSubByType Example");
 		frame.setLayout(new GridBagLayout());
 		frame.setSize(300, 200);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -86,11 +129,13 @@ public class PstExample {
 		int row = 0;
 		frame.add(new JLabel("String:"), labelConstraints(row, 0));
 		stringBox = new JTextField(20);
+		stringBox.setText("Hello world!");
 		frame.add(stringBox, textConstraints(row, 1));
 		
 		row++;
 		frame.add(new JLabel("Long:"), labelConstraints(row, 0));
 		longBox = new JTextField(20);
+		longBox.setText("12345");
 		frame.add(longBox, textConstraints(row, 1));
 		
 		// Set default date to now, to show user the input format
@@ -101,6 +146,13 @@ public class PstExample {
 		dateFormatter = new SimpleDateFormat(dateFormat);
 		dateBox.setText(dateFormatter.format(new Date()));
 		
+		// Button to attach a file to the message
+		row++;
+		JButton attachBtn = new JButton("Attachment");
+		attachBtn.addActionListener(new ActionListener() {
+			@Override public void actionPerformed(ActionEvent e) { attach(); }
+		});		frame.add(attachBtn, buttonConstraints(row, 1));
+		
 		// Button to send the message to Hydra
 		row++;
 		JButton sendBtn = new JButton("Send");
@@ -108,6 +160,7 @@ public class PstExample {
 			@Override public void actionPerformed(ActionEvent e) { send(); }
 		});
 		frame.add(sendBtn, buttonConstraints(row, 1));
+		
 		
 		// Show the frame
 		frame.setVisible(true);

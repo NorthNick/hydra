@@ -11,6 +11,7 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 import rx.subjects.Subject;
 import rx.util.functions.Action1;
+import uk.co.shastra.hydra.messaging.AugmentedMessage;
 import uk.co.shastra.hydra.messaging.HydraMessage;
 import uk.co.shastra.hydra.messaging.HydraService;
 import uk.co.shastra.hydra.messaging.listeners.Listener;
@@ -113,7 +114,7 @@ public class Switchboard<TMessage> {
         if (!conversations.containsKey(handle)) {
             createNewConversation(message.getSource(), handle);
         }
-        conversations.get(handle).onNext(message.getSeq(), MessageNotification(message.getData()));
+        conversations.get(handle).onNext(message.getSeq(), MessageNotification(message));
     }
     
     private Conversation<TMessage> createNewConversation(String remoteParty, String handle)
@@ -141,12 +142,13 @@ public class Switchboard<TMessage> {
         deadConversations.add(handle);
     }
     
-    private Notification<TMessage> MessageNotification(String data)
+    private Notification<AugmentedMessage<TMessage>> MessageNotification(HydraMessage message)
     {
         try {
-            return new Notification<TMessage>(serializer.deserialize(data));
+            return new Notification<AugmentedMessage<TMessage>>(
+            		new AugmentedMessage<TMessage>(serializer.deserialize(message.getData()), message.getAttachments()));
         } catch (Exception ex) {
-            return new Notification<TMessage>(ex);
+            return new Notification<AugmentedMessage<TMessage>>(ex);
         }
     }
     

@@ -1,7 +1,9 @@
 package uk.co.shastra.hydra.pubsubbytype;
 
+import uk.co.shastra.hydra.messaging.AugmentedMessage;
 import uk.co.shastra.hydra.messaging.HydraMessage;
 import uk.co.shastra.hydra.messaging.HydraService;
+import uk.co.shastra.hydra.messaging.attachments.Attachment;
 import uk.co.shastra.hydra.messaging.messageids.MessageId;
 import uk.co.shastra.hydra.messaging.serializers.HydraJsonSerializer;
 import uk.co.shastra.hydra.messaging.serializers.Serializer;
@@ -76,7 +78,15 @@ public class Publisher<TPub> {
      * @return The id of the message sent
      * @throws Exception 
      */
-    public MessageId send(TPub message) throws Exception { return send(message, null); }
+    public MessageId send(TPub message) throws Exception { return send(message, null, null); }
+    /**
+     * Broadcast an augmented message (or send to getRemoteParty if that is non-null)
+     * 
+     * @param message The augmented message to send
+     * @return The id of the message sent
+     * @throws Exception 
+     */
+    public MessageId send(AugmentedMessage<TPub> message) throws Exception { return send(message.getMessage(), message.getAttachments(), null); }
     /**
      * Send a message to a specific remote party
      * 
@@ -85,7 +95,35 @@ public class Publisher<TPub> {
      * @return The id of the message sent
      * @throws Exception 
      */
-    public MessageId send(TPub message, String remoteParty) throws Exception
+    public MessageId send(TPub message, String remoteParty) throws Exception { return send(message, null, remoteParty); }
+    /**
+     * Send an augmented message to a specific remote party
+     * 
+     * @param message The augmented message to send
+     * @param remoteParty Optional RemoteParty override
+     * @return The id of the message sent
+     * @throws Exception 
+     */
+    public MessageId send(AugmentedMessage<TPub> message, String remoteParty) throws Exception { return send(message.getMessage(), message.getAttachments(), remoteParty); }
+    /**
+     * Broadcast a message with attachments (or send to getRemoteParty if that is non-null)
+     * 
+     * @param message The message to send
+     * @param attachments Attachments to send with the message
+     * @return The id of the message sent
+     * @throws Exception 
+     */
+    public MessageId send(TPub message, Iterable<Attachment> attachments) throws Exception { return send(message, attachments, null); }
+    /**
+     * Send a message with attachments to a specific remote party
+     * 
+     * @param message The message to send
+     * @param attachments Attachments to send with the message
+     * @param remoteParty Optional RemoteParty override
+     * @return The id of the message sent
+     * @throws Exception 
+     */
+    public MessageId send(TPub message, Iterable<Attachment> attachments, String remoteParty) throws Exception
     {
     	if (topic == null) topic = message.getClass().getCanonicalName();
     	
@@ -94,6 +132,6 @@ public class Publisher<TPub> {
     	hydraMessage.setDestination(remoteParty == null ? getRemoteParty() : remoteParty);
     	hydraMessage.setTopic(topic);
     	hydraMessage.setData(serializer.serialize(message));
-        return hydraService.send(hydraMessage);
+        return hydraService.send(hydraMessage, attachments);
     }
 }
