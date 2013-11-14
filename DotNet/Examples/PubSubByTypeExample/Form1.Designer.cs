@@ -28,6 +28,8 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.FileBtn = new System.Windows.Forms.Button();
+            this.AttachmentBox = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.DateBox = new System.Windows.Forms.TextBox();
             this.LongBox = new System.Windows.Forms.TextBox();
@@ -38,8 +40,6 @@
             this.SendBtn = new System.Windows.Forms.Button();
             this.SerialiseComboBox = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.AttachmentBox = new System.Windows.Forms.TextBox();
-            this.FileBtn = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,6 +60,22 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Message";
+            // 
+            // FileBtn
+            // 
+            this.FileBtn.Location = new System.Drawing.Point(157, 95);
+            this.FileBtn.Name = "FileBtn";
+            this.FileBtn.Size = new System.Drawing.Size(19, 20);
+            this.FileBtn.TabIndex = 6;
+            this.FileBtn.UseVisualStyleBackColor = true;
+            this.FileBtn.Click += new System.EventHandler(this.FileBtn_Click);
+            // 
+            // AttachmentBox
+            // 
+            this.AttachmentBox.Location = new System.Drawing.Point(50, 95);
+            this.AttachmentBox.Name = "AttachmentBox";
+            this.AttachmentBox.Size = new System.Drawing.Size(100, 20);
+            this.AttachmentBox.TabIndex = 5;
             // 
             // label5
             // 
@@ -83,6 +99,7 @@
             this.LongBox.Name = "LongBox";
             this.LongBox.Size = new System.Drawing.Size(100, 20);
             this.LongBox.TabIndex = 2;
+            this.LongBox.Text = "12345";
             // 
             // StringBox
             // 
@@ -90,6 +107,7 @@
             this.StringBox.Name = "StringBox";
             this.StringBox.Size = new System.Drawing.Size(100, 20);
             this.StringBox.TabIndex = 1;
+            this.StringBox.Text = "Hello world!";
             // 
             // label3
             // 
@@ -147,22 +165,6 @@
             this.label4.Size = new System.Drawing.Size(63, 13);
             this.label4.TabIndex = 8;
             this.label4.Text = "Serialise as:";
-            // 
-            // AttachmentBox
-            // 
-            this.AttachmentBox.Location = new System.Drawing.Point(50, 95);
-            this.AttachmentBox.Name = "AttachmentBox";
-            this.AttachmentBox.Size = new System.Drawing.Size(100, 20);
-            this.AttachmentBox.TabIndex = 5;
-            // 
-            // FileBtn
-            // 
-            this.FileBtn.Location = new System.Drawing.Point(157, 95);
-            this.FileBtn.Name = "FileBtn";
-            this.FileBtn.Size = new System.Drawing.Size(19, 20);
-            this.FileBtn.TabIndex = 6;
-            this.FileBtn.UseVisualStyleBackColor = true;
-            this.FileBtn.Click += new System.EventHandler(this.FileBtn_Click);
             // 
             // Form1
             // 

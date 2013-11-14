@@ -26,6 +26,7 @@ namespace Shastra.Messaging.PubSubByTypeExample
         {
             InitializeComponent();
             this.Closing += Form1_Closing;
+            DateBox.Text = DateTime.Now.ToString("d MMM yyyy HH:mm");
 
             string pollSetting = ConfigurationManager.AppSettings["PollIntervalMs"];
             int? pollIntervalMs = pollSetting == null ? (int?) null : int.Parse(pollSetting);
@@ -46,7 +47,7 @@ namespace Shastra.Messaging.PubSubByTypeExample
                 serializer = new HydraDataContractSerializer<PstMessage>();
             } else {
                 serializer = new HydraJsonSerializer<PstMessage>();
-            }
+            } 
             _publisher = new Publisher<PstMessage>(_hydraService, serializer);
             _subscriber = new Subscriber<PstMessage>(_hydraService, serializer);
             _subscriber.ObserveOn(SynchronizationContext.Current).SkipErrors().Subscribe(OnMessage, _ => { });
