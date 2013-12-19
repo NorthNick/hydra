@@ -92,6 +92,7 @@
     <Compile Include="ExtensionsTest.cs" />
     <Compile Include="MessageFetcherTest.cs" />
     <Compile Include="ListenerTest.cs" />
+    <Compile Include="ObservableGeneratorTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Messaging\Messaging.csproj">

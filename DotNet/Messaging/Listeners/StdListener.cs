@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 using Shastra.Hydra.Messaging.MessageFetchers;
 using Shastra.Hydra.Messaging.MessageIds;
 using Shastra.Hydra.Messaging.Storage;
+using Shastra.Hydra.Messaging.Utils;
 
 namespace Shastra.Hydra.Messaging.Listeners
 {
@@ -22,6 +23,7 @@ namespace Shastra.Hydra.Messaging.Listeners
         private IMessageId _startId;
         private IStore _store;
         private bool _disposed = false;
+        private readonly ObservableGenerator<IEnumerable<TMessage>> _generator;
         private readonly IDisposable _messageSub;
         private readonly IScheduler _scheduler;
 
@@ -50,8 +52,11 @@ namespace Shastra.Hydra.Messaging.Listeners
             BufferDelayMs = listenerOptions == null ? DefaultBufferDelayMs : listenerOptions.BufferDelayMs;
             PollIntervalMs = listenerOptions == null || !listenerOptions.PollIntervalMs.HasValue ? DefaultPollIntervalMs : listenerOptions.PollIntervalMs.Value;
             LastId = startId ?? MessageIdManager.Create(_scheduler.Now.UtcDateTime);
-            _messageSub = Observable.Generate(true, _ => true, _ => false, _ => OnElapsed(), _ => TimeSpan.FromMilliseconds(PollIntervalMs), _scheduler).
-                          SelectMany(messages => messages).Subscribe(OnMessageInQueue);
+            // We'd like to do this, but it leaks memory.
+            //_messageSub = Observable.Generate(true, _ => true, _ => false, _ => OnElapsed(), _ => TimeSpan.FromMilliseconds(PollIntervalMs), _scheduler).
+            //              SelectMany(messages => messages).Subscribe(OnMessageInQueue);
+            _generator = new ObservableGenerator<IEnumerable<TMessage>>(PollIntervalMs, OnElapsed, _scheduler);
+            _messageSub = _generator.SelectMany(messages => messages).Subscribe(OnMessageInQueue);
         }
 
         #region Polling
@@ -142,6 +147,7 @@ namespace Shastra.Hydra.Messaging.Listeners
             if (disposing) {
                 // free managed resources
                 _messageSub.Dispose();
+                _generator.Dispose();
                 _subject.OnCompleted();
                 _subject.Dispose();
                 _disposed = true;

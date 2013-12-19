@@ -36,7 +36,7 @@ namespace Shastra.Hydra.Tests
             _fetcher = new HydraByTopicMessageFetcher("Test");
             // Any time after 1/1/1970 will do for startDate. CouchIds go wrong before that date as they are microseconds since 1/1/1970.
             _startDate = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            // Dispose of the listener after 10 minutes. (res disposes of its subscription to poller, but poller itself also has to be disposed of otherwise the test never terminates.)
+            // Dispose of the listener after 10 minutes. (res disposes of its subscription to listener, but listener itself also has to be disposed of otherwise the test never terminates.)
             // Note that the scheduler unsubscribes before the disposal, otherwise it will get an OnCompleted event from the listener, and res.messages.Count will be one larger.
             _scheduler.Schedule(new DateTimeOffset(_startDate.AddMinutes(10)), () => _listener.Dispose());
         }
