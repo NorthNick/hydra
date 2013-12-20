@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hydra-Conversations</id>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <authors>Nick North</authors>
     <owners>Nick North</owners>
     <projectUrl>https://github.com/NorthNick/hydra/wiki</projectUrl>
@@ -13,7 +13,7 @@
     <copyright>Copyright 2013</copyright>
     <tags>Hydra Messaging CouchDb</tags>
     <dependencies>
-      <dependency id="Hydra-Messaging" version="2.0.0" />
+      <dependency id="Hydra-Messaging" version="2.0.1" />
     </dependencies>
   </metadata>
 </package>
