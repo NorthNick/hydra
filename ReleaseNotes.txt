@@ -1,10 +1,20 @@
+12 Dec 2015 version 2.1
+
+Breaking change from version 2.0
+--------------------------------
+You must add the new CouchDB "filters" design document as described in the CouchDB directory Readme.txt file, otherwise message polling will not work.
+The filter prevents clients receiving changes relating to deleted documents, reducing network traffic and client processing load.
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
 29 Jul 2013 version 2.0
 
 Breaking changes from version 1.0
 ---------------------------------
 Changed namespace from Bollywell.Hydra... to Shastra.Hydra...
 Changed HydraService and Listener types to StdHydraService and StdListener respectively, in line with the Java equivalents.
-Changed the Observables in PubSubByType.Subscriber and Conversations.Conversation to be Notification<TMessage> rather than TMessage. This allows htem to propagate errors to clients without breaking the semantics of Reactive Extension Observables (which should terminate on error). See below for notes on upgrading.
+Changed the Observables in PubSubByType.Subscriber and Conversations.Conversation to be Notification<TMessage> rather than TMessage. This allows them to propagate errors to clients without breaking the semantics of Reactive Extension Observables (which should terminate on error). See below for notes on upgrading.
 
 Other changes
 -------------

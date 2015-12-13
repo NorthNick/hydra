@@ -30,7 +30,7 @@ namespace Shastra.Hydra.Messaging.Storage
         public CouchDbStore(string name, string server, string database = null, int? port = null)
         {
             _database = database ?? DefaultDatabase;
-            _port = port.HasValue ? port.Value : DefaultPort;
+            _port = port ?? DefaultPort;
             Name = name;
             // This URL checks both that the server is up, and that the view index is up to date
             _url = string.Format("http://{0}:{1}/{2}/_design/{3}/_view/broadcastMessages?limit=0", server, _port, _database, DesignDoc);
@@ -42,7 +42,7 @@ namespace Shastra.Hydra.Messaging.Storage
             // Get changes after sinceSeq, throw out non-messages e.g. design doc updates, and drop messages at or before _startId
 
             // Loveseat doesn't have a _changes call, so it has to be done like this.
-            var changes = _db.GetDocument(string.Format("_changes?since={0}", sinceSeq));
+            var changes = _db.GetDocument(string.Format("_changes?since={0}&filter=filters/nodeletions", sinceSeq));
             // Changes are returned as 
             // {"results":[{"seq":28312,"id":"04b8dbf49b5d2603","changes":[{"rev":"1-ea426b58321d93c39a3486cc4d55abe2"}]},
             //             ...

@@ -13,7 +13,7 @@ If this is the first instance of CouchDb, create the Hydra database as below. Ot
    Click New document, then click the Source box on the resulting page.
    Replace the text with the contents of the validate.json file from the _design subdirectory of this directory.
    Click Save Document.
-   Repeat with the contents of the hydra.json document.
+   Repeat with the contents of the hydra.json and filters.json documents.
 
 Config
 1. In Futon, go to Configuration.

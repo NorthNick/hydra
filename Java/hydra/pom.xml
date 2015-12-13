@@ -4,7 +4,7 @@
 		<groupId>uk.co.shastra.hydra</groupId>
 		<artifactId>hydra-parent</artifactId>
 		<relativePath>../hydra-parent/pom.xml</relativePath>
-		<version>2.0.0</version>
+		<version>2.1.0</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>hydra</artifactId>
@@ -49,15 +49,11 @@
 	<developers>
 		<developer>
 			<id>Nick</id>
-			<name>Nick</name>
+			<name>Nick North</name>
 			<email>Nick@shastra.co.uk</email>
 			<url>http://www.shastra.co.uk</url>
 			<organization>Shastra</organization>
 			<organizationUrl>http://www.shastra.co.uk</organizationUrl>
-			<roles>
-				<role>cook</role>
-				<role>bottle washer</role>
-			</roles>
 			<timezone>GMT</timezone>
 		</developer>
 	</developers>

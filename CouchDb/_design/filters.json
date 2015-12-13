@@ -1,0 +1,6 @@
+﻿{
+   "_id": "_design/filters",
+   "filters": {
+       "nodeletions": "function(doc,req) { return !doc._deleted;}"
+   }
+}

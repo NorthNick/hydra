@@ -67,7 +67,7 @@ public class CouchDbStore implements Store {
 		// Use TreeSet so that MessageIds are sorted
 		TreeSet<MessageId> res = new TreeSet<MessageId>();
 		// Get changes as a stream, so that we get access to last_seq
-		StreamingChangesResult changes = db.changesAsStream(new ChangesCommand.Builder().since(sinceSeq).build());
+		StreamingChangesResult changes = db.changesAsStream(new ChangesCommand.Builder().since(sinceSeq).filter("filters/nodeletions").build());
 		for (DocumentChange change : changes) {
 			String docId = change.getId();
 			// Discard documents that are not messages e.g. design doc changes
