@@ -1,0 +1,13 @@
+configuration:
+  - Release
+  - Debug
+
+before_build:
+  nuget restore ./DotNet/Hydra.sln
+
+build:
+  project: ./DotNet/Hydra.sln
+
+test:
+  assemblies:
+    - Tests.dll
