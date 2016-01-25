@@ -1,4 +1,8 @@
 language: java
 
+services:
+  - couchdb
+
 before_script:
-  cd Java/hydra-parent
+  - curl -X PUT localhost:5984/hydra
+  - cd Java/hydra-parent
