@@ -1,7 +1,7 @@
 package uk.co.shastra.hydra.messaging.storage;
 
 import static org.junit.Assert.*;
-
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -56,6 +56,7 @@ public class CouchDbStoreTest {
 		assertTrue(1 > 0);
 	}
 	
+	@Ignore("Requires broadcastMessages view, which is not there during CI")
 	@Test
 	public void testmeasureDistance() {
 		CouchDbStore store = new CouchDbStore("localhost");
