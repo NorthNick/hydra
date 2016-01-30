@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Hydra-Messaging</id>
-    <version>2.1.0</version>
+    <version>2.2.0</version>
     <authors>Nick North</authors>
     <owners>Nick North</owners>
     <projectUrl>https://github.com/NorthNick/hydra/wiki</projectUrl>
@@ -10,7 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Core functionality for the Hydra distributed messaging system.</description>
     <releaseNotes>Beta NuGet release.</releaseNotes>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2013-2016</copyright>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System.Xml"  />
     </frameworkAssemblies>
