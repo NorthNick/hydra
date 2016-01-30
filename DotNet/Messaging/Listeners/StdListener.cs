@@ -44,7 +44,7 @@ namespace Shastra.Hydra.Messaging.Listeners
         /// <param name="listenerOptions">Default values for Listener options.</param>
         /// <param name="scheduler">Scheduler to use for polling. Defaults to TaskPoolScheduler.Default.</param>
         /// <remarks>The polling interval is taken from Service.GetConfig().PollIntervalMs and is dynamic: changes take effect after the next poll.</remarks>
-        internal StdListener(IProvider provider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null, IScheduler scheduler = null)
+        public StdListener(IProvider provider, IMessageFetcher<TMessage> messageFetcher, IMessageId startId = null, ListenerOptions listenerOptions = null, IScheduler scheduler = null)
         {
             _provider = provider;
             _messageFetcher = messageFetcher;
