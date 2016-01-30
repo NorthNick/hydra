@@ -1,3 +1,10 @@
+30 Jan 2016 version 2.2
+
+The only change is to make the StdListener constructor public in the .NET code, to address GitHub Issue #7. The constructor is already public in the Java code.
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
 12 Dec 2015 version 2.1
 
 Breaking change from version 2.0
